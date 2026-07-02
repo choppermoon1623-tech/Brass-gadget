@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ドイツ音名ガイド｜吹奏楽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d2630; --bg2:#123540; --bg3:#0a1d25; --panel:#16424f;
+    --brass:#e6a93f; --brass-d:#b87d22;
+    --breath:#6fd6e6; --breath-soft:rgba(111,214,230,.16);
+    --coral:#e89178; --coral-d:#c46a52;
+    --text:#e9f4f4; --muted:#8aabb3; --line:rgba(255,255,255,.09);
+    --good:#7fd6a8; --warn:#e8916f;
+    --jp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,sans-serif;
+    --en:"Archivo",var(--jp);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--jp);
+    background:
+      radial-gradient(1200px 600px at 78% -10%, rgba(230,169,63,.10), transparent 60%),
+      radial-gradient(900px 700px at 10% 110%, rgba(111,214,230,.10), transparent 55%),
+      var(--bg);
+    color:var(--text); line-height:1.7; min-height:100vh;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 22px 64px}
+
+  header{margin-bottom:26px}
+  .eyebrow{
+    font-family:var(--en);font-weight:700;letter-spacing:.32em;
+    text-transform:uppercase;font-size:12px;color:var(--brass);
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--brass-d),transparent)}
+  h1{font-weight:900;font-size:clamp(28px,4.5vw,46px);line-height:1.15;margin:14px 0 8px;letter-spacing:.01em}
+  h1 .acc{color:var(--breath)}
+  .lead{color:var(--muted);max-width:56ch;font-size:15px}
+  .lead b{color:var(--text)}
+  .backlink{display:inline-block;margin-top:10px;font-size:13px;color:var(--breath);text-decoration:none;border-bottom:1px dashed rgba(111,214,230,.5)}
+  .backlink:hover{color:#fff}
+
+  .tabs{display:flex;gap:8px;margin:26px 0 22px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .tab{
+    appearance:none;border:0;background:transparent;color:var(--muted);
+    font-family:var(--jp);font-weight:700;font-size:15px;cursor:pointer;
+    padding:12px 16px 14px;position:relative;border-radius:10px 10px 0 0;
+    transition:color .18s, background .18s;display:flex;align-items:center;gap:9px;
+  }
+  .tab .ic{width:20px;height:20px;flex:none}
+  .tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+  .tab[aria-selected="true"]{color:var(--text)}
+  .tab[aria-selected="true"]::after{
+    content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:3px;
+    background:linear-gradient(90deg,var(--brass),var(--breath));border-radius:3px;
+  }
+  .tab:focus-visible{outline:2px solid var(--breath);outline-offset:2px}
+
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .35s ease}
+  @keyframes fade{from{transform:translateY(6px)}to{transform:none}}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001s !important}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px}
+  .card h3{font-size:16px;font-weight:900;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--brass);flex:none}
+  .card p{font-size:14px;color:var(--muted)}
+  .card p b{color:var(--text)}
+
+  .presets{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
+    color:var(--text);font-family:var(--jp);font-weight:700;font-size:13px;
+    padding:8px 13px;border-radius:999px;cursor:pointer;transition:.16s;white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--brass);color:var(--brass)}
+  .chip.on{background:var(--brass);color:#1a1206;border-color:var(--brass)}
+  .chip:focus-visible{outline:2px solid var(--breath);outline-offset:2px}
+  .chip small{font-weight:500;opacity:.75;margin-left:4px}
+
+  .toggle{display:inline-flex;background:rgba(0,0,0,.25);border-radius:12px;padding:4px;gap:4px}
+  .toggle button{
+    appearance:none;border:0;background:transparent;color:var(--muted);
+    font-family:var(--jp);font-weight:700;font-size:13px;padding:7px 14px;border-radius:9px;cursor:pointer;transition:.16s;
+  }
+  .toggle button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 0 rgba(255,255,255,.06) inset}
+
+  .hint{font-size:13px;color:var(--muted);border-left:3px solid var(--brass);padding:2px 0 2px 12px;margin-top:16px}
+  .hint b{color:var(--coral)}
+
+  /* 音名ボタン */
+  .notegrid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  @media(max-width:640px){.notegrid{grid-template-columns:repeat(4,1fr)}}
+  .noteBtn{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.04);
+    color:var(--text);border-radius:12px;padding:9px 4px 7px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:1px;transition:.15s;
+  }
+  .noteBtn .g{font-family:var(--en);font-weight:700;font-size:17px;line-height:1.2}
+  .noteBtn .k{font-size:10.5px;color:var(--muted);line-height:1.3}
+  .noteBtn:hover{border-color:var(--breath);transform:translateY(-1px)}
+  .noteBtn.on{background:var(--breath);border-color:var(--breath);color:#0d2630}
+  .noteBtn.on .k{color:#155a68}
+  .noteBtn:focus-visible{outline:2px solid var(--breath);outline-offset:2px}
+
+  /* 変換タブ */
+  .conv-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:16px;margin-bottom:16px}
+  @media(max-width:780px){.conv-grid{grid-template-columns:1fr}}
+  .stage{
+    position:relative;background:#fefefe;border:1px solid rgba(0,0,0,.1);
+    border-radius:18px;overflow:hidden;
+  }
+  .stage .tag{
+    position:absolute;top:14px;left:14px;font-family:var(--en);font-weight:700;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:#1c6b7a;background:rgba(255,255,255,.85);
+    padding:5px 10px;border-radius:999px;border:1px solid rgba(0,0,0,.08);z-index:2;
+  }
+  .conv-stage{padding:46px 20px 20px;min-height:270px}
+  .conv-flex{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+  .conv-box{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:220px}
+  .conv-box .cap{font-size:12.5px;font-weight:700;color:#5a7a84;letter-spacing:.05em}
+  .conv-box .big{font-family:var(--en);font-weight:700;font-size:34px;line-height:1.1;color:#123540}
+  .conv-box .big small{font-family:var(--jp);font-size:15px;font-weight:700;color:#4a6a74;margin-left:8px}
+  .conv-arrow{font-size:30px;color:#e6a93f;font-weight:900;padding:0 4px}
+  .playBtn{
+    appearance:none;border:1px solid #cfe0e5;background:#eef7f9;color:#155a68;
+    font-family:var(--jp);font-weight:700;font-size:12.5px;border-radius:999px;
+    padding:6px 14px;cursor:pointer;margin-top:6px;transition:.15s;
+  }
+  .playBtn:hover{background:#dcf0f4}
+  .conv-note{font-size:13.5px;font-weight:700;color:#1c6b7a;text-align:center;margin-top:14px}
+  .conv-note b{color:#c46a52}
+
+  /* おぼえるタブ */
+  .learn-stage{padding:46px 12px 16px;margin-bottom:16px;overflow-x:auto}
+  .learn-stage svg{display:block;margin:0 auto}
+  .kpoint{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:780px){.kpoint{grid-template-columns:1fr}}
+  table.gtable{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:6px}
+  table.gtable th,table.gtable td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:center}
+  table.gtable th{color:var(--muted);font-weight:700;font-size:12px}
+  table.gtable td.g{font-family:var(--en);font-weight:700;font-size:15px}
+  table.gtable td b{color:var(--coral)}
+
+  /* クイズタブ */
+  .quiz-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+  @media(max-width:780px){.quiz-grid{grid-template-columns:1fr}}
+  .quiz-stage{padding:46px 20px 20px;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+  .qword{font-size:16px;font-weight:900;color:#123540;text-align:center}
+  .qword .big{font-family:var(--en);font-size:30px;color:#c46a52}
+  .choices{display:grid;grid-template-columns:repeat(2,minmax(120px,1fr));gap:10px;margin-top:6px}
+  .choiceBtn{
+    appearance:none;border:2px solid #cfe0e5;background:#f6fbfc;color:#123540;
+    font-family:var(--en);font-weight:700;font-size:19px;border-radius:14px;
+    padding:12px 10px;cursor:pointer;transition:.15s;
+  }
+  .choiceBtn small{display:block;font-family:var(--jp);font-size:11.5px;font-weight:700;color:#5a7a84}
+  .choiceBtn:hover{border-color:#6fd6e6}
+  .choiceBtn.ok{background:#e2f6ec;border-color:#3dae79;color:#19714a}
+  .choiceBtn.ng{background:#fdeae2;border-color:#e07a56;color:#b04a28}
+  .qfeed{min-height:26px;font-size:14.5px;font-weight:900;text-align:center}
+  .qfeed.ok{color:#19714a}.qfeed.ng{color:#b04a28}
+  .qscore{font-family:var(--en);font-weight:700;color:var(--breath);font-size:14px}
+
+  footer{margin-top:34px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  footer b{color:var(--brass)}
+  footer a{color:var(--breath)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Brass Band · German Note Names</div>
+    <h1>ドイツ音名と<span class="acc">実音</span>を、<br>自分の楽器でつかむ。</h1>
+    <p class="lead">先生の「<b>実音ベー！</b>」がすぐ分かるようになるガイド。まず<b>自分の楽器</b>を選んでね。選んだ楽器に合わせて、全部の説明が変わるよ。</p>
+    <a class="backlink" href="index.html">← ホーム（メニューにもどる）</a>
+  </header>
+
+  <div class="card" style="margin-bottom:20px">
+    <h3><span class="dot"></span>自分の楽器をえらぶ</h3>
+    <div class="presets" id="instPick"></div>
+    <p id="instInfo" style="margin-top:10px"></p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-mode="conv">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h13m0 0-3-3m3 3-3 3"/><path d="M20 17H7m0 0 3-3m-3 3 3 3"/></svg>
+      実音へんかん
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-mode="learn">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h18M3 11h18M3 15h18"/><circle cx="15" cy="15" r="2.4" fill="currentColor" stroke="none"/><path d="M17.4 15V7.5"/></svg>
+      おぼえる
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-mode="quiz">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3c.3-1.3 1.3-2 2.6-2 1.5 0 2.6 1 2.6 2.3 0 1.9-2.7 2-2.7 3.9"/><circle cx="12" cy="16.8" r=".5" fill="currentColor"/></svg>
+      クイズ
+    </button>
+  </div>
+
+  <!-- ============ 変換 ============ -->
+  <section class="panel active" id="p-conv" role="tabpanel">
+    <div class="conv-grid">
+      <div class="card">
+        <h3><span class="dot"></span>先生が言った「実音」は？</h3>
+        <div class="toggle" id="accToggle" style="margin-bottom:12px">
+          <button data-acc="f" class="on">♭系で表示</button><button data-acc="s">♯系で表示</button>
+        </div>
+        <div class="notegrid" id="notePick"></div>
+      </div>
+      <div>
+        <div class="stage conv-stage">
+          <span class="tag">Answer</span>
+          <div id="convResult"></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint" id="convHint"></p>
+  </section>
+
+  <!-- ============ おぼえる ============ -->
+  <section class="panel" id="p-learn" role="tabpanel">
+    <div class="card" style="margin-bottom:16px">
+      <h3><span class="dot"></span>五線譜とドイツ音名（実音）</h3>
+      <p id="learnDesc">音符をタップすると<b>実音</b>が鳴るよ。</p>
+      <div class="presets" id="kindPick" style="margin-top:12px"></div>
+      <div class="toggle" id="accToggle2" style="margin-top:10px">
+        <button data-acc="f" class="on">♭系で表示</button><button data-acc="s">♯系で表示</button>
+      </div>
+    </div>
+    <div class="stage learn-stage">
+      <span class="tag">Staff &amp; Names</span>
+      <div id="learnStaff"></div>
+    </div>
+    <div class="kpoint">
+      <div class="card">
+        <h3><span class="dot"></span>ここだけは注意！</h3>
+        <p>ドイツ音名では <b>シ♭＝B（ベー）</b>、<b>シ＝H（ハー）</b>。英語と違って B はシ♭のことだよ。吹奏楽は♭系の曲が多いから、<b>B・Es・As・Des</b>（ベー・エス・アス・デス）から覚えるのが近道！</p>
+        <table class="gtable">
+          <tr><th>ドレミ</th><td>ド</td><td>レ</td><td>ミ</td><td>ファ</td><td>ソ</td><td>ラ</td><td><b>シ♭</b></td><td><b>シ</b></td></tr>
+          <tr><th>ドイツ</th><td class="g">C</td><td class="g">D</td><td class="g">E</td><td class="g">F</td><td class="g">G</td><td class="g">A</td><td class="g"><b>B</b></td><td class="g"><b>H</b></td></tr>
+          <tr><th>読み</th><td>ツェー</td><td>デー</td><td>エー</td><td>エフ</td><td>ゲー</td><td>アー</td><td><b>ベー</b></td><td><b>ハー</b></td></tr>
+        </table>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>♯と♭のルール</h3>
+        <p>♯は「<b>-is（イス）</b>」、♭は「<b>-es（エス）</b>」を付けるだけ。<br>例：Cis（ツィス）＝ド♯、Es（エス）＝ミ♭、As（アス）＝ラ♭。<br>※ミ♭は「Ees」じゃなく <b>Es</b>、ラ♭は <b>As</b> と短くなるよ。シ♭はもともと <b>B</b> という特別な名前。</p>
+        <p style="margin-top:8px" id="myKeyNote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ クイズ ============ -->
+  <section class="panel" id="p-quiz" role="tabpanel">
+    <div class="quiz-grid">
+      <div>
+        <div class="stage quiz-stage">
+          <span class="tag">Quiz</span>
+          <div id="qBody"></div>
+          <div class="qfeed" id="qFeed"></div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <h3><span class="dot"></span>クイズのしゅるい</h3>
+          <div class="toggle" id="qMode" style="display:flex">
+            <button data-m="name" class="on">音名あて</button>
+            <button data-m="conv">実音→楽譜の音</button>
+          </div>
+          <p style="margin-top:10px" id="qModeDesc"></p>
+        </div>
+        <div class="card">
+          <h3><span class="dot"></span>せいせき</h3>
+          <p class="qscore" id="qScore">0 / 0</p>
+          <div class="presets" style="margin-top:10px">
+            <button class="chip" id="qNext">つぎの問題 →</button>
+            <button class="chip" id="qReset">リセット</button>
+          </div>
+        </div>
+        <p class="hint">まちがえても大丈夫。<b>B（ベー）とH（ハー）</b>のひっかけに注意してね！</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    機能② <b>ドイツ音名ガイド</b> ／ <a href="index.html">🏠 ホーム</a> ・ <a href="呼吸と身体ガイド.html">機能①：呼吸と身体</a> ・ <a href="練習ツール.html">機能③：チューナー＆メトロノーム</a> ・ <a href="ハーモニートレーナー.html">機能④：ハーモニー</a> ・ <a href="リズムシーケンサー.html">機能⑤：リズム</a> ・ <a href="運指表.html">機能⑥：運指表</a> ・ <a href="フラッシュカード.html">機能⑦：音符フラッシュ</a> ・ <a href="参考音源ライブラリ.html">機能⑧：参考音源</a> ・ <a href="イベントカレンダー.html">機能⑨：カウントダウン</a></a>
+  </footer>
+</div>
+
+<script>
+/* ============ データ ============ */
+// 12半音。g:幹音 / gf:♭系 gs:♯系, kana:読み, solf:ドレミ(実音)
+const NOTES=[
+  {gf:'C',   gs:'C',   kf:'ツェー', ks:'ツェー', sf:'ド',   ss:'ド'},
+  {gf:'Des', gs:'Cis', kf:'デス',   ks:'ツィス', sf:'レ♭', ss:'ド♯'},
+  {gf:'D',   gs:'D',   kf:'デー',   ks:'デー',   sf:'レ',   ss:'レ'},
+  {gf:'Es',  gs:'Dis', kf:'エス',   ks:'ディス', sf:'ミ♭', ss:'レ♯'},
+  {gf:'E',   gs:'E',   kf:'エー',   ks:'エー',   sf:'ミ',   ss:'ミ'},
+  {gf:'F',   gs:'F',   kf:'エフ',   ks:'エフ',   sf:'ファ', ss:'ファ'},
+  {gf:'Ges', gs:'Fis', kf:'ゲス',   ks:'フィス', sf:'ソ♭', ss:'ファ♯'},
+  {gf:'G',   gs:'G',   kf:'ゲー',   ks:'ゲー',   sf:'ソ',   ss:'ソ'},
+  {gf:'As',  gs:'Gis', kf:'アス',   ks:'ギス',   sf:'ラ♭', ss:'ソ♯'},
+  {gf:'A',   gs:'A',   kf:'アー',   ks:'アー',   sf:'ラ',   ss:'ラ'},
+  {gf:'B',   gs:'B',   kf:'ベー',   ks:'ベー',   sf:'シ♭', ss:'シ♭'},
+  {gf:'H',   gs:'H',   kf:'ハー',   ks:'ハー',   sf:'シ',   ss:'シ'},
+];
+// t: 楽譜が実音より何半音上か（実音→楽譜）
+const INSTS=[
+  {id:'fl',name:'フルート',        key:'C管',      clef:'treble',t:0, oct:1},
+  {id:'ob',name:'オーボエ',        key:'C管',      clef:'treble',t:0},
+  {id:'cl',name:'クラリネット',    key:'B♭管',    clef:'treble',t:2},
+  {id:'tp',name:'トランペット',    key:'B♭管',    clef:'treble',t:2},
+  {id:'ts',name:'テナーサックス',  key:'B♭管',    clef:'treble',t:2},
+  {id:'as',name:'アルトサックス',  key:'E♭管',    clef:'treble',t:9},
+  {id:'bs',name:'バリトンサックス',key:'E♭管',    clef:'treble',t:9},
+  {id:'hr',name:'ホルン',          key:'F管',      clef:'treble',t:7},
+  {id:'tb',name:'トロンボーン',    key:'inC・ヘ音',clef:'bass',  t:0},
+  {id:'eu',name:'ユーフォニアム',  key:'inC・ヘ音',clef:'bass',  t:0},
+  {id:'tu',name:'チューバ',        key:'inC・ヘ音',clef:'bass',  t:0, oct:-1},
+];
+const KEYDESC={
+  'C管':'楽譜の音＝実音。そのまま読めばOK！',
+  'B♭管':'楽譜の「ド」を吹くと実音は B（ベー）。実音は楽譜より1音（長2度）低く鳴るよ。',
+  'E♭管':'楽譜の「ド」を吹くと実音は Es（エス）。実音は楽譜より長6度低く鳴るよ。',
+  'F管':'楽譜の「ド」を吹くと実音は F（エフ）。実音は楽譜より完全5度低く鳴るよ。',
+  'inC・ヘ音':'ヘ音記号で、楽譜の音＝実音。そのまま読めばOK！',
+};
+// 実音pc → 楽譜pc（+t）のつづり（各移調楽器で自然な書き方）
+const SPELL={
+  0:['C','Des','D','Es','E','F','Ges','G','As','A','B','H'],           // C管(そのまま)
+  2:['D','Es','E','F','Fis','G','As','A','B','H','C','Cis'],           // B♭管
+  9:['A','B','H','C','Cis','D','Es','E','F','Fis','G','Gis'],          // E♭管
+  7:['G','As','A','B','H','C','Des','D','Es','E','F','Fis'],           // F管
+};
+const SOLF={C:'ド',Cis:'ド♯',Des:'レ♭',D:'レ',Dis:'レ♯',Es:'ミ♭',E:'ミ',F:'ファ',Fis:'ファ♯',Ges:'ソ♭',G:'ソ',Gis:'ソ♯',As:'ラ♭',A:'ラ',B:'シ♭',H:'シ'};
+const KANA={C:'ツェー',Cis:'ツィス',Des:'デス',D:'デー',Dis:'ディス',Es:'エス',E:'エー',F:'エフ',Fis:'フィス',Ges:'ゲス',G:'ゲー',Gis:'ギス',As:'アス',A:'アー',B:'ベー',H:'ハー'};
+const LETTER={C:0,D:1,E:2,F:3,G:4,A:5,B:6,H:6};
+function accOf(name){ if(name==='B')return 'b'; if(name.endsWith('is'))return '#'; if(name.endsWith('es')||name==='Es'||name==='As')return 'b'; return ''; }
+
+/* ============ 五線譜SVG ============ */
+// clef:'treble'|'bass', notes:[{name,midi,label,sub,dim}], w:幅
+function staffSVG(clef,notes,opt={}){
+  const w=opt.w||((notes.length)*(opt.step||56)+70), h=opt.h||150, top=opt.top||38;
+  const lineY=i=>top+i*10; // i=0..4 上から
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" font-family="var(--jp)">`;
+  for(let i=0;i<5;i++)s+=`<line x1="10" y1="${lineY(i)}" x2="${w-10}" y2="${lineY(i)}" stroke="#4a6a74" stroke-width="1.3"/>`;
+  if(clef==='treble')s+=`<text x="14" y="${lineY(4)+12}" font-size="62" fill="#123540" font-family="serif">&#119070;</text>`;
+  else s+=`<text x="16" y="${lineY(3)+3}" font-size="42" fill="#123540" font-family="serif">&#119074;</text>`;
+  // 基準：五線の一番下の線 = treble E4(dia30) / bass G2(dia18)
+  const baseDia=clef==='treble'?30:18, baseY=lineY(4);
+  notes.forEach((n,idx)=>{
+    const x=(opt.x0||64)+idx*(opt.step||56);
+    const letter=n.name==='B'?6:LETTER[n.name[0]];
+    const oct=Math.floor(n.midi/12)-1;
+    // 音名の文字＋オクターブ→段位置（♯♭は同じ段）
+    let dia=letter+oct*7;
+    const y=baseY-(dia-baseDia)*5;
+    // 加線
+    for(let ly=baseY+10; ly<=y+2; ly+=10)s+=`<line x1="${x-11}" y1="${ly}" x2="${x+11}" y2="${ly}" stroke="#4a6a74" stroke-width="1.3"/>`;
+    for(let ly=lineY(0)-10; ly>=y-2; ly-=10)s+=`<line x1="${x-11}" y1="${ly}" x2="${x+11}" y2="${ly}" stroke="#4a6a74" stroke-width="1.3"/>`;
+    const dim=n.dim?0.34:1;
+    s+=`<g opacity="${dim}" ${n.tap?`class="tapNote" data-midi="${n.play!=null?n.play:n.midi}" style="cursor:pointer"`:''}>`;
+    // 符幹
+    const up=y>=lineY(2);
+    s+=up?`<line x1="${x+6.4}" y1="${y-2}" x2="${x+6.4}" y2="${y-30}" stroke="#123540" stroke-width="1.6"/>`
+        :`<line x1="${x-6.4}" y1="${y+2}" x2="${x-6.4}" y2="${y+30}" stroke="#123540" stroke-width="1.6"/>`;
+    s+=`<ellipse cx="${x}" cy="${y}" rx="7" ry="5.2" fill="#123540" transform="rotate(-16 ${x} ${y})"/>`;
+    const acc=accOf(n.name);
+    if(acc)s+=`<text x="${x-19}" y="${y+5}" font-size="17" font-weight="700" fill="#c46a52">${acc==='#'?'♯':'♭'}</text>`;
+    if(n.label)s+=`<text x="${x}" y="${lineY(4)+34}" text-anchor="middle" font-size="16" font-weight="700" fill="#123540" font-family="var(--en)">${n.label}</text>`;
+    if(n.sub)s+=`<text x="${x}" y="${lineY(4)+50}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5a7a84">${n.sub}</text>`;
+    if(n.sub2)s+=`<text x="${x}" y="${lineY(4)+64}" text-anchor="middle" font-size="10.5" fill="#8aa4ac">${n.sub2}</text>`;
+    s+=`</g>`;
+  });
+  return s+'</svg>';
+}
+/* ============ 状態 ============ */
+let inst=INSTS.find(i=>i.id===(localStorage.getItem('dn_inst')||'tp'))||INSTS[3];
+let accMode=localStorage.getItem('dn_acc')||'f';
+let selPc=10; // 最初はB（ベー）
+let mode='conv';
+
+/* ============ 音（A=442） ============ */
+let AC;
+function playMidi(m){
+  AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended')AC.resume();
+  const t=AC.currentTime, f=442*Math.pow(2,(m-69)/12);
+  const master=AC.createGain();master.connect(AC.destination);
+  master.gain.setValueAtTime(0.0001,t);
+  master.gain.linearRampToValueAtTime(.25,t+.025);
+  master.gain.exponentialRampToValueAtTime(.0001,t+1.5);
+  [[1,'sine',1],[2,'sine',.25],[3,'sine',.08],[1,'triangle',.3]].forEach(([mult,type,vol])=>{
+    const o=AC.createOscillator(),og=AC.createGain();
+    o.type=type;o.frequency.value=f*mult;og.gain.value=vol*.6;
+    o.connect(og);og.connect(master);o.start(t);o.stop(t+1.6);
+  });
+}
+document.addEventListener('click',e=>{
+  const n=e.target.closest('.tapNote');
+  if(n)playMidi(+n.dataset.midi);
+});
+
+/* ============ 共通ヘルパ ============ */
+const noteName=pc=>accMode==='f'?NOTES[pc].gf:NOTES[pc].gs;
+const noteKana=pc=>accMode==='f'?NOTES[pc].kf:NOTES[pc].ks;
+const noteSolf=pc=>accMode==='f'?NOTES[pc].sf:NOTES[pc].ss;
+const cBase=()=>(inst.clef==='bass'?48:60)+(inst.oct||0)*12; // 実音表示の基準オクターブ
+
+/* ============ 楽器えらび ============ */
+const instPick=document.getElementById('instPick');
+INSTS.forEach(i=>{
+  const b=document.createElement('button');
+  b.className='chip';b.innerHTML=`${i.name}<small>${i.key}</small>`;b.dataset.id=i.id;
+  b.addEventListener('click',()=>{inst=i;localStorage.setItem('dn_inst',i.id);learnKind=null;renderAll();});
+  instPick.appendChild(b);
+});
+function renderInstInfo(){
+  document.querySelectorAll('#instPick .chip').forEach(c=>c.classList.toggle('on',c.dataset.id===inst.id));
+  document.getElementById('instInfo').innerHTML=
+    `<b style="color:var(--breath)">${inst.name}</b>（${inst.key}・${inst.clef==='bass'?'ヘ音記号':'ト音記号'}）：${KEYDESC[inst.key]}`;
+}
+
+/* ============ タブ ============ */
+const tabs=[...document.querySelectorAll('.tab')];
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.setAttribute('aria-selected',x===t));
+  mode=t.dataset.mode;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+mode).classList.add('active');
+}));
+
+/* ============ ♭/♯トグル ============ */
+function bindAcc(id){
+  document.querySelectorAll('#'+id+' button').forEach(b=>b.addEventListener('click',()=>{
+    accMode=b.dataset.acc;localStorage.setItem('dn_acc',accMode);renderAll();
+  }));
+}
+bindAcc('accToggle');bindAcc('accToggle2');
+function syncAcc(){
+  ['accToggle','accToggle2'].forEach(id=>
+    document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.acc===accMode)));
+}
+
+/* ============ 実音へんかん ============ */
+const notePick=document.getElementById('notePick');
+function renderNotePick(){
+  notePick.innerHTML='';
+  NOTES.forEach((n,pc)=>{
+    const b=document.createElement('button');
+    b.className='noteBtn'+(pc===selPc?' on':'');
+    b.innerHTML=`<span class="g">${noteName(pc)}</span><span class="k">${noteKana(pc)}</span>`;
+    b.addEventListener('click',()=>{selPc=pc;playMidi(cBase()+pc);renderConv();renderNotePick();});
+    notePick.appendChild(b);
+  });
+}
+function renderConv(){
+  const cMidi=cBase()+selPc, wMidi=cMidi+inst.t;
+  const wName=SPELL[inst.t][selPc];
+  const cN={name:noteName(selPc),midi:cMidi,label:noteName(selPc),sub:noteKana(selPc)};
+  const wN={name:wName,midi:wMidi,label:SOLF[wName],sub:''};
+  const opt={w:190,x0:120,step:56,h:130,top:30};
+  const same=inst.t===0;
+  document.getElementById('convResult').innerHTML=`
+    <div class="conv-flex">
+      <div class="conv-box">
+        <div class="cap">先生の指示 =「実音」</div>
+        ${staffSVG(inst.clef,[cN],opt)}
+        <div class="big">${noteName(selPc)}<small>${noteKana(selPc)}</small></div>
+        <button class="playBtn" onclick="playMidi(${cMidi})">♪ 実音を聞く</button>
+      </div>
+      <div class="conv-arrow">→</div>
+      <div class="conv-box">
+        <div class="cap">${inst.name}の楽譜では</div>
+        ${staffSVG(inst.clef,[wN],opt)}
+        <div class="big">${SOLF[wName]}<small>楽譜のドレミ</small></div>
+        ${same?'<div style="font-size:12.5px;font-weight:700;color:#19714a;margin-top:8px">楽譜の音＝実音！そのまま読もう</div>':`<button class="playBtn" onclick="playMidi(${cMidi})">♪ 吹くと この実音が鳴る</button>`}
+      </div>
+    </div>
+    <div class="conv-note">先生に「${noteKana(selPc)}！」と言われたら、楽譜の<b>「${SOLF[wName]}」</b>を吹こう。${same?`楽譜の音は実音と同じだよ`:`きみの「${SOLF[wName]}」は、実音では <b>${noteName(selPc)}（${noteKana(selPc)}）</b>なんだ`}</div>`;
+  document.getElementById('convHint').innerHTML=
+    `ポイント：<b>ドイツ音名はいつも「実音」の名前</b>。楽譜の音はドレミで呼んで区別しよう。チューニングの実音 B（ベー）は、${inst.name}なら楽譜の「${SOLF[SPELL[inst.t][10]]}」だよ。`;
+}
+
+/* ============ おぼえる ============ */
+const KINDS=[
+  {id:'c',   label:'C管（ト音記号）', t:0, clef:'treble'},
+  {id:'bb',  label:'B♭管',            t:2, clef:'treble'},
+  {id:'eb',  label:'E♭管',            t:9, clef:'treble'},
+  {id:'f',   label:'F管',               t:7, clef:'treble'},
+  {id:'bass',label:'ヘ音記号（inC）',   t:0, clef:'bass'},
+];
+let learnKind=null;
+const kindOfInst=()=>inst.clef==='bass'?'bass':({0:'c',2:'bb',9:'eb',7:'f'})[inst.t];
+function renderLearn(){
+  const kid=learnKind||kindOfInst();
+  const K=KINDS.find(k=>k.id===kid);
+  const kp=document.getElementById('kindPick');
+  kp.innerHTML='';
+  KINDS.forEach(k=>{
+    const b=document.createElement('button');
+    b.className='chip'+(k.id===kid?' on':'');
+    b.textContent=k.label+(k.id===kindOfInst()?' ←きみの楽器':'');
+    b.addEventListener('click',()=>{learnKind=k.id;renderLearn();});
+    kp.appendChild(b);
+  });
+  const base=K.clef==='bass'?48:60;
+  const notes=NOTES.map((n,pc)=>{
+    const w=SPELL[K.t][pc];
+    return {name:w,midi:base+pc+K.t,play:base+pc,label:noteName(pc),sub:noteKana(pc),sub2:'楽譜:'+SOLF[w],tap:true};
+  });
+  document.getElementById('learnStaff').innerHTML=staffSVG(K.clef,notes,{step:58,x0:70,h:172,top:36});
+  document.getElementById('learnDesc').innerHTML=
+    K.t===0
+    ?`いま表示中：<b>${K.label}</b>。楽譜の音＝実音だから、音符の下の<b>ドイツ音名（実音）</b>をそのまま読めばOK。音符をタップすると実音が鳴るよ。`
+    :`いま表示中：<b>${K.label}の楽譜</b>。五線譜の音符は<b>楽譜に書いてある音（ドレミ）</b>、その下の<b>ドイツ音名は実際に鳴る実音</b>。タップすると実音が鳴るよ。`;
+  const b=SPELL[inst.t][10];
+  const myDo=NOTES[(12-inst.t)%12];
+  document.getElementById('myKeyNote').innerHTML=
+    `<b style="color:var(--breath)">${inst.name}のきみへ：</b>合奏でいちばん聞く「実音B（ベー）」は、きみの楽譜では<b>「${SOLF[b]}」</b>。逆に、きみの「ド」は実音では<b> ${myDo.gf}（${myDo.kf}）</b>。この2つを即答できれば合奏で困らないよ！`;
+}
+
+/* ============ クイズ ============ */
+let qMode='name',qOk=0,qAll=0,qLock=false,qCur=null;
+const QDESC={
+  name:'五線譜の音符を見て、ドイツ音名（実音）を答えよう。',
+  conv:'先生の「実音」指示を、自分の楽器（いま選んでいる楽器）の楽譜の音に変換しよう。'
+};
+document.querySelectorAll('#qMode button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#qMode button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');qMode=b.dataset.m;newQ();
+}));
+document.getElementById('qNext').addEventListener('click',newQ);
+document.getElementById('qReset').addEventListener('click',()=>{qOk=0;qAll=0;score();newQ();});
+function score(){document.getElementById('qScore').textContent=`${qOk} / ${qAll}`;}
+function pickDistinct(correct,pool,n){
+  const set=new Set([correct]);
+  while(set.size<n+1)set.add(pool[Math.floor(Math.random()*pool.length)]);
+  return[...set].sort(()=>Math.random()-.5);
+}
+function newQ(){
+  qLock=false;document.getElementById('qFeed').textContent='';document.getElementById('qFeed').className='qfeed';
+  document.getElementById('qModeDesc').textContent=QDESC[qMode];
+  const pc=Math.floor(Math.random()*12);
+  const base=cBase();
+  if(qMode==='name'){
+    const name=noteName(pc);
+    const pool=NOTES.map((n,i)=>noteName(i));
+    const opts=pickDistinct(name,pool,3);
+    qCur={ans:name};
+    document.getElementById('qBody').innerHTML=`
+      <div class="qword">この音の<b style="color:#c46a52">実音ドイツ音名</b>は？</div>
+      ${staffSVG(inst.clef,[{name,midi:base+pc}],{w:190,x0:120,h:120,top:26})}
+      <div class="choices">${opts.map(o=>`<button class="choiceBtn" data-a="${o}">${o}<small>${KANA[o]}</small></button>`).join('')}</div>`;
+  }else{
+    const ans=SPELL[inst.t][pc];
+    const pool=Object.keys(SOLF);
+    const opts=pickDistinct(ans,pool,3);
+    qCur={ans};
+    document.getElementById('qBody').innerHTML=`
+      <div class="qword">先生「実音 <span class="big">${noteName(pc)}</span>（${noteKana(pc)}）！」<br>${inst.name}の楽譜ではドレミのどの音？</div>
+      <div class="choices">${opts.map(o=>`<button class="choiceBtn" data-a="${o}">${SOLF[o]}<small>楽譜のドレミ</small></button>`).join('')}</div>`;
+  }
+  document.querySelectorAll('.choiceBtn').forEach(b=>b.addEventListener('click',()=>answer(b)));
+}
+function answer(b){
+  if(qLock)return;qLock=true;qAll++;
+  const ok=b.dataset.a===qCur.ans;
+  if(ok){qOk++;b.classList.add('ok');}
+  else{b.classList.add('ng');document.querySelectorAll('.choiceBtn').forEach(x=>{if(x.dataset.a===qCur.ans)x.classList.add('ok');});}
+  const f=document.getElementById('qFeed');
+  f.textContent=ok?'せいかい！ ♪':`ざんねん… 正解は ${qMode==='conv'?`「${SOLF[qCur.ans]}」`:`${qCur.ans}（${KANA[qCur.ans]||''}）`}`;
+  f.className='qfeed '+(ok?'ok':'ng');
+  score();
+  if(ok)setTimeout(newQ,900);
+}
+
+/* ============ 描画まとめ・起動 ============ */
+function renderAll(){
+  syncAcc();renderInstInfo();renderNotePick();renderConv();renderLearn();newQ();
+}
+renderAll();
+</script>
+</body>
+</html>

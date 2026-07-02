@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音符読みフラッシュカード｜吹奏楽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d2630; --bg2:#123540; --bg3:#0a1d25; --panel:#16424f;
+    --brass:#e6a93f; --brass-d:#b87d22;
+    --breath:#6fd6e6; --coral:#e89178;
+    --text:#e9f4f4; --muted:#8aabb3; --line:rgba(255,255,255,.09);
+    --good:#7fd6a8; --warn:#e8916f;
+    --jp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,sans-serif;
+    --en:"Archivo",var(--jp);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--jp);
+    background:
+      radial-gradient(1200px 600px at 78% -10%, rgba(230,169,63,.10), transparent 60%),
+      radial-gradient(900px 700px at 10% 110%, rgba(111,214,230,.10), transparent 55%),
+      var(--bg);
+    color:var(--text); line-height:1.7; min-height:100vh;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 22px 64px}
+
+  header{margin-bottom:26px}
+  .eyebrow{
+    font-family:var(--en);font-weight:700;letter-spacing:.32em;
+    text-transform:uppercase;font-size:12px;color:var(--brass);
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--brass-d),transparent)}
+  h1{font-weight:900;font-size:clamp(28px,4.5vw,46px);line-height:1.15;margin:14px 0 8px}
+  h1 .acc{color:var(--breath)}
+  .lead{color:var(--muted);max-width:56ch;font-size:15px}
+  .lead b{color:var(--text)}
+  .backlink{display:inline-block;margin:10px 14px 0 0;font-size:13px;color:var(--breath);text-decoration:none;border-bottom:1px dashed rgba(111,214,230,.5)}
+  .backlink:hover{color:#fff}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px}
+  .card h3{font-size:15px;font-weight:900;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--brass);flex:none}
+  .card p{font-size:13.5px;color:var(--muted)}
+  .card p b{color:var(--text)}
+
+  .presets{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
+    color:var(--text);font-family:var(--jp);font-weight:700;font-size:13px;
+    padding:8px 13px;border-radius:999px;cursor:pointer;transition:.16s;white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--brass);color:var(--brass)}
+  .chip.on{background:var(--brass);color:#1a1206;border-color:var(--brass)}
+
+  .grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:start}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  .side{display:flex;flex-direction:column;gap:14px}
+
+  .stage{
+    position:relative;background:#fefefe;border:1px solid rgba(0,0,0,.1);
+    border-radius:18px;overflow:hidden;min-height:460px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:48px 20px 22px;
+  }
+  .stage .tag{
+    position:absolute;top:14px;left:14px;font-family:var(--en);font-weight:700;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:#1c6b7a;background:rgba(255,255,255,.85);
+    padding:5px 10px;border-radius:999px;border:1px solid rgba(0,0,0,.08);z-index:2;
+  }
+  .hud{
+    position:absolute;top:12px;right:14px;display:flex;gap:14px;z-index:2;
+    font-family:var(--en);font-weight:700;font-size:14px;color:#1c6b7a;
+  }
+  .hud b{font-size:19px;color:#123540}
+  .hud .tLow b{color:#c4402a}
+
+  #cardArea{min-height:150px;display:flex;align-items:center;justify-content:center}
+  .feedback{min-height:30px;font-size:19px;font-weight:900;text-align:center}
+  .feedback.ok{color:#19714a}.feedback.ng{color:#b04a28}
+
+  .answers{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;width:100%;max-width:600px}
+  @media(max-width:640px){.answers{grid-template-columns:repeat(4,1fr)}}
+  .ansBtn{
+    appearance:none;border:2px solid #cfe0e5;background:#f6fbfc;color:#123540;
+    font-family:var(--jp);font-weight:900;font-size:21px;border-radius:14px;
+    padding:14px 4px;cursor:pointer;transition:.12s;min-height:58px;
+  }
+  .ansBtn:hover{border-color:#6fd6e6}
+  .ansBtn:active{transform:scale(.96)}
+  .ansBtn:disabled{opacity:.45;cursor:default}
+  .ansBtn.ok{background:#e2f6ec;border-color:#3dae79}
+  .ansBtn.ng{background:#fdeae2;border-color:#e07a56}
+
+  .bigbtn{
+    appearance:none;border:0;border-radius:14px;cursor:pointer;
+    font-family:var(--jp);font-weight:900;font-size:17px;padding:14px 30px;
+    background:linear-gradient(90deg,var(--brass),#f0c063);color:#1a1206;transition:.16s;
+  }
+  .bigbtn:hover{filter:brightness(1.06)}
+  .bigbtn.stop{background:linear-gradient(90deg,var(--coral),#f0a88e)}
+
+  .resultBox{text-align:center}
+  .resultBox .rank{font-family:var(--en);font-weight:700;font-size:64px;line-height:1;color:#b87d22}
+  .resultBox .sc{font-size:17px;font-weight:900;color:#123540;margin-top:6px}
+  .resultBox .cm{font-size:14px;font-weight:700;color:#5a7a84;margin-top:4px}
+
+  .statRow{display:flex;gap:18px;font-family:var(--en);font-weight:700;font-size:14px}
+  .statRow .v{color:var(--breath);font-size:22px}
+  .statRow div{text-align:center}
+  .statRow small{display:block;font-family:var(--jp);font-size:11px;color:var(--muted);letter-spacing:.1em}
+
+  .hint{font-size:13px;color:var(--muted);border-left:3px solid var(--brass);padding:2px 0 2px 12px;margin-top:16px}
+  .hint b{color:var(--coral)}
+
+  footer{margin-top:34px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  footer b{color:var(--brass)}
+  footer a{color:var(--breath)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Brass Band · Note Flash Cards</div>
+    <h1>音符を<span class="acc">瞬読</span>する。</h1>
+    <p class="lead">五線譜の音符をパッと見て、すぐ「ドレミ」で答えるトレーニング。<b>考えるより先に指が動く</b>ようになったら合格！毎日1回、60秒チャレンジをやってみよう。</p>
+    <a class="backlink" href="index.html">← ホーム（メニューにもどる）</a>
+  </header>
+
+  <div class="grid2">
+    <div class="stage">
+      <span class="tag">Flash Card</span>
+      <div class="hud">
+        <div>正解 <b id="hScore">0</b></div>
+        <div>れんぞく <b id="hStreak">0</b></div>
+        <div id="hTimeWrap">のこり <b id="hTime">--</b></div>
+      </div>
+      <div id="cardArea"></div>
+      <div class="feedback" id="feed"></div>
+      <div class="answers" id="answers"></div>
+      <button class="bigbtn" id="goBtn" style="margin-top:6px">▶ スタート</button>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h3><span class="dot"></span>音部記号（自分の楽器のもの）</h3>
+        <div class="presets" id="clefPick">
+          <button class="chip on" data-c="treble">ト音記号</button>
+          <button class="chip" data-c="bass">ヘ音記号</button>
+        </div>
+        <p style="margin-top:8px">トロンボーン・ユーフォニアム・チューバ・コントラバスは<b>ヘ音記号</b>だよ。</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>答え方</h3>
+        <div class="presets" id="ansPick">
+          <button class="chip on" data-a="solf">ドレミ（楽譜のまま）</button>
+          <button class="chip" data-a="ger">ドイツ音名（実音）</button>
+        </div>
+        <div id="kanRow" style="display:none;margin-top:10px">
+          <p style="margin-bottom:6px">自分の楽器の管：</p>
+          <div class="presets" id="kanPick">
+            <button class="chip on" data-k="0">C管・ヘ音</button>
+            <button class="chip" data-k="2">B♭管</button>
+            <button class="chip" data-k="9">E♭管</button>
+            <button class="chip" data-k="7">F管</button>
+          </div>
+          <p style="margin-top:6px">楽譜の音符を見て、<b>実際に鳴る実音</b>をドイツ音名で答えるモードだよ。</p>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>レベル</h3>
+        <div class="presets" id="lvPick">
+          <button class="chip on" data-l="1">① 五線の中</button>
+          <button class="chip" data-l="2">② 加線1本</button>
+          <button class="chip" data-l="3">③ 加線2本</button>
+        </div>
+        <p style="margin:10px 0 6px">♯・♭：</p>
+        <div class="presets" id="accPick">
+          <button class="chip on" data-x="0">なし（幹音のみ）</button>
+          <button class="chip" data-x="1">♯・♭もあり</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>モード</h3>
+        <div class="presets" id="modePick">
+          <button class="chip on" data-m="60">60秒チャレンジ</button>
+          <button class="chip" data-m="30">30秒チャレンジ</button>
+          <button class="chip" data-m="0">れんしゅう（時間なし）</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>きろく</h3>
+        <div class="statRow">
+          <div><span class="v" id="sBest">0</span><small>ベスト</small></div>
+          <div><span class="v" id="sAvg">-</span><small>平均タイム</small></div>
+          <div><span class="v" id="sAcc">-</span><small>正答率</small></div>
+        </div>
+        <p style="margin-top:8px" id="bestNote"></p>
+      </div>
+      <p class="hint">まちがえた音符は<b>そのあと出やすくなる</b>よ。苦手な音を集中的につぶそう！</p>
+    </div>
+  </div>
+
+  <footer>
+    機能⑦ <b>音符読みフラッシュカード</b> ／ <a href="index.html">🏠 ホーム</a> ・ <a href="呼吸と身体ガイド.html">機能①</a> ・ <a href="ドイツ音名ガイド.html">機能②</a> ・ <a href="練習ツール.html">機能③</a> ・ <a href="ハーモニートレーナー.html">機能④</a> ・ <a href="リズムシーケンサー.html">機能⑤</a> ・ <a href="運指表.html">機能⑥</a> ・ <a href="参考音源ライブラリ.html">機能⑧：参考音源</a> ・ <a href="イベントカレンダー.html">機能⑨：カウントダウン</a>
+  </footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const SOLFN=['ド','レ','ミ','ファ','ソ','ラ','シ'];
+const PC2SOLF={0:0,2:1,4:2,5:3,7:4,9:5,11:6};
+const GN=['C','Des','D','Es','E','F','Ges','G','As','A','B','H'];
+const GK=['ツェー','デス','デー','エス','エー','エフ','ゲス','ゲー','アス','アー','ベー','ハー'];
+const SOLF12=['ド','ド♯/レ♭','レ','レ♯/ミ♭','ミ','ファ','ファ♯/ソ♭','ソ','ソ♯/ラ♭','ラ','シ♭','シ'];
+
+/* ---- 出題プール（幹音のみ） ---- */
+const POOLS={
+  treble:{1:[64,65,67,69,71,72,74,76,77],2:[60,62,79,81],3:[57,59,83,84]},
+  bass:  {1:[43,45,47,48,50,52,53,55,57],2:[40,41,59,60],3:[36,38,62,64]}
+};
+function pool(){
+  let p=[...POOLS[clef][1]];
+  if(lv>=2)p=p.concat(POOLS[clef][2]);
+  if(lv>=3)p=p.concat(POOLS[clef][3]);
+  return p;
+}
+
+/* ---- 1音だけの五線譜 ---- */
+const LETTER={C:0,D:1,E:2,F:3,G:4,A:5,B:6};
+function cardSVG(midi,acc){
+  const top=44, lineY=i=>top+i*10, baseY=lineY(4);
+  const baseDia=clef==='treble'?30:18;
+  const pc=midi%12, oct=Math.floor(midi/12)-1;
+  const letter=PC2SOLF[pc]!=null?[0,1,2,3,4,5,6][PC2SOLF[pc]]:0;
+  const dia=letter+oct*7;
+  const y=baseY-(dia-baseDia)*5;
+  const x=100;
+  let s=`<svg width="310" height="270" viewBox="0 0 155 135">`;
+  for(let i=0;i<5;i++)s+=`<line x1="8" y1="${lineY(i)}" x2="147" y2="${lineY(i)}" stroke="#4a6a74" stroke-width="1.2"/>`;
+  if(clef==='treble')s+=`<text x="12" y="${lineY(4)+11}" font-size="56" fill="#123540" font-family="serif">&#119070;</text>`;
+  else s+=`<text x="14" y="${lineY(3)+3}" font-size="38" fill="#123540" font-family="serif">&#119074;</text>`;
+  for(let ly=baseY+10;ly<=y+2;ly+=10)s+=`<line x1="${x-12}" y1="${ly}" x2="${x+12}" y2="${ly}" stroke="#4a6a74" stroke-width="1.2"/>`;
+  for(let ly=lineY(0)-10;ly>=y-2;ly-=10)s+=`<line x1="${x-12}" y1="${ly}" x2="${x+12}" y2="${ly}" stroke="#4a6a74" stroke-width="1.2"/>`;
+  s+=`<ellipse cx="${x}" cy="${y}" rx="7" ry="5.2" fill="#123540" transform="rotate(-16 ${x} ${y})"/>`;
+  if(acc)s+=`<text x="${x-21}" y="${y+5.5}" font-size="17" font-weight="700" fill="#123540">${acc==='#'?'♯':'♭'}</text>`;
+  const up=y>=lineY(2);
+  s+=up?`<line x1="${x+6.4}" y1="${y-2}" x2="${x+6.4}" y2="${y-32}" stroke="#123540" stroke-width="1.7"/>`
+      :`<line x1="${x-6.4}" y1="${y+2}" x2="${x-6.4}" y2="${y+32}" stroke="#123540" stroke-width="1.7"/>`;
+  return s+'</svg>';
+}
+
+/* ---- 効果音 ---- */
+let AC;
+function blip(ok){
+  AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended')AC.resume();
+  const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+  o.type='sine';o.frequency.value=ok?1318:220;
+  g.gain.setValueAtTime(ok?.18:.22,t);g.gain.exponentialRampToValueAtTime(.001,t+(ok?.12:.3));
+  o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.32);
+}
+
+/* ---- 状態 ---- */
+let clef='treble',lv=1,mode=60,ansMode='solf',kan=0,accOn=0;
+let running=false,score=0,streak=0,okN=0,ngN=0,times=[],cur=null,last=null,endAt=0,timerIv=null,lock=false,qT=0;
+const weight={};
+
+function bestKey(){return `fc_${clef}_${lv}_${mode}_${ansMode}_${kan}_${accOn?'a':'n'}`;}
+function loadBest(){
+  $('sBest').textContent=localStorage.getItem(bestKey())||0;
+  const am=ansMode==='solf'?'ドレミ':'ドイツ音名・'+({0:'C管',2:'B♭管',9:'E♭管',7:'F管'})[kan];
+  $('bestNote').innerHTML=`いまの設定（${clef==='treble'?'ト音':'ヘ音'}・レベル${lv}${accOn?'・♯♭あり':''}・${mode?mode+'秒':'れんしゅう'}・${am}）のベスト記録だよ。`;
+}
+/* 正解のインデックスとラベル */
+function correctIdx(c){
+  if(ansMode==='ger')return ((c.snd-kan)%12+12)%12;
+  if(accOn)return ((c.snd%12)+12)%12;
+  return PC2SOLF[c.base%12];
+}
+function ansLabel(i){
+  if(ansMode==='ger')return `${GN[i]}（${GK[i]}）`;
+  return accOn?SOLF12[i]:SOLFN[i];
+}
+
+/* ---- 出題 ---- */
+function pickNote(){
+  const p=pool();
+  const bag=[];
+  p.forEach(m=>{
+    const pc=m%12;
+    const opts=[m+'|'];
+    if(accOn){
+      if(pc!==4&&pc!==11)opts.push(m+'|#');
+      if(pc!==0&&pc!==5)opts.push(m+'|b');
+    }
+    opts.forEach(k=>{const w=1+(weight[k]||0);for(let i=0;i<w;i++)bag.push(k);});
+  });
+  let k;do{k=bag[Math.floor(Math.random()*bag.length)];}while(k===last&&p.length>1);
+  last=k;
+  const parts=k.split('|');
+  const b=+parts[0], a=parts[1];
+  return {base:b,acc:a,key:k,snd:b+(a==='#'?1:a==='b'?-1:0)};
+}
+function showQ(){
+  cur=pickNote();
+  $('cardArea').innerHTML=cardSVG(cur.base,cur.acc);
+  qT=performance.now();
+}
+function answer(i){
+  if(!running||lock)return;
+  const correct=correctIdx(cur);
+  const btns=[...document.querySelectorAll('.ansBtn')];
+  if(i===correct){
+    const dt=performance.now()-qT;times.push(dt);
+    score++;streak++;okN++;
+    if(weight[cur.key])weight[cur.key]=Math.max(0,weight[cur.key]-1);
+    $('feed').textContent=dt<1200?'はやい！':'せいかい！';$('feed').className='feedback ok';
+    btns[i].classList.add('ok');blip(true);
+    lock=true;setTimeout(()=>{btns[i].classList.remove('ok');lock=false;$('feed').textContent='';nextOrEnd();},160);
+  }else{
+    streak=0;ngN++;weight[cur.key]=(weight[cur.key]||0)+3;
+    $('feed').textContent=`ざんねん…${ansMode==='solf'?'これは':'実音は'}「${ansLabel(correct)}」`;$('feed').className='feedback ng';
+    btns[i].classList.add('ng');btns[correct].classList.add('ok');blip(false);
+    lock=true;setTimeout(()=>{btns.forEach(b=>b.classList.remove('ok','ng'));lock=false;$('feed').textContent='';nextOrEnd();},1000);
+  }
+  hud();stats();
+}
+function nextOrEnd(){
+  if(!running)return;
+  if(mode&&performance.now()>endAt){finish();return;}
+  showQ();
+}
+function hud(){
+  $('hScore').textContent=score;$('hStreak').textContent=streak;
+}
+function stats(){
+  if(times.length){
+    const avg=times.reduce((a,b)=>a+b,0)/times.length;
+    $('sAvg').textContent=(avg/1000).toFixed(1)+'秒';
+  }
+  if(okN+ngN)$('sAcc').textContent=Math.round(okN/(okN+ngN)*100)+'%';
+}
+
+/* ---- 開始・終了 ---- */
+function start(){
+  running=true;score=0;streak=0;okN=0;ngN=0;times=[];lock=false;
+  hud();$('feed').textContent='';
+  $('goBtn').textContent='■ やめる';$('goBtn').classList.add('stop');
+  document.querySelectorAll('.ansBtn').forEach(b=>b.disabled=false);
+  if(mode){
+    endAt=performance.now()+mode*1000;
+    $('hTimeWrap').style.display='';
+    timerIv=setInterval(()=>{
+      const r=Math.max(0,(endAt-performance.now())/1000);
+      $('hTime').textContent=Math.ceil(r);
+      $('hTimeWrap').className=r<=10?'tLow':'';
+      if(r<=0&&!lock)finish();
+    },200);
+  }else{$('hTimeWrap').style.display='none';}
+  showQ();
+}
+function finish(){
+  running=false;clearInterval(timerIv);
+  $('goBtn').textContent='▶ もう一回';$('goBtn').classList.remove('stop');
+  document.querySelectorAll('.ansBtn').forEach(b=>b.disabled=true);
+  const best=+(localStorage.getItem(bestKey())||0);
+  const newBest=score>best;
+  if(newBest)localStorage.setItem(bestKey(),score);
+  loadBest();
+  if(mode){
+    const per=score*(60/mode);
+    const rank=per>=40?'S':per>=30?'A':per>=20?'B':per>=10?'C':'D';
+    const cm={S:'すごい！瞬読マスター！',A:'合格レベル！本番の初見も安心',B:'いい調子！毎日やれば必ず速くなる',C:'まずは五線の中を確実に',D:'あせらず1音ずつ。明日また挑戦！'}[rank];
+    $('cardArea').innerHTML=`<div class="resultBox">
+      <div class="rank">${rank}</div>
+      <div class="sc">${score}問 正解${newBest?'　🏆 新記録！':''}</div>
+      <div class="cm">${cm}</div></div>`;
+    $('feed').textContent='';
+  }else{
+    $('cardArea').innerHTML=`<div class="resultBox"><div class="sc">おつかれさま！ ${score}問 正解</div></div>`;
+  }
+}
+$('goBtn').addEventListener('click',()=>{running?finish():start();});
+
+/* ---- 回答ボタン・設定 ---- */
+function buildAnswers(){
+  const el=$('answers');el.innerHTML='';
+  const twelve=ansMode==='ger'||accOn;
+  el.style.gridTemplateColumns=twelve?'repeat(6,1fr)':'';
+  if(!twelve){
+    SOLFN.forEach((s,i)=>{
+      const b=document.createElement('button');
+      b.className='ansBtn';b.textContent=s;b.disabled=!running;
+      b.addEventListener('click',()=>answer(i));
+      el.appendChild(b);
+    });
+  }else if(ansMode==='ger'){
+    GN.forEach((g,i)=>{
+      const b=document.createElement('button');
+      b.className='ansBtn';b.style.fontSize='17px';b.style.minHeight='54px';
+      b.innerHTML=`${g}<small style="display:block;font-size:10px;font-weight:700;color:#5a7a84">${GK[i]}</small>`;
+      b.disabled=!running;
+      b.addEventListener('click',()=>answer(i));
+      el.appendChild(b);
+    });
+  }else{
+    SOLF12.forEach((s,i)=>{
+      const b=document.createElement('button');
+      b.className='ansBtn';b.style.fontSize=s.length>2?'13px':'19px';b.style.minHeight='54px';
+      b.textContent=s;b.disabled=!running;
+      b.addEventListener('click',()=>answer(i));
+      el.appendChild(b);
+    });
+  }
+}
+buildAnswers();
+function bindPick(id,attr,cb){
+  document.querySelectorAll('#'+id+' .chip').forEach(c=>c.addEventListener('click',()=>{
+    document.querySelectorAll('#'+id+' .chip').forEach(x=>x.classList.remove('on'));
+    c.classList.add('on');cb(c.dataset[attr]);
+    if(running)finish();
+    loadBest();
+  }));
+}
+bindPick('clefPick','c',v=>clef=v);
+bindPick('lvPick','l',v=>lv=+v);
+bindPick('modePick','m',v=>mode=+v);
+bindPick('ansPick','a',v=>{ansMode=v;$('kanRow').style.display=v==='ger'?'':'none';buildAnswers();});
+bindPick('kanPick','k',v=>kan=+v);
+bindPick('accPick','x',v=>{accOn=+v;buildAnswers();});
+$('cardArea').innerHTML='<div class="resultBox"><div class="sc">「▶ スタート」でスタート！</div><div class="cm">音符を見て、下のドレミボタンを押そう</div></div>';
+$('hTimeWrap').style.display='none';
+loadBest();
+</script>
+</body>
+</html>
