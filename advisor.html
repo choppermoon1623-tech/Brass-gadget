@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お悩み相談チャート｜吹奏楽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d2630; --bg2:#123540; --panel:#16424f;
+    --brass:#e6a93f; --brass-d:#b87d22;
+    --breath:#6fd6e6; --coral:#e89178; --coral-d:#c46a52;
+    --text:#e9f4f4; --muted:#8aabb3; --line:rgba(255,255,255,.09);
+    --good:#7fd6a8;
+    --jp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,sans-serif;
+    --en:"Archivo",var(--jp);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--jp);
+    background:
+      radial-gradient(1200px 600px at 78% -10%, rgba(230,169,63,.10), transparent 60%),
+      radial-gradient(900px 700px at 10% 110%, rgba(111,214,230,.10), transparent 55%),
+      var(--bg);
+    color:var(--text); line-height:1.7; min-height:100vh;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:28px 22px 64px}
+  header{margin-bottom:22px}
+  .eyebrow{
+    font-family:var(--en);font-weight:700;letter-spacing:.32em;
+    text-transform:uppercase;font-size:12px;color:var(--brass);
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--brass-d),transparent)}
+  h1{font-weight:900;font-size:clamp(28px,4.5vw,44px);line-height:1.15;margin:14px 0 8px}
+  h1 .acc{color:var(--breath)}
+  .lead{color:var(--muted);max-width:60ch;font-size:15px}
+  .lead b{color:var(--text)}
+  .backlink{display:inline-block;margin:10px 0 0;font-size:13px;color:var(--breath);text-decoration:none;border-bottom:1px dashed rgba(111,214,230,.5)}
+  .backlink:hover{color:#fff}
+  a{color:var(--breath)}a:hover{color:#fff}
+
+  /* チャット風フロー */
+  #flow{display:flex;flex-direction:column;gap:14px;margin-top:20px}
+  .qcard{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px;
+    animation:pop .3s ease both;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .qhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .avatar{
+    width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 35% 30%, #f4c877, var(--brass-d));font-size:18px;
+  }
+  .qtitle{font-weight:900;font-size:15px}
+  .qtitle small{display:block;font-family:var(--en);font-size:10.5px;font-weight:700;letter-spacing:.18em;color:var(--brass);text-transform:uppercase}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.04);
+    color:var(--text);font-family:var(--jp);font-weight:700;font-size:13.5px;
+    padding:9px 14px;border-radius:12px;cursor:pointer;transition:.16s;text-align:left;
+  }
+  .opt:hover{border-color:var(--brass);color:var(--brass);transform:translateY(-1px)}
+  .opt .em{margin-right:6px}
+  .qcard.answered .opt{opacity:.35;pointer-events:none}
+  .qcard.answered .opt.picked{opacity:1;background:var(--brass);color:#1a1206;border-color:var(--brass)}
+
+  /* アドバイスカード */
+  .advice{
+    background:linear-gradient(160deg, rgba(230,169,63,.10), rgba(111,214,230,.06)), var(--panel);
+    border:1px solid rgba(230,169,63,.45);border-radius:18px;padding:20px;animation:pop .35s ease both;
+  }
+  .advice h2{font-size:19px;font-weight:900;margin-bottom:4px;color:var(--brass)}
+  .advice .path{font-size:12px;color:var(--muted);margin-bottom:12px}
+  .sec{margin-top:14px}
+  .sec h4{
+    font-size:13px;font-weight:900;letter-spacing:.06em;margin-bottom:6px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .sec h4 .bar{width:14px;height:3px;border-radius:2px;background:var(--breath);flex:none}
+  .sec.why h4 .bar{background:var(--coral)}
+  .sec.tip h4 .bar{background:var(--brass)}
+  .sec p{font-size:14px}
+  .menuList{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .menuList li{
+    background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:12px;
+    padding:10px 12px 10px 40px;font-size:14px;position:relative;
+  }
+  .menuList li::before{
+    content:attr(data-n);position:absolute;left:12px;top:11px;
+    width:20px;height:20px;border-radius:50%;background:var(--breath);color:#0d2630;
+    font-family:var(--en);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;
+  }
+  .menuList li b{color:var(--breath)}
+  .tipBox{
+    background:rgba(230,169,63,.10);border:1px dashed rgba(230,169,63,.5);border-radius:12px;
+    padding:10px 12px;font-size:13.5px;
+  }
+  .tipBox b{color:var(--brass)}
+  .toolLinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .toolLink{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    background:rgba(111,214,230,.10);border:1px solid rgba(111,214,230,.4);color:var(--breath);
+    font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:999px;transition:.15s;
+  }
+  .toolLink:hover{background:var(--breath);color:#0d2630}
+  .again{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+  .abtn{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--text);
+    font-family:var(--jp);font-weight:900;font-size:13px;padding:10px 16px;border-radius:999px;cursor:pointer;transition:.15s;
+  }
+  .abtn:hover{border-color:var(--brass);color:var(--brass)}
+  .abtn.main{background:var(--brass);color:#1a1206;border-color:var(--brass)}
+  .abtn.main:hover{filter:brightness(1.08);color:#1a1206}
+
+  footer{margin-top:34px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  footer b{color:var(--brass)}
+</style>
+
+<style>
+  footer .gnav-cur{margin-bottom:12px}
+  footer .gnav-cur b{color:var(--brass)}
+  .gnav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px}
+  .gnav a{
+    display:inline-block;font-size:11.5px;font-weight:700;text-decoration:none;
+    color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;transition:.15s;
+    background:rgba(255,255,255,.03);
+  }
+  .gnav a:hover{color:var(--brass);border-color:var(--brass)}
+  .gnav a.cur{background:var(--brass);color:#1a1206;border-color:var(--brass);pointer-events:none}
+  .gnav a.home{color:var(--breath);border-color:rgba(111,214,230,.4)}
+  .gnav a.home:hover{color:#fff}
+  footer .gnav-credit{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Practice Advisor</div>
+    <h1>お悩み相談<span class="acc">チャート</span></h1>
+    <p class="lead">楽器と悩みを選ぶと、<b>原因のめやすと今日からできる練習メニュー</b>を提案するよ。答えを選ぶだけでOK！</p>
+    <a class="backlink" href="index.html">← ホーム（メニューにもどる）</a>
+  </header>
+
+  <div id="flow"></div>
+
+  <footer>
+    <p class="gnav-cur">機能⑪ <b>お悩み相談チャート</b></p>
+    <nav class="gnav"><a class="home" href="index.html">🏠 ホーム</a><a href="breath-guide.html">①呼吸と身体ガイド</a><a href="note-names.html">②ドイツ音名ガイド</a><a href="fingering.html">③運指表</a><a href="flashcards.html">④フラッシュカード</a><a href="rhythm-sequencer.html">⑤リズムシーケンサー</a><a href="rhythm-trainer.html">⑥リズムトレーニング</a><a href="recorder.html">⑦録音モード</a><a href="tuner-metronome.html">⑧チューナー＆メトロノーム</a><a href="harmony-trainer.html">⑨ハーモニートレーナー</a><a href="ensemble.html">⑩基礎合奏メニュー</a><a href="advisor.html" class="cur">⑪お悩み相談チャート</a><a href="reference-library.html">⑫参考音源ライブラリ</a><a href="event-calendar.html">⑬イベントカレンダー</a></nav>
+    <div class="gnav-credit">吹奏楽部サポートアプリ ／ ブラウザだけで動く・インストール不要・スマホ対応</div>
+  </footer>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+
+/* ================= データ ================= */
+const INSTS=[
+  {id:'fl',name:'フルート',em:'🪈',fam:'wood'},
+  {id:'ob',name:'オーボエ',em:'🌿',fam:'reed'},
+  {id:'cl',name:'クラリネット',em:'🎵',fam:'reed'},
+  {id:'sax',name:'サックス',em:'🎷',fam:'reed'},
+  {id:'tp',name:'トランペット',em:'🎺',fam:'brass'},
+  {id:'hr',name:'ホルン',em:'📯',fam:'brass'},
+  {id:'tb',name:'トロンボーン',em:'🎶',fam:'brass'},
+  {id:'euph',name:'ユーフォニアム',em:'🎵',fam:'brass'},
+  {id:'tuba',name:'チューバ',em:'🎵',fam:'brass'},
+  {id:'cb',name:'コントラバス',em:'🎻',fam:'string'},
+  {id:'perc',name:'パーカッション',em:'🥁',fam:'perc'}
+];
+const isWind=i=>i.fam!=='perc'&&i.fam!=='string';
+
+/* 悩みリスト（楽器タイプ別） */
+const CONCERNS_WIND=[
+  {id:'high',em:'⬆️',label:'高い音が出ない'},
+  {id:'breath',em:'🌬️',label:'息が続かない'},
+  {id:'tone',em:'🎐',label:'音が汚い・きれいじゃない'},
+  {id:'pitch',em:'🎯',label:'音程が合わない'},
+  {id:'tongue',em:'👅',label:'タンギングがうまくいかない'},
+  {id:'finger',em:'🖐️',label:'指が回らない'},
+  {id:'attack',em:'✨',label:'音の出だしが決まらない'}
+];
+const CONCERNS_CB=[
+  {id:'cb_pitch',em:'🎯',label:'音程が安定しない'},
+  {id:'cb_tone',em:'🎻',label:'音が小さい・かすれる'},
+  {id:'cb_shift',em:'🖐️',label:'ポジション移動が苦手'},
+  {id:'cb_rhythm',em:'🥁',label:'リズムが合わない'}
+];
+const CONCERNS_PERC=[
+  {id:'p_rush',em:'🏃',label:'走る・もたる'},
+  {id:'p_roll',em:'🌀',label:'ロールがきれいにできない'},
+  {id:'p_sound',em:'🔨',label:'音が硬い・うるさいと言われる'},
+  {id:'p_read',em:'📖',label:'リズム譜が読めない'}
+];
+
+/* 追加質問（分岐） */
+const BRANCH={
+  high:{q:'高い音、どんなふうに出ない？',opts:[
+    {id:'airy',em:'💨',label:'かすれてスカスカ、音にならない'},
+    {id:'tense',em:'😣',label:'力んでしまって苦しい'},
+    {id:'flat',em:'📉',label:'出るけど音程がぶら下がる'}]},
+  breath:{q:'息のこと、くわしく教えて！',opts:[
+    {id:'inhale',em:'😮‍💨',label:'そもそもたくさん吸えない'},
+    {id:'waste',em:'💸',label:'吸えるけどすぐなくなる'}]},
+  tone:{q:'どんな音になっちゃう？',opts:[
+    {id:'crack',em:'⚡',label:'割れる・ビリビリする'},
+    {id:'dark',em:'🌫️',label:'こもって暗い'},
+    {id:'shaky',em:'〰️',label:'ゆれる・まっすぐ伸びない'}]},
+  pitch:{q:'音程、どんなふうに合わない？',opts:[
+    {id:'all',em:'📏',label:'全体的に高い（低い）と言われる'},
+    {id:'some',em:'🎵',label:'特定の音だけ合わない'},
+    {id:'ear',em:'👂',label:'合ってるのかどうか分からない'}]},
+  tongue:{q:'タンギングのどこが困ってる？',opts:[
+    {id:'slow',em:'🐢',label:'速いタンギングが追いつかない'},
+    {id:'dirty',em:'💥',label:'音の頭が汚くなる'}]}
+};
+
+/* ================= アドバイス ================= */
+/* tips: 楽器id > fam > all の順で探す */
+const ADVICE={
+  'high/airy':{
+    title:'息のスピードを上げて、出口を小さく',
+    why:'高い音は「たくさんの息」ではなく「速い息」で鳴るよ。息の出口（アパチュア）が広いままだと、息が散らばってかすれてしまうんだ。',
+    menu:[
+      '寒い日に手を温める「ハー」と、遠くのロウソクを消す「フー」を吹き比べ。高音は<b>「フー」の速い息</b>',
+      '出せる音から<b>半音ずつ上へロングトーン</b>（各8拍）。かすれたらひとつ戻ってやり直し',
+      '中音→高音の<b>オクターブ跳躍</b>をスラーで。息のスピードだけで上がる練習'
+    ],
+    tips:{
+      fl:'息の角度をほんの少し上向きに、唇の穴を小さく。頭部管だけで高い倍音を出す練習も効くよ。',
+      reed:'噛んで音を上げるのはNG！ アンブシュアはそのまま、息の支え（お腹）でスピードを上げよう。',
+      brass:'リップスラーが最強の練習。唇を締めるんじゃなく、舌の位置を「アー→イー」にして息を速くしよう。',
+      hr:'ホルンは特に息のスピード勝負。マウスピースだけのバズィングで目的の音を歌えるかチェック！'
+    },
+    links:[['ensemble.html','🎶 基礎合奏：リップスラー／ロングトーン'],['breath-guide.html','🌬️ 呼吸と身体ガイド']]
+  },
+  'high/tense':{
+    title:'力みをほどいてから、少しずつ上へ',
+    why:'肩・喉・唇に力が入ると、息の通り道がせまくなって逆に出にくくなるよ。「がんばって出す」より「じゃまをしない」が合言葉。',
+    menu:[
+      '楽器を持たずに<b>肩を上げてストン</b>と落とす×5回。喉は「あくび」の形',
+      '楽に出る<b>まんなかの音域で、いちばんいい音</b>を確認してから半音ずつ上へ',
+      '高い音は<b>mp（少し小さめ）</b>で当てる練習。大きい音で無理やり出さない'
+    ],
+    tips:{
+      brass:'マウスピースを押し付けるのは力みのサイン。プレスを少しゆるめて、息で支えよう。',
+      reed:'噛みすぎ注意！ 下唇が痛くなるのは力んでいる証拠。口の両端だけ軽く締める意識で。',
+      fl:'首と肩の角度をチェック。構えが窮屈だと息が入らないよ。鏡の前で姿勢確認！',
+      all:'できたら一度休憩して、力が抜けた状態を体に覚えさせよう。'
+    },
+    links:[['breath-guide.html','🌬️ 呼吸と身体ガイド：姿勢'],['recorder.html','🎙️ 録音モード：力んだ音か聞き比べ']]
+  },
+  'high/flat':{
+    title:'息の支えをキープして音程を持ち上げる',
+    why:'音は出てるから、あと一歩！ ぶら下がるのは息のスピードが音の高さに追いついていない証拠だよ。',
+    menu:[
+      'チューナーを見ながら高音の<b>ロングトーン8拍</b>。針が下がってきたらお腹で支え直す',
+      '<b>下の音から上の音へスラー</b>で移動して、着地した瞬間の針をチェック',
+      'その高さの音を<b>先に歌ってから</b>吹く。イメージした高さに息がついてくるよ'
+    ],
+    tips:{
+      brass:'音の高さは唇より「息＋舌の位置」。高音は口の中を「イー」の形に。',
+      reed:'リードが古いと高音がぶら下がりやすいよ。リードの状態もチェック！',
+      fl:'顎を少し前に出して息の角度を上げると音程が上がるよ。'
+    },
+    links:[['tuner-metronome.html','🎯 チューナー＆メトロノーム'],['ensemble.html','🎶 基礎合奏：ロングトーン']]
+  },
+  'breath/inhale':{
+    title:'「吸う力」はトレーニングで伸びる！',
+    why:'肺活量が少ないんじゃなくて、肺の容量を使いきれていないだけのことが多いよ。肩で吸う「浅い呼吸」から、お腹まわりに入る「深い呼吸」へ。',
+    menu:[
+      '<b>4拍吸って→4拍止めて→8拍で「スー」</b>と吐く呼吸トレを毎日3セット',
+      '吸うとき<b>お腹・わき腹・背中</b>がふくらむか手を当てて確認（肩は上げない！）',
+      '楽器を吹く直前に<b>「オー」の口でゆっくり2拍</b>吸う癖をつける'
+    ],
+    tips:{
+      tuba:'チューバは息の量がいちばん必要。吐く拍を8→12→16拍と伸ばしていこう。',
+      fl:'フルートは息が外にも逃げる楽器。吸う量を増やすのが特に効くよ。',
+      all:'あくびの直前の喉の形が、いちばん息が入る形だよ。'
+    },
+    links:[['breath-guide.html','🌬️ 呼吸と身体ガイド：肺と呼吸筋']]
+  },
+  'breath/waste':{
+    title:'息の「燃費」を良くしよう',
+    why:'吸えているなら、息が音になる前に漏れているか、必要以上に使いすぎているかも。少ない息で豊かに鳴るポイントを探そう。',
+    menu:[
+      '<b>mfのロングトーン</b>で何拍伸びるか計測→記録。毎日同じ音でベスト更新を狙う',
+      '同じ音を<b>pp→ff→pp</b>とクレッシェンド・デクレッシェンド。小さい音ほど息の支えを keep',
+      '録音して<b>「シュー」という息の雑音</b>が混ざっていないかチェック'
+    ],
+    tips:{
+      reed:'リードが硬すぎると息を無駄づかいするよ。番手を先生と相談してみて。',
+      brass:'アパチュアが広すぎると息がダダ漏れ。マウスピースバズィングで小さくまとめる練習を。',
+      fl:'歌口に当たる息の割合（うまく当たれば少ない息で鳴る）を、頭部管だけで探そう。'
+    },
+    links:[['ensemble.html','🎶 基礎合奏：ロングトーン'],['recorder.html','🎙️ 録音モード']]
+  },
+  'tone/crack':{
+    title:'息の入れすぎをコントロール',
+    why:'音が割れるのは、楽器が受け止められる量を超えて息を入れているサイン。「大きい音＝がんばって吹く」から卒業しよう。',
+    menu:[
+      '<b>mp→mf→f</b>と段階的に大きくして、割れはじめる境目を見つける',
+      '割れない最大の音量で<b>ロングトーン8拍</b>。響きで大きく聞かせる意識',
+      'ベルの先（遠く）に息を届けるイメージで、<b>口元はリラックス</b>'
+    ],
+    tips:{
+      brass:'唇が振動しきれていないかも。ウォームアップのバズィングを丁寧に。',
+      reed:'マウスピースをくわえる深さをチェック。深すぎると音が暴れるよ。',
+      fl:'息が強すぎると音が裏返る。お腹で支えつつ、息の量は控えめに。'
+    },
+    links:[['ensemble.html','🎶 基礎合奏：ロングトーン'],['recorder.html','🎙️ 録音モード：割れてないか確認']]
+  },
+  'tone/dark':{
+    title:'口の中の空間と姿勢をチェック',
+    why:'こもった音の原因は、口の中がせまい・下を向いている・楽器の角度、のどれかが多いよ。響く空間をつくってあげよう。',
+    menu:[
+      '<b>「オー」の口の中</b>（あくびの形）をキープして吹く。ほっぺの内側に空間',
+      '鏡の前で<b>姿勢と楽器の角度</b>をチェック。譜面台が低くて下を向いてない？',
+      '明るい音のお手本を聞いてから吹く→録音して聞き比べ'
+    ],
+    tips:{
+      cl:'クラリネットは構えの角度が命。体に近すぎるとこもるよ。',
+      tb:'ベルの向きが下がりがち。スライドは重いけど、ベルは前へ！',
+      hr:'ベルに手を入れすぎると詰まった音に。手の形を先生とチェックしよう。',
+      all:'楽器の中が汚れていても音はこもるよ。スワブ・掃除も忘れずに！'
+    },
+    links:[['breath-guide.html','🌬️ 呼吸と身体ガイド：口の中の空間'],['reference-library.html','📚 参考音源ライブラリ']]
+  },
+  'tone/shaky':{
+    title:'息の支えでまっすぐな音をつくる',
+    why:'音がゆれるのは、息の圧力が一定じゃないから。お腹の支え（サポート）を最後の1拍までキープする練習をしよう。',
+    menu:[
+      'チューナーの針を見ながら<b>8拍ロングトーン</b>。針がピタッと止まる時間を伸ばす',
+      '<b>メトロノームに合わせて息だけ「スー」</b>と8拍吐く。息の音が一定かチェック',
+      '曲の伸ばす音を録音→ゆれた場所を確認→もう一度'
+    ],
+    tips:{
+      all:'伸ばしの後半で息が細くなるのがいちばん多いパターン。「最後の2拍こそお腹」と唱えよう。',
+      fl:'ビブラートと「ゆれ」は別物。まずはノンビブラートでまっすぐ伸ばせるのが先だよ。'
+    },
+    links:[['tuner-metronome.html','🎯 チューナー＆メトロノーム'],['ensemble.html','🎶 基礎合奏：ロングトーン']]
+  },
+  'pitch/all':{
+    title:'楽器のセッティングと吹き方の両方を疑おう',
+    why:'全体的に高い・低いなら、まず管の長さ（チューニング）。それでもズレるなら、アンブシュアや息の向きのクセかも。',
+    menu:[
+      '<b>チューニングB♭（実音）</b>をチューナーで合わせて、抜き差しの位置に印をつける',
+      '楽器が温まってから合わせ直す（<b>冷えてると低く</b>なるよ）',
+      '合わせた後、<b>スケールをゆっくり</b>吹いて針の傾向をメモ（高くなる音・低くなる音）'
+    ],
+    tips:{
+      brass:'唇を締めすぎると全体に高く、ゆるいと低くなるよ。mfの自然な音で合わせよう。',
+      reed:'噛むと高くなる！ 音程を口で作らず、楽器のセッティングで合わせて。',
+      fl:'頭部管の抜き加減＋息の角度のダブルで決まるよ。角度のクセを鏡でチェック。'
+    },
+    links:[['tuner-metronome.html','🎯 チューナー＆メトロノーム'],['ensemble.html','🎶 基礎合奏：スケール']]
+  },
+  'pitch/some':{
+    title:'「楽器のクセ」を知って先回りしよう',
+    why:'どの楽器にも音程のクセ（高くなりやすい音・低くなりやすい音）があるよ。自分の楽器のクセ表を作れば、先回りして直せる！',
+    menu:[
+      'スケールを1音ずつチューナーでチェックして、<b>マイ音程クセ表</b>を作る',
+      'クセのある音は<b>替え指</b>や抜き差し管で対策できることも。運指表で確認',
+      'クセ音の前後をふくむ<b>3音スラー</b>で、耳と口の微調整を練習'
+    ],
+    tips:{
+      tp:'1・3番管を使う低いD・C♯は高くなりがち。トリガー（指かけ）で管を抜こう。',
+      hr:'ホルンは手の入れ方でも変わるよ。ゲシュトップ気味になってないかチェック。',
+      fl:'中音C♯は高くなりやすい代表。息の角度を少し下げてカバー。',
+      cl:'喉の音（開放のソなど）は響きが浅くなりがち。右手の指を足す替え指も試そう。',
+      all:'クセは楽器の個体によっても違うよ。「自分の楽器の説明書」を自分で作ろう！'
+    },
+    links:[['fingering.html','🎺 運指表：替え指'],['tuner-metronome.html','🎯 チューナー＆メトロノーム']]
+  },
+  'pitch/ear':{
+    title:'「うなり」が聞こえれば音程は合わせられる',
+    why:'音程が合っていないと「ワンワン」といううなりが聞こえるよ。これに気づける耳を育てるのが、チューナーを見るより大事な近道！',
+    menu:[
+      '<b>ハーモニートレーナー</b>で、うなりが消える瞬間を体験する',
+      '友だちと2人で同じ音を伸ばして、<b>うなりを数える</b>→どちらかが動かして消す',
+      'チューナーは<b>答え合わせ</b>に使う。先に耳で判断→針で確認の順番'
+    ],
+    tips:{all:'最初は「合ってる／ズレてる」の2択でOK。毎日30秒でも聞き比べると2週間で変わるよ。'},
+    links:[['harmony-trainer.html','👂 ハーモニートレーナー'],['tuner-metronome.html','🎯 チューナー＆メトロノーム']]
+  },
+  'tongue/slow':{
+    title:'舌は「速く」より「小さく」動かす',
+    why:'速いタンギングのコツは、舌の動きを最小限にすること。大きく動かすと物理的に間に合わないよ。',
+    menu:[
+      'メトロノーム♩=60で<b>16分音符のタンギング</b>を1音で。ゆっくり確実に→2ずつテンポUP',
+      '舌先だけ「<b>トゥトゥトゥ</b>」。顎が一緒に動いていないか鏡でチェック',
+      '<b>息は出しっぱなし</b>で舌だけで区切る意識（息を毎回止めない）'
+    ],
+    tips:{
+      fl:'フルート・高音楽器は「トゥ」より「テュ」の軽い発音が速く動くよ。',
+      tuba:'低音楽器は「ダ」「ドゥ」の柔らかい発音のほうが音がつぶれないよ。',
+      brass:'ダブルタンギング（トゥクトゥク）は♩=100の16分が安定してから挑戦しよう。',
+      reed:'リードの先端に舌先が「触れて離れる」だけ。突かないこと！'
+    },
+    links:[['tuner-metronome.html','🎯 メトロノーム'],['rhythm-trainer.html','👏 リズムトレーニング']]
+  },
+  'tongue/dirty':{
+    title:'息が先、舌は後。「ホー→トー」の順で',
+    why:'音の頭が汚いのは、息の準備の前に舌が動いているから。息の流れに舌を「そっと置いて離す」イメージに変えよう。',
+    menu:[
+      'タンギングなしの「<b>ホー</b>」で音を出す→同じ息で「<b>トー</b>」と舌を足す',
+      '<b>4拍ロングトーンの頭だけ</b>に集中。出だしを録音して聞き比べ',
+      '強い「トゥッ！」ではなく<b>「du（ドゥ）」の柔らかい子音</b>も試す'
+    ],
+    tips:{
+      brass:'出だしで唇を「ペッ」と使うクセに注意。舌はあくまで息のスタート係。',
+      reed:'リードを舌で押さえたまま息の圧をためて、離した瞬間に鳴るのが理想の発音だよ。'
+    },
+    links:[['recorder.html','🎙️ 録音モード：出だしを聞き比べ'],['ensemble.html','🎶 基礎合奏：ロングトーン']]
+  },
+  'finger':{
+    title:'ゆっくり確実に→リズム変え練習が王道',
+    why:'指が回らないのは、脳がまだその動きを「自動化」できていないから。速く何度も間違えるより、ゆっくり正確に繰り返すほうが何倍も速く身につくよ。',
+    menu:[
+      '<b>絶対に間違えないテンポ</b>まで落として5回連続成功→メトロノームを2ずつ上げる',
+      '苦手な場所だけ<b>付点リズム（タータ・タター）</b>に変えて練習→元に戻すとスラスラに',
+      '<b>指だけの練習</b>（音を出さずにキィ・ピストンの動きだけ）も効果大。移動教室の待ち時間にも！'
+    ],
+    tips:{
+      cl:'ブリッジ（レジスターの替わり目）は替え指も検討。運指表でチェック！',
+      fl:'小指のキィの「バタバタ」に注意。指はキィから離しすぎない。',
+      brass:'ピストン・ロータリーは<b>最後まで押し切る</b>。半押しが濁りの原因だよ。',
+      tb:'スライドは「間に合わせる」より「先に着く」意識。腕全体でスッと。',
+      all:'できない場所は前後2音を含めて練習しよう。つなぎ目でつまずくことが多いよ。'
+    },
+    links:[['fingering.html','🎺 運指表：替え指'],['tuner-metronome.html','🎯 メトロノーム']]
+  },
+  'attack':{
+    title:'「吸う→吹く」をひとつの動作に',
+    why:'出だしが決まらないのは、吸う→止まる→吹くと動作が分かれているから。ブレスの流れのまま音を出すと、タイミングも音色も安定するよ。',
+    menu:[
+      'メトロノームに合わせて<b>「3拍吸って4拍目の頭で発音」</b>を10回。吸う→吹くを止めない',
+      'いろんな音で<b>1拍目だけの練習</b>（ポンと出して切る）。録音でタイミング確認',
+      '本番のテンポで<b>曲の最初の1音だけ</b>を10回。成功率をメモしよう'
+    ],
+    tips:{
+      brass:'唇のセット（アンブシュア）をブレスの前に作っておくと安定するよ。',
+      reed:'リードのコンディションで発音は激変。本番用リードは発音チェックで選ぼう。',
+      fl:'出だしの息の角度が毎回変わってない？ 構えてから吸う習慣を。'
+    },
+    links:[['tuner-metronome.html','🎯 メトロノーム'],['recorder.html','🎙️ 録音モード']]
+  },
+  /* ---- コントラバス ---- */
+  'cb_pitch':{
+    title:'左手の「形」を固定して、耳で微調整',
+    why:'コントラバスの音程は左手の形（フォーム）で決まるよ。毎回指の間隔が変わると音程も毎回変わる。形を固定→耳で直す、の順番！',
+    menu:[
+      '開放弦とオクターブ・5度の<b>重音チェック</b>でポジションの基準を作る',
+      'チューナーを見ながら<b>スケールをゆっくり</b>。ズレた音は指の場所を目でも確認',
+      '<b>同じフレーズを開放弦を混ぜて</b>弾き、開放弦との響き（うなり）で合わせる'
+    ],
+    tips:{all:'ネックを握りこまず、指板に指を「立てる」。親指はネックの裏で軽く支えるだけ。'},
+    links:[['tuner-metronome.html','🎯 チューナー'],['ensemble.html','🎶 基礎合奏：スケール']]
+  },
+  'cb_tone':{
+    title:'弓の「重さ・速さ・場所」の3点セット',
+    why:'音が小さい・かすれるのは、弓の毛が弦をしっかりつかめていないから。腕の重さを弦に乗せて、弓の速さと駒からの距離を整えよう。',
+    menu:[
+      '開放弦で<b>全弓ロングトーン</b>。腕の重さを乗せて、弓の速さは一定に',
+      '<b>駒寄り／指板寄り</b>で弾き比べて、いちばん鳴るポイント（駒と指板の間）を探す',
+      '松脂を塗り直して、<b>弓の張り</b>もチェック（ゆるすぎ・張りすぎ注意）'
+    ],
+    tips:{all:'力で押さえつけると逆につぶれた音に。「重さを乗せる」と「押す」は別物だよ。'},
+    links:[['ensemble.html','🎶 基礎合奏：ロングトーン'],['recorder.html','🎙️ 録音モード']]
+  },
+  'cb_shift':{
+    title:'移動は「目→手→音」の順で先回り',
+    why:'ポジション移動は、行き先を先に決めてから動くのがコツ。音を頼りに探しながら動くと毎回ズレるよ。',
+    menu:[
+      '移動前に<b>行き先の位置を目で見る</b>→腕ごとスッと移動→着地してから弾く',
+      '<b>2つのポジションの往復だけ</b>をメトロノームでゆっくり×10回',
+      '移動をふくむフレーズを<b>付点リズム</b>で練習して、移動時間を体に覚えさせる'
+    ],
+    tips:{all:'親指も一緒に移動するのを忘れずに。手の形ごと引っ越すイメージ！'},
+    links:[['tuner-metronome.html','🎯 メトロノーム']]
+  },
+  'cb_rhythm':{
+    title:'バンドの心臓！ 裏拍を感じる練習',
+    why:'コントラバスはバンドのビートの土台。弾くタイミングだけじゃなく、休符や裏拍を体で感じられると一気に安定するよ。',
+    menu:[
+      'メトロノームを<b>裏拍（2・4拍目）</b>に鳴らしてスケール練習',
+      '<b>リズムトレーニング</b>で叩く練習→そのリズムを楽器で',
+      '録音して合奏の音源と重ねて聞く'
+    ],
+    tips:{all:'弓の返しでテンポが崩れやすいよ。返しの瞬間もカウントし続けよう。'},
+    links:[['rhythm-trainer.html','👏 リズムトレーニング'],['rhythm-sequencer.html','🥁 リズムシーケンサー']]
+  },
+  /* ---- パーカッション ---- */
+  'p_rush':{
+    title:'「聞きながら叩く」耳の余裕をつくる',
+    why:'走る・もたるのは、自分の音しか聞こえなくなっているサイン。メトロノームを「合わせる相手」じゃなく「一緒に演奏する仲間」にしよう。',
+    menu:[
+      'メトロノームと<b>完全に重なって「カチッ」が消える</b>のを目指して4分打ち',
+      'クリックを<b>裏拍や2・4拍だけ</b>にして、表拍を自分で感じる練習',
+      '<b>録音して</b>クリックと自分の音のズレ方向（前ノメリ？後ろ？）を知る'
+    ],
+    tips:{all:'速い曲で走る人は、フレーズの「出だし」だけ突っ込むことが多いよ。1発目を我慢！'},
+    links:[['tuner-metronome.html','🎯 メトロノーム'],['rhythm-trainer.html','👏 リズムトレーニング'],['recorder.html','🎙️ 録音モード']]
+  },
+  'p_roll':{
+    title:'ロールは「ゆっくりの2つ打ち」から',
+    why:'きれいなロールは、粒のそろった2つ打ち（ダブルストローク）の延長だよ。速くこすりつけるのではなく、跳ね返りをコントロールする練習から。',
+    menu:[
+      '♩=60で<b>RRLLの2つ打ち</b>。2打目も1打目と同じ音量になるよう指でフォロー',
+      'テンポを2ずつ上げて、<b>粒がそろったまま</b>速くしていく',
+      '<b>クレッシェンド・デクレッシェンドのロール</b>8拍。音量の坂道をなめらかに'
+    ],
+    tips:{all:'手首とスティックの角度は一定に。跳ね返りを「もらう」感覚がつかめると一気に伸びるよ。'},
+    links:[['tuner-metronome.html','🎯 メトロノーム'],['ensemble.html','🎶 基礎合奏：基礎打ち']]
+  },
+  'p_sound':{
+    title:'脱力と打点で音色は変わる',
+    why:'硬い音の原因は、握りしめ・振り下ろしすぎ・打点のズレ。太鼓は「叩く」より「鳴らす」楽器だよ。',
+    menu:[
+      'スティックを<b>落とすだけ</b>（グリップはゆるく）で自然なリバウンドの音を知る',
+      '打面の<b>中心・中間・フチ</b>で叩き比べて、楽器ごとのベスト打点を見つける',
+      'ffでも<b>腕の重さで鳴らす</b>。肩が上がっていたら力みすぎ'
+    ],
+    tips:{all:'マレット・スティックの選択でも激変するよ。曲想に合った道具選びも「音作り」のうち！'},
+    links:[['recorder.html','🎙️ 録音モード：音色を聞き比べ'],['ensemble.html','🎶 基礎合奏：基礎打ち']]
+  },
+  'p_read':{
+    title:'リズムは「唱えて→叩いて→読む」の順',
+    why:'リズム譜は目で読むより、先に口で唱えられるようになるのが近道。「タン・タタ」と言えるリズムは必ず叩けるよ。',
+    menu:[
+      '<b>リズムシーケンサー</b>で音符を並べて、唱え方つきで耳から覚える',
+      '<b>リズムトレーニング</b>で楽譜どおりに叩くゲームに挑戦（かんたん→むずかしい）',
+      '曲の苦手な小節を<b>口で唱えてから</b>楽器で。唱えられない場所は必ずつまずく場所！'
+    ],
+    tips:{all:'毎日2小節ずつでOK。1か月で初見のリズムに強くなるよ。'},
+    links:[['rhythm-sequencer.html','🥁 リズムシーケンサー'],['rhythm-trainer.html','👏 リズムトレーニング']]
+  }
+};
+
+/* ================= フロー ================= */
+let inst=null, concern=null;
+const flow=$('#flow');
+
+function card(title,sub,opts,onPick){
+  const d=document.createElement('div');
+  d.className='qcard';
+  d.innerHTML=`<div class="qhead"><div class="avatar">🎺</div><div class="qtitle"><small>${sub}</small>${title}</div></div><div class="opts"></div>`;
+  const box=d.querySelector('.opts');
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.innerHTML=`<span class="em">${o.em||''}</span>${o.label||o.name}`;
+    b.addEventListener('click',()=>{
+      if(d.classList.contains('answered'))return;
+      d.classList.add('answered');b.classList.add('picked');
+      onPick(o);
+      setTimeout(()=>{window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});},80);
+    });
+    box.appendChild(b);
+  });
+  flow.appendChild(d);
+}
+
+function start(){
+  flow.innerHTML='';inst=null;concern=null;
+  card('あなたの楽器は？','Question 1',INSTS,o=>{inst=o;askConcern();});
+}
+function askConcern(){
+  const list=inst.fam==='perc'?CONCERNS_PERC:inst.fam==='string'?CONCERNS_CB:CONCERNS_WIND;
+  card(`${inst.name}だね！ どんなことで悩んでる？`,'Question 2',list,o=>{
+    concern=o;
+    if(isWind(inst)&&BRANCH[o.id]){
+      const br=BRANCH[o.id];
+      card(br.q,'Question 3',br.opts,b=>showAdvice(o.id+'/'+b.id,b.label));
+    }else{
+      showAdvice(o.id,null);
+    }
+  });
+}
+function pickTip(tips){
+  if(!tips)return null;
+  return tips[inst.id]||tips[inst.fam==='reed'?'reed':inst.fam]||tips.all||null;
+}
+function showAdvice(key,branchLabel){
+  const a=ADVICE[key];
+  if(!a){start();return;}
+  const tip=pickTip(a.tips);
+  const extraTip=a.tips&&a.tips.all&&tip!==a.tips.all?a.tips.all:null;
+  const d=document.createElement('div');
+  d.className='advice';
+  d.innerHTML=`
+    <h2>💡 ${a.title}</h2>
+    <p class="path">${inst.name} ▸ ${concern.label}${branchLabel?' ▸ '+branchLabel:''}</p>
+    <div class="sec why"><h4><span class="bar"></span>なにが起きてる？</h4><p>${a.why}</p></div>
+    <div class="sec"><h4><span class="bar"></span>今日からの練習メニュー</h4>
+      <ol class="menuList">${a.menu.map((m,i)=>`<li data-n="${i+1}">${m}</li>`).join('')}</ol>
+    </div>
+    ${tip?`<div class="sec tip"><h4><span class="bar"></span>${inst.name}のワンポイント</h4><div class="tipBox">${tip}${extraTip?'<br><b>＋</b> '+extraTip:''}</div></div>`:''}
+    <div class="sec"><h4><span class="bar"></span>このアプリで練習するなら</h4>
+      <div class="toolLinks">${a.links.map(l=>`<a class="toolLink" href="${l[0]}">${l[1]}</a>`).join('')}</div>
+    </div>
+    <div class="again">
+      <button class="abtn main" id="againConcern">同じ楽器で別の悩みを相談</button>
+      <button class="abtn" id="againAll">最初からやり直す</button>
+    </div>`;
+  flow.appendChild(d);
+  d.querySelector('#againConcern').addEventListener('click',()=>{flow.innerHTML='';askConcern();window.scrollTo({top:0,behavior:'smooth'});});
+  d.querySelector('#againAll').addEventListener('click',()=>{start();window.scrollTo({top:0,behavior:'smooth'});});
+  setTimeout(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}),80);
+}
+start();
+</script>
+</body>
+</html>

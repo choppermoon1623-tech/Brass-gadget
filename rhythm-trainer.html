@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>リズムトレーニング｜吹奏楽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d2630; --bg2:#123540; --bg3:#0a1d25; --panel:#16424f;
+    --brass:#e6a93f; --brass-d:#b87d22;
+    --breath:#6fd6e6; --coral:#e89178; --coral-d:#c46a52;
+    --text:#e9f4f4; --muted:#8aabb3; --line:rgba(255,255,255,.09);
+    --good:#7fd6a8; --warn:#e8916f;
+    --jp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,sans-serif;
+    --en:"Archivo",var(--jp);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--jp);
+    background:
+      radial-gradient(1200px 600px at 78% -10%, rgba(230,169,63,.10), transparent 60%),
+      radial-gradient(900px 700px at 10% 110%, rgba(111,214,230,.10), transparent 55%),
+      var(--bg);
+    color:var(--text); line-height:1.7; min-height:100vh;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+  header{margin-bottom:26px}
+  .eyebrow{
+    font-family:var(--en);font-weight:700;letter-spacing:.32em;
+    text-transform:uppercase;font-size:12px;color:var(--brass);
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--brass-d),transparent)}
+  h1{font-weight:900;font-size:clamp(28px,4.5vw,46px);line-height:1.15;margin:14px 0 8px}
+  h1 .acc{color:var(--breath)}
+  .lead{color:var(--muted);max-width:60ch;font-size:15px}
+  .lead b{color:var(--text)}
+  .backlink{display:inline-block;margin:10px 14px 0 0;font-size:13px;color:var(--breath);text-decoration:none;border-bottom:1px dashed rgba(111,214,230,.5)}
+  .backlink:hover{color:#fff}
+  a{color:var(--breath)}a:hover{color:#fff}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px}
+  .card h3{font-size:16px;font-weight:900;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--brass);flex:none}
+  .card p{font-size:14px;color:var(--muted)}
+  .card p b{color:var(--text)}
+
+  .presets{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
+    color:var(--text);font-family:var(--jp);font-weight:700;font-size:13px;
+    padding:8px 13px;border-radius:999px;cursor:pointer;transition:.16s;white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--brass);color:var(--brass)}
+  .chip.on{background:var(--brass);color:#1a1206;border-color:var(--brass)}
+  .chip small{font-weight:500;opacity:.75;margin-left:4px}
+
+  .grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start;margin-top:16px}
+  @media(max-width:840px){.grid2{grid-template-columns:1fr}}
+  .side{display:flex;flex-direction:column;gap:14px}
+
+  .stage{
+    position:relative;background:#fefefe;border:1px solid rgba(0,0,0,.1);
+    border-radius:18px;overflow-x:auto;overflow-y:hidden;
+  }
+  .stage .tag{
+    position:absolute;top:12px;left:14px;font-family:var(--en);font-weight:700;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:#1c6b7a;background:rgba(255,255,255,.85);
+    padding:5px 10px;border-radius:999px;border:1px solid rgba(0,0,0,.08);z-index:2;
+  }
+  #rtInner{position:relative;width:fit-content;padding:40px 0 6px}
+  #playhead{
+    position:absolute;top:48px;height:96px;width:3px;border-radius:2px;
+    background:linear-gradient(180deg,rgba(230,169,63,.15),#b87d22,rgba(230,169,63,.15));
+    display:none;z-index:1;
+  }
+  #combo{
+    position:absolute;top:10px;right:14px;font-family:var(--en);font-weight:700;
+    font-size:15px;color:#b87d22;z-index:2;min-width:90px;text-align:right;
+  }
+  #judgePop{
+    position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);
+    font-family:var(--en);font-weight:700;font-size:34px;letter-spacing:.04em;
+    pointer-events:none;z-index:3;opacity:0;white-space:nowrap;
+  }
+  #judgePop.pop{animation:jpop .45s ease-out}
+  @keyframes jpop{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+    25%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}
+    60%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    100%{opacity:0;transform:translate(-50%,-60%) scale(1)}
+  }
+  .burst{
+    position:absolute;width:12px;height:12px;border-radius:50%;
+    border:3px solid var(--brass);pointer-events:none;z-index:2;
+    animation:burst .5s ease-out forwards;
+  }
+  @keyframes burst{
+    from{transform:translate(-50%,-50%) scale(.4);opacity:1;border-width:6px}
+    to{transform:translate(-50%,-50%) scale(4.5);opacity:0;border-width:1px}
+  }
+  .spark{
+    position:absolute;font-size:14px;color:#e6a93f;pointer-events:none;z-index:2;
+    animation:spark .55s ease-out forwards;font-weight:900;
+  }
+  @keyframes spark{
+    from{transform:translate(-50%,-50%) scale(.6);opacity:1}
+    to{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.3);opacity:0}
+  }
+  #fcOverlay{
+    position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    flex-direction:column;gap:4px;z-index:5;border-radius:18px;overflow:hidden;
+    background:rgba(255,252,244,.88);text-align:center;
+  }
+  #fcOverlay.show{display:flex;animation:fcin .4s ease-out}
+  @keyframes fcin{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+  #fcOverlay .rays{
+    position:absolute;inset:-60%;
+    background:conic-gradient(from 0deg,rgba(230,169,63,.22) 0 12deg,transparent 12deg 30deg,rgba(230,169,63,.22) 30deg 42deg,transparent 42deg 60deg,rgba(230,169,63,.22) 60deg 72deg,transparent 72deg 90deg,rgba(230,169,63,.22) 90deg 102deg,transparent 102deg 120deg,rgba(230,169,63,.22) 120deg 132deg,transparent 132deg 150deg,rgba(230,169,63,.22) 150deg 162deg,transparent 162deg 180deg,rgba(230,169,63,.22) 180deg 192deg,transparent 192deg 210deg,rgba(230,169,63,.22) 210deg 222deg,transparent 222deg 240deg,rgba(230,169,63,.22) 240deg 252deg,transparent 252deg 270deg,rgba(230,169,63,.22) 270deg 282deg,transparent 282deg 300deg,rgba(230,169,63,.22) 300deg 312deg,transparent 312deg 330deg,rgba(230,169,63,.22) 330deg 342deg,transparent 342deg 360deg);
+    animation:spin 6s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #fcOverlay .fcTitle{font-family:var(--en);font-weight:700;font-size:34px;color:#b87d22;position:relative;animation:fcbounce .6s ease-out}
+  @keyframes fcbounce{0%{transform:scale(.4)}55%{transform:scale(1.2)}100%{transform:scale(1)}}
+  #fcOverlay .fcSub{font-weight:900;font-size:16px;color:#123540;position:relative}
+  #fcOverlay .fcClose{position:relative;margin-top:8px}
+
+  .bigbtn{
+    appearance:none;border:0;border-radius:14px;cursor:pointer;
+    font-family:var(--jp);font-weight:900;font-size:16px;padding:13px 20px;
+    background:linear-gradient(90deg,var(--brass),#f0c063);color:#1a1206;transition:.16s;
+  }
+  .bigbtn:hover{filter:brightness(1.06)}
+  .bigbtn:disabled{opacity:.5;cursor:default}
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;
+    background:linear-gradient(90deg,var(--brass) 0%,var(--brass) var(--p,50%),rgba(255,255,255,.12) var(--p,50%));
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:#fff;border:3px solid var(--brass-d);box-shadow:0 2px 6px rgba(0,0,0,.4);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--brass-d);cursor:pointer}
+  .ctrl label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:7px}
+  .ctrl label span{color:var(--breath);font-family:var(--en)}
+
+  .padBtn{
+    width:100%;appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);
+    border-radius:16px;padding:22px 10px 16px;font-family:var(--en);font-weight:900;font-size:24px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:2px;transition:.1s;user-select:none;-webkit-user-select:none;touch-action:manipulation;
+  }
+  .padBtn small{font-family:var(--jp);font-size:11px;font-weight:700;color:var(--muted)}
+  .padBtn:active{background:var(--brass);color:#1a1206;transform:scale(.97)}
+  .padBtn:active small{color:#1a1206}
+
+  .hint{font-size:13px;color:var(--muted);border-left:3px solid var(--brass);padding:2px 0 2px 12px;margin-top:16px}
+  .hint b{color:var(--coral)}
+  #result{text-align:center;font-weight:700;font-size:14px;min-height:22px}
+
+  footer{margin-top:34px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  footer b{color:var(--brass)}
+</style>
+
+<style>
+  footer .gnav-cur{margin-bottom:12px}
+  footer .gnav-cur b{color:var(--brass)}
+  .gnav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px}
+  .gnav a{
+    display:inline-block;font-size:11.5px;font-weight:700;text-decoration:none;
+    color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;transition:.15s;
+    background:rgba(255,255,255,.03);
+  }
+  .gnav a:hover{color:var(--brass);border-color:var(--brass)}
+  .gnav a.cur{background:var(--brass);color:#1a1206;border-color:var(--brass);pointer-events:none}
+  .gnav a.home{color:var(--breath);border-color:rgba(111,214,230,.4)}
+  .gnav a.home:hover{color:#fff}
+  footer .gnav-credit{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#0d2630">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <line x1="16" y1="60" x2="84" y2="60" stroke="#e6a93f" stroke-width="3"/>
+    <circle cx="34" cy="60" r="6" fill="#6fd6e6"/>
+    <line x1="40" y1="58" x2="40" y2="36" stroke="#6fd6e6" stroke-width="3"/>
+    <circle cx="60" cy="60" r="6" fill="#e89178"/>
+    <line x1="66" y1="58" x2="66" y2="36" stroke="#e89178" stroke-width="3"/>
+    <line x1="40" y1="36" x2="66" y2="36" stroke="#e6a93f" stroke-width="5"/>
+  </svg>
+</template>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Rhythm Reading Trainer</div>
+    <h1>リズム<span class="acc">トレーニング</span></h1>
+    <p class="lead">楽譜のリズムを見て、メトロノームに合わせて<b>スペースキーかタップで叩く</b>トレーニング。2小節のパターンを難易度別に用意したよ。全部パーフェクトでフルコンボ！</p>
+    <a class="backlink" href="index.html">← ホーム（メニューにもどる）</a>
+    <a class="backlink" href="rhythm-sequencer.html">🥁 リズムシーケンサー（入力して聞く）はこちら</a>
+  </header>
+
+  <div class="card" style="margin-bottom:12px">
+    <h3><span class="dot"></span>難易度</h3>
+    <div class="presets" id="lvPick"></div>
+  </div>
+  <div class="card">
+    <h3><span class="dot"></span>リズムパターン（4分の4拍子・2小節）</h3>
+    <div class="presets" id="patPick"></div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <div class="stage" id="stage">
+        <span class="tag">Rhythm Score</span>
+        <div id="combo"></div>
+        <div id="rtInner">
+          <svg id="rtSvg"></svg>
+          <div id="playhead"></div>
+        </div>
+        <div id="judgePop"></div>
+        <div id="fcOverlay">
+          <div class="rays"></div>
+          <div class="fcTitle" id="fcTitle"></div>
+          <div class="fcSub" id="fcSub"></div>
+          <button class="chip fcClose" id="fcClose">とじる</button>
+        </div>
+      </div>
+      <p class="hint" id="patDesc"></p>
+    </div>
+    <div class="side">
+      <div class="card">
+        <div class="ctrl"><label>テンポ<span id="vBpm">90 BPM</span></label><input type="range" id="bpm" min="60" max="160" value="90"></div>
+        <button class="bigbtn" id="startBtn" style="width:100%;margin-top:2px">🥁 スタート</button>
+        <button class="chip" id="demoBtn" style="width:100%;margin-top:10px;text-align:center">♪ お手本を聞く</button>
+        <p style="font-size:12px;color:var(--muted);margin-top:10px">カウント1小節（4拍）のあと、譜面どおりに叩こう。<b style="color:var(--text)">◎パーフェクト ○グッド ✕ミス</b> が音符の上に出るよ。</p>
+      </div>
+      <button class="padBtn" id="pad">TAP!<small>ここをタップ／スペースキーでもOK</small></button>
+      <div class="card">
+        <div id="result"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p class="gnav-cur">機能⑥ <b>リズムトレーニング</b></p>
+    <nav class="gnav"><a class="home" href="index.html">🏠 ホーム</a><a href="breath-guide.html">①呼吸と身体ガイド</a><a href="note-names.html">②ドイツ音名ガイド</a><a href="fingering.html">③運指表</a><a href="flashcards.html">④フラッシュカード</a><a href="rhythm-sequencer.html">⑤リズムシーケンサー</a><a href="rhythm-trainer.html" class="cur">⑥リズムトレーニング</a><a href="recorder.html">⑦録音モード</a><a href="tuner-metronome.html">⑧チューナー＆メトロノーム</a><a href="harmony-trainer.html">⑨ハーモニートレーナー</a><a href="ensemble.html">⑩基礎合奏メニュー</a><a href="advisor.html">⑪お悩み相談チャート</a><a href="reference-library.html">⑫参考音源ライブラリ</a><a href="event-calendar.html">⑬イベントカレンダー</a></nav>
+    <div class="gnav-credit">吹奏楽部サポートアプリ ／ ブラウザだけで動く・インストール不要・スマホ対応</div>
+  </footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function fill(el){const min=+el.min,max=+el.max;el.style.setProperty('--p',((el.value-min)/(max-min)*100)+'%');}
+
+/* ---------- オーディオ（iOS対策込み） ---------- */
+let AC;
+async function ensureAC(){
+  if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state!=='running'){try{await AC.resume();}catch(e){}}
+  const b=AC.createBuffer(1,1,22050);const s=AC.createBufferSource();
+  s.buffer=b;s.connect(AC.destination);s.start(0);
+}
+function clickSound(t,acc){
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type='square';o.frequency.value=acc?1568:1047;
+  g.gain.setValueAtTime(acc?.4:.26,t);
+  g.gain.exponentialRampToValueAtTime(.001,t+.055);
+  o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.07);
+}
+function tapSound(t,strong){
+  const dur=.08;
+  const b=AC.createBuffer(1,Math.floor(AC.sampleRate*dur),AC.sampleRate);
+  const data=b.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);
+  const s=AC.createBufferSource();s.buffer=b;
+  const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=strong?2100:1500;f.Q.value=.9;
+  const g=AC.createGain();g.gain.value=strong?.85:.5;
+  s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t);
+}
+
+/* ---------- パターンデータ（t=拍位置 0〜8、d=長さ拍、rest=休符、trip=3連グループ） ---------- */
+function N(t,d,o={}){return{t,d,...o};}
+function R(t,d){return{t,d,rest:true};}
+const PATTERNS=[
+ // Lv1：4分・2分・休符
+ {id:'l1a',lv:1,label:'4分音符マーチ',desc:'ぜんぶ4分音符。メトロノームとぴったり重なるように「タン・タン」と均等に。',
+  ev:[N(0,1),N(1,1),N(2,1),N(3,1),N(4,1),N(5,1),N(6,2)]},
+ {id:'l1b',lv:1,label:'2分音符ミックス',desc:'2分音符は「ター・（アー）」と2拍分。伸ばしている間も拍を感じよう。',
+  ev:[N(0,2),N(2,1),N(3,1),N(4,1),N(5,1),N(6,2)]},
+ {id:'l1c',lv:1,label:'4分休符入り',desc:'休符は「ウン」と心の中で唱えるのがコツ。休みも音楽のうち！',
+  ev:[N(0,1),R(1,1),N(2,1),R(3,1),N(4,1),N(5,1),R(6,1),N(7,1)]},
+ {id:'l1d',lv:1,label:'全音符から',desc:'全音符は4拍分。1回叩いたら「2・3・4」と数えて、2小節目に備えよう。',
+  ev:[N(0,4),N(4,1),N(5,1),N(6,2)]},
+ // Lv2：8分音符
+ {id:'l2a',lv:2,label:'8分音符ペア',desc:'8分音符2つで「タタ」＝1拍。4分音符との切りかえをはっきりと。',
+  ev:[N(0,1),N(1,.5),N(1.5,.5),N(2,1),N(3,1),N(4,.5),N(4.5,.5),N(5,.5),N(5.5,.5),N(6,2)]},
+ {id:'l2b',lv:2,label:'タタタン行進曲',desc:'「タタ・タン」の組み合わせ。8分音符が転ばないように均等に。',
+  ev:[N(0,.5),N(.5,.5),N(1,1),N(2,.5),N(2.5,.5),N(3,1),N(4,1),N(5,.5),N(5.5,.5),N(6,2)]},
+ {id:'l2c',lv:2,label:'ウラ拍（8分休符）',desc:'「ウン・タ」の裏打ち！休符のあいだも拍を強く感じて、遅れずに。',
+  ev:[R(0,.5),N(.5,.5),R(1,.5),N(1.5,.5),N(2,1),N(3,1),R(4,.5),N(4.5,.5),R(5,.5),N(5.5,.5),N(6,2)]},
+ {id:'l2d',lv:2,label:'シンコペーション',desc:'「タ・ター・タ」のシンコペ。真ん中の4分音符がウラ拍から始まるよ。',
+  ev:[N(0,.5),N(.5,1),N(1.5,.5),N(2,1),N(3,1),N(4,.5),N(4.5,1),N(5.5,.5),N(6,1),N(7,1)]},
+ // Lv3：16分・付点
+ {id:'l3a',lv:3,label:'16分タカタカ',desc:'16分音符4つで「タカタカ」＝1拍。粒をそろえて転ばずに！',
+  ev:[N(0,.25),N(.25,.25),N(.5,.25),N(.75,.25),N(1,1),N(2,.25),N(2.25,.25),N(2.5,.25),N(2.75,.25),N(3,1),N(4,1),N(5,.25),N(5.25,.25),N(5.5,.25),N(5.75,.25),N(6,2)]},
+ {id:'l3b',lv:3,label:'タタカ・タカタ',desc:'8分＋16分2つの「タタカ」。16分の位置が前か後ろかをよく見て。',
+  ev:[N(0,.5),N(.5,.25),N(.75,.25),N(1,.25),N(1.25,.25),N(1.5,.5),N(2,1),N(3,1),N(4,.5),N(4.5,.25),N(4.75,.25),N(5,1),N(6,2)]},
+ {id:'l3c',lv:3,label:'タッカのリズム',desc:'付点8分＋16分で「タッカ」。スキップするような弾んだリズム。',
+  ev:[N(0,.75),N(.75,.25),N(1,.75),N(1.75,.25),N(2,1),N(3,1),N(4,.75),N(4.75,.25),N(5,.75),N(5.75,.25),N(6,2)]},
+ {id:'l3d',lv:3,label:'付点4分＋8分',desc:'「ターア・タ」。付点4分は1拍半。8分音符が2拍目のウラに来るよ。',
+  ev:[N(0,1.5),N(1.5,.5),N(2,1),N(3,1),N(4,1.5),N(5.5,.5),N(6,2)]},
+ // Lv4：3連符・応用
+ {id:'l4a',lv:4,label:'3連符',desc:'1拍を3等分「タタタ」。2等分（8分）とのちがいを感じよう。',
+  ev:[N(0,1/3,{trip:1}),N(1/3,1/3,{trip:1}),N(2/3,1/3,{trip:1}),N(1,1),N(2,1/3,{trip:2}),N(2+1/3,1/3,{trip:2}),N(2+2/3,1/3,{trip:2}),N(3,1),N(4,1),N(5,1/3,{trip:3}),N(5+1/3,1/3,{trip:3}),N(5+2/3,1/3,{trip:3}),N(6,2)]},
+ {id:'l4b',lv:4,label:'3連と8分ミックス',desc:'8分の「タタ」と3連の「タタタ」が交互に。割り方の切りかえが勝負！',
+  ev:[N(0,.5),N(.5,.5),N(1,1/3,{trip:1}),N(1+1/3,1/3,{trip:1}),N(1+2/3,1/3,{trip:1}),N(2,1),N(3,1),N(4,1/3,{trip:2}),N(4+1/3,1/3,{trip:2}),N(4+2/3,1/3,{trip:2}),N(5,.5),N(5.5,.5),N(6,2)]},
+ {id:'l4c',lv:4,label:'16分シンコペ',desc:'「タ・タ・タ」16分-8分-16分のシンコペ。真ん中がウラのウラ！',
+  ev:[N(0,.25),N(.25,.5),N(.75,.25),N(1,1),N(2,.25),N(2.25,.5),N(2.75,.25),N(3,1),N(4,.5),N(4.5,.5),N(5,.25),N(5.25,.5),N(5.75,.25),N(6,2)]},
+ {id:'l4d',lv:4,label:'総合ミックス',desc:'これまでの全部入り。付点・16分・3連・シンコペ…読めたら本物！',
+  ev:[N(0,1.5),N(1.5,.5),N(2,.25),N(2.25,.25),N(2.5,.5),N(3,1),N(4,1/3,{trip:1}),N(4+1/3,1/3,{trip:1}),N(4+2/3,1/3,{trip:1}),N(5,.5),N(5.5,.5),N(6,.25),N(6.25,.25),N(6.5,.25),N(6.75,.25),N(7,1)]},
+ // 追加：Lv1
+ {id:'l1e',lv:1,label:'2分休符',desc:'2拍のお休みは「ウン・ウン」。2小節目の入りをのがさないで！',
+  ev:[N(0,1),N(1,1),R(2,2),N(4,2),N(6,1),N(7,1)]},
+ {id:'l1f',lv:1,label:'休符ちらし',desc:'4分休符がいろんな場所に。休符の位置を先に確認してから叩こう。',
+  ev:[N(0,1),N(1,1),N(2,1),R(3,1),N(4,2),R(6,1),N(7,1)]},
+ // 追加：Lv2
+ {id:'l2e',lv:2,label:'8分音符ラン',desc:'1小節まるごと8分音符。テンポが速くならないように注意！',
+  ev:[N(0,.5),N(.5,.5),N(1,.5),N(1.5,.5),N(2,.5),N(2.5,.5),N(3,.5),N(3.5,.5),N(4,1),N(5,1),N(6,2)]},
+ {id:'l2f',lv:2,label:'タンタタ・タタタン',desc:'4分と8分の組み合わせ替え。2小節目には8分休符もあるよ。',
+  ev:[N(0,1),N(1,.5),N(1.5,.5),N(2,.5),N(2.5,.5),N(3,1),N(4,1),R(5,.5),N(5.5,.5),N(6,2)]},
+ {id:'l2g',lv:2,label:'ウラ打ちマラソン',desc:'2小節ずっとウラ拍！メトロノームの「間」を叩き続けよう。',
+  ev:[R(0,.5),N(.5,.5),R(1,.5),N(1.5,.5),R(2,.5),N(2.5,.5),R(3,.5),N(3.5,.5),R(4,.5),N(4.5,.5),R(5,.5),N(5.5,.5),R(6,.5),N(6.5,.5),R(7,.5),N(7.5,.5)]},
+ {id:'l2h',lv:2,label:'タイのシンコペ',desc:'タイ（弧線）で結ばれた音は1つにつながる。後ろの音は叩かない！',
+  ev:[N(0,1),N(1,.5),N(1.5,.5),N(2,1),N(3,1,{tie:1}),N(4,1,{tieEnd:1}),N(5,1),N(6,.5),N(6.5,.5),N(7,1)]},
+ // 追加：Lv3
+ {id:'l3e',lv:3,label:'カッタ（16分休符）',desc:'拍の頭が16分休符で「ンカタ」。頭をのみこんで叩く難しさ！',
+  ev:[R(0,.25),N(.25,.25),N(.5,.5),R(1,.25),N(1.25,.25),N(1.5,.5),N(2,1),N(3,1),R(4,.25),N(4.25,.25),N(4.5,.5),N(5,1),N(6,2)]},
+ {id:'l3f',lv:3,label:'16分総動員',desc:'タカタカ・タタ・タカタ…いろんな16分の形が次々に出るよ。',
+  ev:[N(0,.25),N(.25,.25),N(.5,.25),N(.75,.25),N(1,.5),N(1.5,.5),N(2,1),N(3,.25),N(3.25,.25),N(3.5,.5),N(4,.5),N(4.5,.25),N(4.75,.25),N(5,1),N(6,2)]},
+ {id:'l3g',lv:3,label:'逆タッカ（タカー）',desc:'16分＋付点8分で「タカー」。タッカとの逆。前のほうが短い！',
+  ev:[N(0,.25),N(.25,.75),N(1,.25),N(1.25,.75),N(2,1),N(3,1),N(4,.25),N(4.25,.75),N(5,.25),N(5.25,.75),N(6,2)]},
+ {id:'l3h',lv:3,label:'付点とタイ',desc:'付点4分と小節をまたぐタイ。伸ばしている間も拍を数え続けて。',
+  ev:[N(0,1.5),N(1.5,.5),N(2,1),N(3,1,{tie:1}),N(4,1,{tieEnd:1}),N(5,.75),N(5.75,.25),N(6,2)]},
+ // 追加：Lv4
+ {id:'l4e',lv:4,label:'タンカ（8分休符＋16分）',desc:'「タンカ」＝8分＋休符＋16分。4つ目の16分だけ叩く難リズム！',
+  ev:[N(0,.5),R(.5,.25),N(.75,.25),N(1,1),N(2,.5),R(2.5,.25),N(2.75,.25),N(3,1),N(4,.25),N(4.25,.25),N(4.5,.25),N(4.75,.25),N(5,.5),N(5.5,.5),N(6,2)]},
+ {id:'l4f',lv:4,label:'チャールストン風',desc:'ジャズの定番シンコペ。ウラからのタイでノリを出そう！',
+  ev:[N(0,1.5),N(1.5,1),N(2.5,.5,{tie:1}),N(3,1,{tieEnd:1}),N(4,1.5),N(5.5,.5,{tie:2}),N(6,1,{tieEnd:2}),N(7,1)]},
+ {id:'l4g',lv:4,label:'3連符ラッシュ',desc:'ほぼ全部3連符！「タタタ」の流れを一定に保てるかな？',
+  ev:[N(0,1/3,{trip:1}),N(1/3,1/3,{trip:1}),N(2/3,1/3,{trip:1}),N(1,1/3,{trip:2}),N(1+1/3,1/3,{trip:2}),N(1+2/3,1/3,{trip:2}),N(2,1/3,{trip:3}),N(2+1/3,1/3,{trip:3}),N(2+2/3,1/3,{trip:3}),N(3,1),N(4,1/3,{trip:4}),N(4+1/3,1/3,{trip:4}),N(4+2/3,1/3,{trip:4}),N(5,1/3,{trip:5}),N(5+1/3,1/3,{trip:5}),N(5+2/3,1/3,{trip:5}),N(6,2)]},
+ {id:'l4h',lv:4,label:'クラーベ風',desc:'ラテン音楽のリズム型。付点・付点・タイの3発目がカッコいい！',
+  ev:[N(0,1.5),N(1.5,1.5),N(3,1,{tie:1}),N(4,1,{tieEnd:1}),N(5,1),N(6,1),R(7,1)]},
+ // Lv5：達人
+ {id:'l5a',lv:5,label:'16分フルコース',desc:'16分のあらゆる形が連続で！粒をそろえて走り切ろう。',
+  ev:[N(0,.25),N(.25,.25),N(.5,.25),N(.75,.25),N(1,.25),N(1.25,.25),N(1.5,.5),N(2,.5),N(2.5,.25),N(2.75,.25),N(3,1),N(4,.25),N(4.25,.25),N(4.5,.25),N(4.75,.25),N(5,.5),N(5.5,.5),N(6,.25),N(6.25,.25),N(6.5,.5),N(7,1)]},
+ {id:'l5b',lv:5,label:'タッカ・タカー入り乱れ',desc:'タッカと逆タッカが交互に！どっちが短いか瞬時に見分けよう。',
+  ev:[N(0,.75),N(.75,.25),N(1,.25),N(1.25,.75),N(2,.75),N(2.75,.25),N(3,1),N(4,.75),N(4.75,.25),N(5,.25),N(5.25,.75),N(6,.25),N(6.25,.25),N(6.5,.25),N(6.75,.25),N(7,1)]},
+ {id:'l5c',lv:5,label:'3連⇄16分切りかえ',desc:'1拍を3つ割り→4つ割りへ瞬間切りかえ！頭の中のカウントが勝負。',
+  ev:[N(0,1/3,{trip:1}),N(1/3,1/3,{trip:1}),N(2/3,1/3,{trip:1}),N(1,.25),N(1.25,.25),N(1.5,.25),N(1.75,.25),N(2,1/3,{trip:2}),N(2+1/3,1/3,{trip:2}),N(2+2/3,1/3,{trip:2}),N(3,1),N(4,1/3,{trip:3}),N(4+1/3,1/3,{trip:3}),N(4+2/3,1/3,{trip:3}),N(5,.25),N(5.25,.25),N(5.5,.5),N(6,1/3,{trip:4}),N(6+1/3,1/3,{trip:4}),N(6+2/3,1/3,{trip:4}),N(7,1)]},
+ {id:'l5d',lv:5,label:'休符のトリック',desc:'8分・16分休符があちこちに。叩く場所より「叩かない場所」を読もう！',
+  ev:[R(0,.5),N(.5,.25),N(.75,.25),N(1,.5),R(1.5,.5),R(2,.25),N(2.25,.25),N(2.5,.5),N(3,1),R(4,.5),N(4.5,.5),N(5,.25),R(5.25,.25),N(5.5,.5),N(6,1),R(7,1)]},
+ {id:'l5e',lv:5,label:'タイのラビリンス',desc:'シンコペ＋タイの連続。叩かない音（タイの後ろ側）につられないで！',
+  ev:[N(0,.5),N(.5,1),N(1.5,.5,{tie:1}),N(2,1,{tieEnd:1}),N(3,1),N(4,.5),N(4.5,.5),N(5,.5),N(5.5,.5,{tie:2}),N(6,1,{tieEnd:2}),N(7,1)]},
+ {id:'l5f',lv:5,label:'超ラスボス',desc:'付点・16分・3連・タイ・シンコペ…全要素の最終試験。パーフェクトできたら本当の達人！',
+  ev:[N(0,1.5),N(1.5,.25),N(1.75,.25),N(2,1/3,{trip:1}),N(2+1/3,1/3,{trip:1}),N(2+2/3,1/3,{trip:1}),N(3,1,{tie:1}),N(4,1,{tieEnd:1}),N(5,.25),N(5.25,.5),N(5.75,.25),N(6,.25),N(6.25,.25),N(6.5,.25),N(6.75,.25),N(7,1)]},
+ // Lv6：フュージョン（16ビートバッキング）
+ {id:'l6a',lv:6,label:'16ビート・カッティング',desc:'ギターカッティング風の16ビート。休符の「スカッ」とした空白がグルーヴの命！まずは遅いテンポで。',
+  ev:[N(0,.25),N(.25,.25),R(.5,.25),N(.75,.25),R(1,.25),N(1.25,.25),N(1.5,.5),N(2,.25),R(2.25,.25),N(2.5,.25),N(2.75,.25),R(3,.25),N(3.25,.25),N(3.5,.5),N(4,.25),N(4.25,.25),R(4.5,.25),N(4.75,.25),R(5,.25),N(5.25,.25),N(5.5,.5),N(6,.5),R(6.5,.25),N(6.75,.25),N(7,1)]},
+ {id:'l6b',lv:6,label:'小節マタギ・シンコペ',desc:'1小節目の最後の16分がタイで次の小節へ食いこむ！小節頭を叩かない勇気が試される。',
+  ev:[N(0,.5),R(.5,.25),N(.75,.25),R(1,.25),N(1.25,.5),N(1.75,.25),R(2,.25),N(2.25,.25),N(2.5,.5),N(3,.5),N(3.5,.25),N(3.75,.25,{tie:1}),N(4,.5,{tieEnd:1}),R(4.5,.25),N(4.75,.25),N(5,.5),R(5.5,.25),N(5.75,.25,{tie:2}),N(6,1,{tieEnd:2}),N(7,.5),R(7.5,.5)]},
+ {id:'l6c',lv:6,label:'ウラ16のキメ',desc:'16分のウラ（「エ」と「ア」）だけを叩く鬼フレーズ。メトロノームに寄りかからず自分の中の16分を信じて！',
+  ev:[R(0,.25),N(.25,.25),R(.5,.25),N(.75,.25),R(1,.25),N(1.25,.25),R(1.5,.25),N(1.75,.25),N(2,.5),R(2.5,.5),R(3,.25),N(3.25,.25),R(3.5,.25),N(3.75,.25,{tie:1}),N(4,.5,{tieEnd:1}),R(4.5,.25),N(4.75,.25),R(5,.25),N(5.25,.25),N(5.5,.5),N(6,.5),N(6.5,.5),N(7,1)]},
+ {id:'l6d',lv:6,label:'休符の海・ファンク',desc:'叩く音より休符の方が多い？ファンクのゴースト感覚で、空白をカウントし続けよう。',
+  ev:[N(0,.25),R(.25,.5),N(.75,.25),N(1,.25),R(1.25,.25),N(1.5,.25),R(1.75,.25),R(2,.25),N(2.25,.25),R(2.5,.25),N(2.75,.25),N(3,.75),N(3.75,.25,{tie:1}),N(4,.75,{tieEnd:1}),N(4.75,.25),R(5,.25),N(5.25,.25),R(5.5,.25),N(5.75,.25),N(6,.5),R(6.5,.25),N(6.75,.25,{tie:2}),N(7,1,{tieEnd:2})]},
+ {id:'l6e',lv:6,label:'フュージョン・キメフレーズ',desc:'タイだらけのブラスセクション風キメ。叩くのは全部ウラから、伸ばすのはオモで。バンド気分でキメろう！',
+  ev:[N(0,.75),N(.75,.25,{tie:1}),N(1,.5,{tieEnd:1}),N(1.5,.25),N(1.75,.25,{tie:2}),N(2,.5,{tieEnd:2}),R(2.5,.25),N(2.75,.25),N(3,.5),N(3.5,.25),N(3.75,.25,{tie:3}),N(4,1,{tieEnd:3}),R(5,.25),N(5.25,.25),N(5.5,.25),N(5.75,.25),N(6,.25),R(6.25,.25),N(6.5,.5),N(7,1)]},
+ {id:'l6f',lv:6,label:'16ビート卒業試験',desc:'カッティング・マタギ・ウラ16・タイの全部入り最終関門。これが叩けたらフュージョンバンドのリズム隊即戦力！',
+  ev:[N(0,.25),N(.25,.25),R(.5,.25),N(.75,.25,{tie:1}),N(1,.25,{tieEnd:1}),N(1.25,.25),R(1.5,.25),N(1.75,.25),N(2,.5),R(2.5,.25),N(2.75,.25),R(3,.25),N(3.25,.25),R(3.5,.25),N(3.75,.25,{tie:2}),N(4,.75,{tieEnd:2}),N(4.75,.25),R(5,.25),N(5.25,.25),R(5.5,.25),N(5.75,.25,{tie:3}),N(6,.5,{tieEnd:3}),N(6.5,.25),N(6.75,.25),N(7,.5),R(7.5,.5)]},
+];
+const LVS=[{lv:1,label:'Lv1 4分音符・休符'},{lv:2,label:'Lv2 8分音符'},{lv:3,label:'Lv3 16分・付点'},{lv:4,label:'Lv4 3連符・応用'},{lv:5,label:'Lv5 達人'},{lv:6,label:'Lv6 フュージョン16ビート'}];
+let curLv=1, pat=PATTERNS[0];
+const bestKey=id=>'rt_best_'+id;
+function getBest(id){try{return JSON.parse(localStorage.getItem(bestKey(id)))||null;}catch(e){return null;}}
+function rankOf(s){return s>=95?'S':s>=85?'A':s>=70?'B':'C';}
+
+/* ---------- 記譜（1本線のリズム譜） ---------- */
+const X0=52, PB=66, LY=96;
+function xAt(t){return X0+t*PB;}
+function glyphFor(e){
+  if(e.trip!=null)return'e';
+  if(e.d>=4)return'w'; if(e.d>=2)return'h'; if(e.d>=1.5)return'dq'; if(e.d>=1)return'q';
+  if(e.d>=.75)return'de'; if(e.d>=.5)return'e'; return's';
+}
+function beamGroups(ev){
+  const groups=[];let cur=[],key=null;
+  ev.forEach((e,i)=>{
+    const g=glyphFor(e);
+    const beamable=!e.rest&&(g==='e'||g==='s'||g==='de');
+    const k=e.trip!=null?'T'+e.trip:'B'+Math.floor(e.t+1e-4);
+    if(beamable&&k===key){cur.push(i);}
+    else{
+      if(cur.length>1)groups.push(cur);
+      cur=beamable?[i]:[];key=beamable?k:null;
+    }
+  });
+  if(cur.length>1)groups.push(cur);
+  return groups;
+}
+function restSVG(x,e){
+  const g=glyphFor(e);
+  if(g==='w')return`<rect x="${x-9}" y="${LY-9}" width="18" height="8" rx="1.5" fill="#123540"/>`;
+  if(g==='h')return`<rect x="${x-9}" y="${LY-8}" width="18" height="8" rx="1.5" fill="#123540"/>`;
+  if(g==='q')return`<path d="M ${x-3} ${LY-15} L ${x+4} ${LY-7} Q ${x-3} ${LY-1} ${x+3} ${LY+5} Q ${x-6} ${LY+3} ${x-1} ${LY+12} Q ${x-9} ${LY+7} ${x-3} ${LY+1} Q ${x-6} ${LY-5} ${x-3} ${LY-15} Z" fill="#123540"/>`;
+  if(g==='e')return`<g fill="#123540"><circle cx="${x-3.5}" cy="${LY-8}" r="3.4"/><path d="M ${x-2} ${LY-6} Q ${x+2} ${LY-4} ${x+5} ${LY-11} L ${x+1} ${LY+10} L ${x-1.6} ${LY+9.4} Z"/></g>`;
+  // 16分休符（旗が2つ）
+  return`<g fill="#123540"><circle cx="${x-3.5}" cy="${LY-10}" r="3"/><circle cx="${x-4.5}" cy="${LY-2}" r="3"/><path d="M ${x-2} ${LY-8} Q ${x+2} ${LY-6} ${x+5} ${LY-13} L ${x+.5} ${LY+11} L ${x-2} ${LY+10.4} Z"/></g>`;
+}
+/* marks: idx -> 'P'|'G'|'M'  active: idx */
+function rhythmSVG(marks={},active=-1){
+  const ev=pat.ev;
+  const W=X0+8*PB+26, H=170;
+  let s=`<svg id="rtSvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="var(--jp)">`;
+  // 拍子・線
+  s+=`<line x1="${X0-30}" y1="${LY}" x2="${W-8}" y2="${LY}" stroke="#4a6a74" stroke-width="1.6"/>`;
+  s+=`<text x="${X0-30}" y="${LY-8}" font-size="20" font-weight="900" fill="#123540" font-family="var(--en)">4</text>`;
+  s+=`<text x="${X0-30}" y="${LY+18}" font-size="20" font-weight="900" fill="#123540" font-family="var(--en)">4</text>`;
+  // 小節線
+  [[xAt(4)-PB*.32,1.6],[W-14,2.4]].forEach(([bx,w])=>{
+    s+=`<line x1="${bx}" y1="${LY-26}" x2="${bx}" y2="${LY+26}" stroke="#4a6a74" stroke-width="${w}"/>`;
+  });
+  s+=`<line x1="${W-20}" y1="${LY-26}" x2="${W-20}" y2="${LY+26}" stroke="#4a6a74" stroke-width="1"/>`;
+  // 拍番号
+  for(let b=0;b<8;b++){
+    s+=`<text x="${xAt(b)}" y="${LY+44}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#9db4bb" font-family="var(--en)">${b%4+1}</text>`;
+  }
+  const groups=beamGroups(ev);
+  const inGroup=new Set();groups.forEach(g=>g.forEach(i=>inGroup.add(i)));
+  const YB=LY-40; // ビーム位置
+  // 音符
+  ev.forEach((e,i)=>{
+    const x=xAt(e.t), g=glyphFor(e);
+    const mk=marks[i];
+    const ink= mk==='M'?'#c46a52': mk==='P'?'#b87d22': mk==='G'?'#1c6b7a':'#123540';
+    if(i===active)s+=`<circle cx="${x}" cy="${LY}" r="15" fill="rgba(230,169,63,.3)"/>`;
+    if(e.rest){s+=`<g opacity=".9">${restSVG(x,e)}</g>`;}
+    else{
+      const hollow=g==='h'||g==='w';
+      if(g==='w')s+=`<ellipse cx="${x}" cy="${LY}" rx="8.6" ry="5.6" fill="none" stroke="${ink}" stroke-width="2.6"/>`;
+      else s+=`<ellipse cx="${x}" cy="${LY}" rx="6.6" ry="5" fill="${hollow?'none':ink}" stroke="${ink}" stroke-width="${hollow?2.2:0}" transform="rotate(-16 ${x} ${LY})"/>`;
+      if(g==='dq'||g==='de')s+=`<circle cx="${x+11}" cy="${LY-4}" r="2.2" fill="${ink}"/>`;
+      if(g!=='w'){
+        const beamed=inGroup.has(i);
+        const stemTop=beamed?YB:LY-34;
+        s+=`<line x1="${x+6}" y1="${LY-2}" x2="${x+6}" y2="${stemTop}" stroke="${ink}" stroke-width="1.8"/>`;
+        if(!beamed&&(g==='e'||g==='de'))s+=`<path d="M ${x+6} ${stemTop} q 12 4 8 18" fill="none" stroke="${ink}" stroke-width="2.4"/>`;
+        if(!beamed&&g==='s'){
+          s+=`<path d="M ${x+6} ${stemTop} q 12 4 8 16" fill="none" stroke="${ink}" stroke-width="2.4"/>`;
+          s+=`<path d="M ${x+6} ${stemTop+7} q 12 4 8 16" fill="none" stroke="${ink}" stroke-width="2.4"/>`;
+        }
+      }
+    }
+    // タイ（弧線）
+    if(e.tieEnd){
+      let j=i-1;while(j>=0&&ev[j].rest)j--;
+      if(j>=0){
+        const gap=x-xAt(ev[j].t);
+        const inset=Math.min(7,gap*.18);
+        const tx1=xAt(ev[j].t)+inset, tx2=x-inset;
+        const dip=Math.min(24,10+gap*.22);
+        s+=`<path d="M ${tx1} ${LY+10} Q ${(tx1+tx2)/2} ${LY+dip} ${tx2} ${LY+10}" fill="none" stroke="#123540" stroke-width="2"/>`;
+      }
+    }
+    // 判定マーク
+    if(mk){
+      const sym=mk==='P'?'◎':mk==='G'?'○':'✕';
+      s+=`<text x="${x}" y="30" text-anchor="middle" font-size="17" font-weight="900" fill="${ink}">${sym}</text>`;
+    }
+  });
+  // ビーム
+  groups.forEach(gr=>{
+    const x1=xAt(ev[gr[0]].t)+6, x2=xAt(ev[gr[gr.length-1]].t)+6;
+    s+=`<rect x="${x1-1}" y="${YB}" width="${x2-x1+2}" height="4.4" fill="#123540"/>`;
+    // 16分の2本目（部分ビーム）
+    gr.forEach((idx,k)=>{
+      if(glyphFor(ev[idx])!=='s')return;
+      const x=xAt(ev[idx].t)+6;
+      const nxt=gr[k+1], prv=gr[k-1];
+      if(nxt!=null&&glyphFor(ev[nxt])==='s'){
+        s+=`<rect x="${x-1}" y="${YB+7}" width="${xAt(ev[nxt].t)+6-x+2}" height="4.4" fill="#123540"/>`;
+      }else if(!(prv!=null&&glyphFor(ev[prv])==='s')){
+        const dir=nxt!=null?1:-1;
+        s+=`<rect x="${dir>0?x-1:x-9}" y="${YB+7}" width="10" height="4.4" fill="#123540"/>`;
+      }
+    });
+    // 3連符の「3」
+    if(ev[gr[0]].trip!=null){
+      const cx=(x1+x2)/2;
+      s+=`<text x="${cx}" y="${YB-7}" text-anchor="middle" font-size="14" font-weight="900" fill="#1c6b7a" font-family="var(--en)" font-style="italic">3</text>`;
+    }
+  });
+  return s+'</svg>';
+}
+function redraw(marks,active){
+  $('rtSvg').outerHTML=rhythmSVG(marks,active);
+}
+
+/* ---------- UI ---------- */
+function renderLvPick(){
+  const el=$('lvPick');el.innerHTML='';
+  LVS.forEach(l=>{
+    const b=document.createElement('button');
+    b.className='chip'+(l.lv===curLv?' on':'');
+    b.textContent=l.label;
+    b.addEventListener('click',()=>{
+      curLv=l.lv;
+      pat=PATTERNS.find(p=>p.lv===curLv);
+      renderLvPick();renderPatPick();renderPat();
+    });
+    el.appendChild(b);
+  });
+}
+function renderPatPick(){
+  const el=$('patPick');el.innerHTML='';
+  PATTERNS.filter(p=>p.lv===curLv).forEach(p=>{
+    const b=document.createElement('button');
+    b.className='chip'+(p===pat?' on':'');
+    const best=getBest(p.id);
+    b.innerHTML=p.label+(best?`<small>★${best.rank}</small>`:'');
+    b.addEventListener('click',()=>{pat=p;renderPatPick();renderPat();});
+    el.appendChild(b);
+  });
+}
+function renderPat(){
+  redraw({},-1);
+  const best=getBest(pat.id);
+  $('patDesc').innerHTML=`<b>Lv${pat.lv}　${pat.label}</b>：${pat.desc}`
+    +(best?`<br>ベスト記録：<b style="color:var(--brass)">ランク${best.rank}（${best.score}点・${best.bpm}BPM）</b>`:'');
+  $('result').innerHTML='';$('combo').textContent='';
+  $('fcOverlay').classList.remove('show');
+}
+
+/* ---------- 演出 ---------- */
+function judgePop(txt,color){
+  const el=$('judgePop');
+  el.textContent=txt;el.style.color=color;
+  el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');
+}
+function burstAt(x){
+  const inner=$('rtInner');
+  const b=document.createElement('div');
+  b.className='burst';b.style.left=x+'px';b.style.top=(40+LY)+'px';
+  inner.appendChild(b);setTimeout(()=>b.remove(),550);
+  for(let k=0;k<4;k++){
+    const sp=document.createElement('div');
+    sp.className='spark';sp.textContent='✦';
+    sp.style.left=x+'px';sp.style.top=(40+LY)+'px';
+    const a=Math.PI*2*k/4+Math.random()*.8;
+    sp.style.setProperty('--dx',Math.cos(a)*34+'px');
+    sp.style.setProperty('--dy',Math.sin(a)*34-10+'px');
+    inner.appendChild(sp);setTimeout(()=>sp.remove(),600);
+  }
+}
+function showOverlay(title,sub,gold){
+  $('fcTitle').textContent=title;
+  $('fcTitle').style.color=gold?'#b87d22':'#1c6b7a';
+  $('fcSub').innerHTML=sub;
+  $('fcOverlay').classList.add('show');
+}
+$('fcClose').addEventListener('click',()=>$('fcOverlay').classList.remove('show'));
+
+/* ---------- ゲーム ---------- */
+let game={active:false,exp:[],marks:{},combo:0,maxCombo:0,t0:0,beat:0,raf:0,demo:false};
+function noteIdx(){return pat.ev.map((e,i)=>(e.rest||e.tieEnd)?null:i).filter(i=>i!=null);}
+function stopRaf(){cancelAnimationFrame(game.raf);$('playhead').style.display='none';}
+
+$('demoBtn').addEventListener('click',async()=>{
+  if(game.active||game.demo)return;
+  await ensureAC();
+  game.demo=true;
+  const bpm=+$('bpm').value, beat=60/bpm;
+  const t0=AC.currentTime+.15;
+  for(let b=0;b<8;b++)clickSound(t0+b*beat,b%4===0);
+  const idxs=noteIdx();
+  idxs.forEach(i=>tapSound(t0+pat.ev[i].t*beat,false));
+  idxs.forEach(i=>{
+    setTimeout(()=>redraw({},i),(t0+pat.ev[i].t*beat-AC.currentTime)*1000);
+  });
+  runPlayhead(t0,beat,8);
+  setTimeout(()=>{game.demo=false;redraw({},-1);stopRaf();},(t0+8*beat-AC.currentTime)*1000+200);
+});
+
+function runPlayhead(t0,beat,beats){
+  const ph=$('playhead');ph.style.display='block';
+  const stage=$('stage');
+  function loop(){
+    const tb=(AC.currentTime-t0)/beat;
+    if(tb>=0&&tb<=beats){
+      const px=xAt(Math.min(tb,8));
+      ph.style.left=px+'px';
+      const vis=stage.clientWidth;
+      if(px-stage.scrollLeft>vis-90)stage.scrollLeft=px-vis+90;
+      if(px-stage.scrollLeft<60)stage.scrollLeft=Math.max(0,px-60);
+    }
+    if(tb<=beats+.3)game.raf=requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+$('startBtn').addEventListener('click',async()=>{
+  if(game.active)return;
+  await ensureAC();
+  const bpm=+$('bpm').value, beat=60/bpm;
+  const btn=$('startBtn');btn.disabled=true;btn.textContent='カウント…';
+  $('result').innerHTML='';$('fcOverlay').classList.remove('show');
+  game.marks={};game.combo=0;game.maxCombo=0;redraw({},-1);
+  const now=AC.currentTime+.15;
+  // カウントイン1小節
+  for(let k=0;k<4;k++){
+    clickSound(now+k*beat,k===0);
+    setTimeout(()=>judgePop(String(k+1),'#5a7a84'),(now+k*beat-AC.currentTime)*1000);
+  }
+  const t0=now+4*beat;
+  // 本編メトロノーム2小節
+  for(let b=0;b<8;b++)clickSound(t0+b*beat,b%4===0);
+  const idxs=noteIdx();
+  game.exp=idxs.map(i=>({i,t:t0+pat.ev[i].t*beat,hit:false,pts:0}));
+  game.active=true;game.t0=t0;game.beat=beat;
+  setTimeout(()=>{btn.textContent='たたけ！';},(t0-AC.currentTime)*1000-120);
+  runPlayhead(t0,beat,8);
+  // 取りこぼしチェック
+  const missTimer=setInterval(()=>{
+    if(!game.active){clearInterval(missTimer);return;}
+    const now2=AC.currentTime;
+    game.exp.forEach(e=>{
+      if(!e.hit&&now2>e.t+.17){
+        e.hit=true;e.pts=0;game.marks[e.i]='M';game.combo=0;
+        updateCombo();redraw(game.marks,-1);judgePop('ミス…','#c46a52');
+      }
+    });
+  },60);
+  const endT=t0+8*beat;
+  setTimeout(()=>{
+    game.active=false;clearInterval(missTimer);stopRaf();
+    finish(bpm);
+    btn.disabled=false;btn.textContent='🥁 スタート';
+  },(endT-AC.currentTime)*1000+400);
+});
+
+function updateCombo(){
+  $('combo').textContent=game.combo>1?game.combo+' COMBO':'';
+}
+function finish(bpm){
+  const n=game.exp.length;
+  const pts=game.exp.reduce((a,e)=>a+e.pts,0);
+  const score=Math.round(pts/(n*2)*100);
+  const rank=rankOf(score);
+  const nP=game.exp.filter(e=>e.pts===2).length;
+  const nG=game.exp.filter(e=>e.pts===1).length;
+  const nM=n-nP-nG;
+  const prev=getBest(pat.id);
+  const isBest=!prev||score>prev.score;
+  if(isBest)localStorage.setItem(bestKey(pat.id),JSON.stringify({score,rank,bpm}));
+  $('result').innerHTML=`スコア <b style="font-size:24px;color:var(--brass)">${score}</b> 点　ランク <b style="font-size:24px;color:var(--${rank==='S'?'brass':rank==='A'?'good':rank==='B'?'breath':'coral'})">${rank}</b>`
+    +`<br><span style="font-size:12.5px;color:var(--muted)">◎${nP}　○${nG}　✕${nM}　最大${game.maxCombo}コンボ</span>`
+    +(isBest?'<br><b style="color:var(--good)">ベスト更新！🎉</b>':'')
+    +`<br><span style="font-size:11.5px;color:var(--muted)">S:95〜 A:85〜 B:70〜／テンポを上げて再挑戦！</span>`;
+  if(nM===0&&nG===0)showOverlay('PERFECT!!','★ フルコンボ・全部パーフェクト！ ★<br>キミはリズムマスターだ！',true);
+  else if(nM===0)showOverlay('FULL COMBO!','ノーミス達成！全部◎ならPERFECT!!',false);
+  renderPatPick();
+  const best=getBest(pat.id);
+  $('patDesc').innerHTML=`<b>Lv${pat.lv}　${pat.label}</b>：${pat.desc}`
+    +(best?`<br>ベスト記録：<b style="color:var(--brass)">ランク${best.rank}（${best.score}点・${best.bpm}BPM）</b>`:'');
+}
+
+function tap(){
+  if(!AC)return;
+  tapSound(AC.currentTime,false);
+  if(!game.active)return;
+  const now=AC.currentTime;
+  let best=-1,bd=.17;
+  game.exp.forEach((e,k)=>{if(!e.hit){const d=Math.abs(e.t-now);if(d<bd){bd=d;best=k;}}});
+  if(best<0){judgePop('ミス…','#c46a52');game.combo=0;updateCombo();return;}
+  const e=game.exp[best];e.hit=true;
+  if(bd<=0.075){
+    e.pts=2;game.marks[e.i]='P';game.combo++;
+    judgePop('パーフェクト！','#b87d22');burstAt(xAt(pat.ev[e.i].t));
+  }else{
+    e.pts=1;game.marks[e.i]='G';game.combo++;
+    judgePop('グッド','#1c6b7a');
+  }
+  game.maxCombo=Math.max(game.maxCombo,game.combo);
+  updateCombo();redraw(game.marks,e.i);
+}
+$('pad').addEventListener('pointerdown',async e=>{e.preventDefault();await ensureAC();tap();});
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){
+    e.preventDefault();
+    if(e.repeat)return;
+    ensureAC().then(tap);
+  }
+});
+$('bpm').addEventListener('input',e=>{fill(e.target);$('vBpm').textContent=e.target.value+' BPM';});
+
+fill($('bpm'));
+renderLvPick();renderPatPick();renderPat();
+</script>
+</body>
+</html>

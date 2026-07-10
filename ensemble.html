@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基礎合奏メニュー｜吹奏楽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d2630; --bg2:#123540; --bg3:#0a1d25; --panel:#16424f;
+    --brass:#e6a93f; --brass-d:#b87d22;
+    --breath:#6fd6e6; --coral:#e89178; --coral-d:#c46a52;
+    --text:#e9f4f4; --muted:#8aabb3; --line:rgba(255,255,255,.09);
+    --good:#7fd6a8; --warn:#e8916f;
+    --jp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,sans-serif;
+    --en:"Archivo",var(--jp);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--jp);
+    background:
+      radial-gradient(1200px 600px at 78% -10%, rgba(230,169,63,.10), transparent 60%),
+      radial-gradient(900px 700px at 10% 110%, rgba(111,214,230,.10), transparent 55%),
+      var(--bg);
+    color:var(--text); line-height:1.7; min-height:100vh;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:28px 22px 64px}
+
+  header{margin-bottom:26px}
+  .eyebrow{
+    font-family:var(--en);font-weight:700;letter-spacing:.32em;
+    text-transform:uppercase;font-size:12px;color:var(--brass);
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--brass-d),transparent)}
+  h1{font-weight:900;font-size:clamp(28px,4.5vw,46px);line-height:1.15;margin:14px 0 8px}
+  h1 .acc{color:var(--breath)}
+  .lead{color:var(--muted);max-width:60ch;font-size:15px}
+  .lead b{color:var(--text)}
+  .backlink{display:inline-block;margin:10px 14px 0 0;font-size:13px;color:var(--breath);text-decoration:none;border-bottom:1px dashed rgba(111,214,230,.5)}
+  .backlink:hover{color:#fff}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px}
+  .card h3{font-size:16px;font-weight:900;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--brass);flex:none}
+  .card p{font-size:14px;color:var(--muted)}
+  .card p b{color:var(--text)}
+
+  .presets{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
+    color:var(--text);font-family:var(--jp);font-weight:700;font-size:13px;
+    padding:8px 13px;border-radius:999px;cursor:pointer;transition:.16s;white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--brass);color:var(--brass)}
+  .chip.on{background:var(--brass);color:#1a1206;border-color:var(--brass)}
+  .chip:disabled{opacity:.35;cursor:not-allowed}
+  .chip small{font-weight:500;opacity:.75;margin-left:4px}
+
+  .toggle{display:inline-flex;background:rgba(0,0,0,.25);border-radius:12px;padding:4px;gap:4px}
+  .toggle button{
+    appearance:none;border:0;background:transparent;color:var(--muted);
+    font-family:var(--jp);font-weight:700;font-size:13px;padding:7px 14px;border-radius:9px;cursor:pointer;transition:.16s;
+  }
+  .toggle button.on{background:var(--panel);color:var(--text);box-shadow:0 1px 0 rgba(255,255,255,.06) inset}
+
+  .tabs{display:flex;gap:8px;margin:24px 0 20px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .tab{
+    appearance:none;border:0;background:transparent;color:var(--muted);
+    font-family:var(--jp);font-weight:700;font-size:14.5px;cursor:pointer;
+    padding:11px 15px 13px;position:relative;border-radius:10px 10px 0 0;
+    transition:color .18s, background .18s;
+  }
+  .tab:hover{color:var(--text);background:rgba(255,255,255,.03)}
+  .tab[aria-selected="true"]{color:var(--text)}
+  .tab[aria-selected="true"]::after{
+    content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:3px;
+    background:linear-gradient(90deg,var(--brass),var(--breath));border-radius:3px;
+  }
+  .panel{display:none}
+  .panel.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{transform:translateY(6px)}to{transform:none}}
+  @media (prefers-reduced-motion: reduce){*{animation-duration:.001s !important}}
+
+  .gate{padding:26px;text-align:center;color:var(--muted);font-size:14px}
+  .gate b{color:var(--coral)}
+
+  .stage{
+    position:relative;background:#fefefe;border:1px solid rgba(0,0,0,.1);
+    border-radius:18px;overflow-x:auto;overflow-y:hidden;
+  }
+  .stage .tag{
+    position:absolute;top:12px;left:14px;font-family:var(--en);font-weight:700;
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:#1c6b7a;background:rgba(255,255,255,.85);
+    padding:5px 10px;border-radius:999px;border:1px solid rgba(0,0,0,.08);z-index:2;
+  }
+  #scaleStaff,#cadStaff{padding:44px 10px 16px}
+  #scaleStaff svg,#cadStaff svg{display:block}
+
+  .bigbtn{
+    appearance:none;border:0;border-radius:14px;cursor:pointer;
+    font-family:var(--jp);font-weight:900;font-size:16px;padding:13px 20px;
+    background:linear-gradient(90deg,var(--brass),#f0c063);color:#1a1206;transition:.16s;
+  }
+  .bigbtn:hover{filter:brightness(1.06)}
+  .bigbtn.stop{background:linear-gradient(90deg,var(--coral),#f0a88e)}
+  .bigbtn:disabled{opacity:.5;cursor:default}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;
+    background:linear-gradient(90deg,var(--brass) 0%,var(--brass) var(--p,50%),rgba(255,255,255,.12) var(--p,50%));
+    outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+    background:#fff;border:3px solid var(--brass-d);box-shadow:0 2px 6px rgba(0,0,0,.4);cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--brass-d);cursor:pointer}
+  .ctrl label{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:7px}
+  .ctrl label span{color:var(--breath);font-family:var(--en)}
+
+  .grid2{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;align-items:start;margin-top:16px}
+  @media(max-width:840px){.grid2{grid-template-columns:1fr}}
+  .side{display:flex;flex-direction:column;gap:14px}
+
+  .hint{font-size:13px;color:var(--muted);border-left:3px solid var(--brass);padding:2px 0 2px 12px;margin-top:16px}
+  .hint b{color:var(--coral)}
+
+  table.ctable{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  table.ctable th,table.ctable td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:center}
+  table.ctable th{color:var(--muted);font-weight:700;font-size:11.5px}
+  table.ctable td.nm{font-weight:900;color:var(--breath)}
+  table.ctable tr.me{background:rgba(230,169,63,.14)}
+  table.ctable tr.me td{color:var(--brass)}
+
+  /* 打楽器 */
+  .stickRow{display:flex;gap:6px;flex-wrap:wrap;padding:20px 10px;align-items:flex-end}
+  .stickCell{
+    width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-family:var(--en);font-weight:900;font-size:18px;background:#fefefe;color:#123540;
+    border:2px solid rgba(0,0,0,.08);flex:none;position:relative;
+  }
+  .stickCell.acc{border-color:var(--brass-d);background:#fdf0d8}
+  .stickCell.hit{background:var(--brass);color:#1a1206;transform:scale(1.12);border-color:var(--brass-d)}
+  .stickCell .grace{position:absolute;top:1px;left:4px;font-size:10px;font-weight:900;color:#c46a52}
+  .stickCell .accm{position:absolute;top:-1px;right:4px;font-size:11px;font-weight:900;color:#b87d22}
+  .padBtn{
+    flex:1;appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);
+    border-radius:16px;padding:16px 10px 12px;font-family:var(--en);font-weight:900;font-size:26px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:2px;transition:.1s;user-select:none;-webkit-user-select:none;touch-action:manipulation;
+  }
+  .padBtn small{font-family:var(--jp);font-size:11px;font-weight:700;color:var(--muted)}
+  .padBtn:active{background:var(--brass);color:#1a1206;transform:scale(.97)}
+  .padBtn:active small{color:#1a1206}
+
+  footer{margin-top:34px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  footer b{color:var(--brass)}
+  footer a{color:var(--breath)}
+</style>
+
+<style>
+  footer .gnav-cur{margin-bottom:12px}
+  footer .gnav-cur b{color:var(--brass)}
+  .gnav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px}
+  .gnav a{
+    display:inline-block;font-size:11.5px;font-weight:700;text-decoration:none;
+    color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;transition:.15s;
+    background:rgba(255,255,255,.03);
+  }
+  .gnav a:hover{color:var(--brass);border-color:var(--brass)}
+  .gnav a.cur{background:var(--brass);color:#1a1206;border-color:var(--brass);pointer-events:none}
+  .gnav a.home{color:var(--breath);border-color:rgba(111,214,230,.4)}
+  .gnav a.home:hover{color:#fff}
+  footer .gnav-credit{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<template id="__bundler_thumbnail" data-bg-color="#0d2630">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <line x1="18" y1="30" x2="82" y2="30" stroke="#e6a93f" stroke-width="3"/>
+    <line x1="18" y1="42" x2="82" y2="42" stroke="#e6a93f" stroke-width="3"/>
+    <line x1="18" y1="54" x2="82" y2="54" stroke="#e6a93f" stroke-width="3"/>
+    <circle cx="40" cy="66" r="7" fill="#6fd6e6"/>
+    <circle cx="60" cy="50" r="7" fill="#6fd6e6"/>
+  </svg>
+</template>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Brass Band · Fundamentals Ensemble</div>
+    <h1>基礎合奏<span class="acc">メニュー</span></h1>
+    <p class="lead">合奏の最初にやる基礎練習を、<b>楽器を選んでこの画面を見ながら</b>できるようにしたよ。ロングトーン・スケール・リップスラー・カデンツ・打楽器の基礎打ちに対応。</p>
+    <a class="backlink" href="index.html">← ホーム（メニューにもどる）</a>
+  </header>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3><span class="dot"></span>楽器をえらぶ</h3>
+    <div class="presets" id="instPick"></div>
+    <p id="instNote" style="margin-top:10px"></p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-mode="scale">ロングトーン・スケール・リップスラー</button>
+    <button class="tab" role="tab" aria-selected="false" data-mode="cad">カデンツ（ハーモニー）</button>
+    <button class="tab" role="tab" aria-selected="false" data-mode="perc">打楽器の基礎打ち</button>
+  </div>
+
+  <!-- ============ ロングトーン・スケール ============ -->
+  <section class="panel active" id="p-scale" role="tabpanel">
+    <div id="scaleGate" class="card gate" style="display:none">打楽器は <b>「打楽器の基礎打ち」</b> タブを見てね！</div>
+    <div id="scaleBody">
+      <div class="card">
+        <h3><span class="dot"></span>種目</h3>
+        <div class="presets" id="exPick"></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <h3><span class="dot"></span>調・スタート音（実音）</h3>
+        <div class="presets" id="keyPick"></div>
+      </div>
+      <div class="grid2">
+        <div>
+          <div class="stage" id="scaleStaff"><span class="tag">Staff</span></div>
+        </div>
+        <div class="side">
+          <div class="card">
+            <div class="toggle" id="pitchToggle"><button data-p="w" class="on">記譜音で表示</button><button data-p="c">実音で表示</button></div>
+          </div>
+          <div class="card">
+            <div class="ctrl"><label>テンポ<span id="vScaleBpm">80 BPM</span></label><input type="range" id="scaleBpm" min="50" max="140" value="80"></div>
+            <button class="bigbtn" id="scalePlay" style="width:100%;margin-top:6px">▶ 再生する</button>
+          </div>
+          <p class="hint" id="scaleHint"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ カデンツ ============ -->
+  <section class="panel" id="p-cad" role="tabpanel">
+    <div class="card">
+      <h3><span class="dot"></span>カデンツ：4小節 ― Ⅰ（全）→ Ⅳ（全）→ Ⅴ・Ⅴ7（2分ずつ）→ Ⅰ（全）</h3>
+      <p>チューニングでおなじみの定番カデンツ。調をえらんで、自分のパートの動きを確認しながら<b>全体の和音</b>も通して聴いてみよう。3小節目は2分音符で2つの和音に変わるよ。</p>
+      <h3 style="margin-top:14px"><span class="dot"></span>調（実音）</h3>
+      <div class="presets" id="cadKeyPick"></div>
+      <h3 style="margin-top:14px"><span class="dot"></span>小節をえらぶ</h3>
+      <div class="presets" id="chordPick"></div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="stage" id="cadStaff"><span class="tag">My Part</span></div>
+      </div>
+      <div class="side">
+        <div class="card">
+          <button class="bigbtn" id="cadPlayAll" style="width:100%">🎼 全体のハーモニーを通して聴く</button>
+          <button class="chip" id="cadPlayMine" style="width:100%;margin-top:10px;text-align:center">♪ 自分のパートだけ聴く</button>
+        </div>
+        <div class="card">
+          <h3><span class="dot"></span>全パートの音（実音）</h3>
+          <div style="max-height:260px;overflow-y:auto"><table class="ctable" id="cadTable"></table></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint">和音の役割（ルート・3度・5度・7度）で耳をならすよ。<b>純正律を意識</b>してうなりが消えるところを探してみよう。</p>
+  </section>
+
+  <!-- ============ 打楽器 ============ -->
+  <section class="panel" id="p-perc" role="tabpanel">
+    <div class="card">
+      <h3><span class="dot"></span>基礎打ちパターン</h3>
+      <div class="presets" id="percPick"></div>
+    </div>
+    <div class="grid2">
+      <div>
+        <div class="stage" style="background:#fefefe">
+          <div class="stickRow" id="stickRow"></div>
+        </div>
+      </div>
+      <div class="side">
+        <div class="card">
+          <div class="toggle" id="percMode"><button data-m="prac" class="on">練習モード</button><button data-m="chal">🥁 打楽器マスター</button></div>
+        </div>
+        <div class="card">
+          <div class="ctrl"><label>テンポ<span id="vPercBpm">90 BPM</span></label><input type="range" id="percBpm" min="50" max="180" value="90"></div>
+          <button class="bigbtn" id="percPlay" style="width:100%;margin-top:6px">▶ 再生する</button>
+        </div>
+        <div class="card" id="chalBox" style="display:none">
+          <h3><span class="dot"></span>マスターチャレンジ</h3>
+          <p style="font-size:13px">カウント4拍のあと、パターンを<b>2周</b>たたこう！<b>Fキー＝左手(L)、Jキー＝右手(R)</b>。下のボタンでもOK。</p>
+          <button class="bigbtn" id="chalStart" style="width:100%;margin-top:8px">🥁 チャレンジ開始</button>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <button class="padBtn" id="padL">L<small>左手／Fキー</small></button>
+            <button class="padBtn" id="padR">R<small>右手／Jキー</small></button>
+          </div>
+          <div id="chalJudge" style="min-height:26px;text-align:center;font-weight:900;margin-top:8px"></div>
+          <div id="chalResult" style="text-align:center;font-weight:700;font-size:14px"></div>
+        </div>
+        <p class="hint" id="percHint"></p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p class="gnav-cur">機能⑩ <b>基礎合奏メニュー</b></p>
+    <nav class="gnav"><a class="home" href="index.html">🏠 ホーム</a><a href="breath-guide.html">①呼吸と身体ガイド</a><a href="note-names.html">②ドイツ音名ガイド</a><a href="fingering.html">③運指表</a><a href="flashcards.html">④フラッシュカード</a><a href="rhythm-sequencer.html">⑤リズムシーケンサー</a><a href="rhythm-trainer.html">⑥リズムトレーニング</a><a href="recorder.html">⑦録音モード</a><a href="tuner-metronome.html">⑧チューナー＆メトロノーム</a><a href="harmony-trainer.html">⑨ハーモニートレーナー</a><a href="ensemble.html" class="cur">⑩基礎合奏メニュー</a><a href="advisor.html">⑪お悩み相談チャート</a><a href="reference-library.html">⑫参考音源ライブラリ</a><a href="event-calendar.html">⑬イベントカレンダー</a></nav>
+    <div class="gnav-credit">吹奏楽部サポートアプリ ／ ブラウザだけで動く・インストール不要・スマホ対応</div>
+  </footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function fill(el){const min=+el.min,max=+el.max;el.style.setProperty('--p',((el.value-min)/(max-min)*100)+'%');}
+
+/* ---------- 共通オーディオ（iOS対策込み） ---------- */
+let AC;
+async function ensureAC(){
+  if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state!=='running'){try{await AC.resume();}catch(e){}}
+  const b=AC.createBuffer(1,1,22050);const s=AC.createBufferSource();
+  s.buffer=b;s.connect(AC.destination);s.start(0);
+}
+function playConcertMidi(cMidi,dur=1.1,vol=.22,t0){
+  const t=t0!=null?t0:AC.currentTime, f=442*Math.pow(2,(cMidi-69)/12);
+  const g=AC.createGain();g.connect(AC.destination);
+  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+.03);
+  g.gain.setValueAtTime(vol,t+dur-.12);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  [[1,'sine',1],[2,'sine',.22],[1,'triangle',.28]].forEach(([m,type,v])=>{
+    const o=AC.createOscillator(),og=AC.createGain();
+    o.type=type;o.frequency.value=f*m;og.gain.value=v*.6;
+    o.connect(og);og.connect(g);o.start(t);o.stop(t+dur+.05);
+  });
+}
+function clickSound(t,acc){
+  const o=AC.createOscillator(),g=AC.createGain();
+  o.type='square';o.frequency.value=acc?1568:1047;
+  g.gain.setValueAtTime(acc?.4:.26,t);
+  g.gain.exponentialRampToValueAtTime(.001,t+.055);
+  o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.07);
+}
+
+/* ---------- 音名テーブル（固定スペリング） ---------- */
+const GN=['C','Des','D','Es','E','F','Ges','G','As','A','B','H'];
+const GK=['ツェー','デス','デー','エス','エー','エフ','ゲス','ゲー','アス','アー','ベー','ハー'];
+const GNS=['C','Cis','D','Dis','E','F','Fis','G','Gis','A','Ais','H'];
+const GKS=['ツェー','ツィス','デー','ディス','エー','エフ','フィス','ゲー','ギス','アー','アイス','ハー'];
+const SOLFF=['ド','レ♭','レ','ミ♭','ミ','ファ','ソ♭','ソ','ラ♭','ラ','シ♭','シ'];
+const SHARPKEYS=[7,2,9,4,11]; // G,D,A,E,H dur → ♯系
+const accForKey=pc=>SHARPKEYS.includes(((pc%12)+12)%12)?'s':'f';
+const pc12=m=>((m%12)+12)%12;
+/* ---------- 調号（キーシグネチャ） ---------- */
+const SHARP_ORDER=[3,0,4,1,5,2,6], FLAT_ORDER=[6,2,5,1,4,0,3]; // F C G D A E B ／ B E A D G C F
+const SHARP_COUNT={7:1,2:2,9:3,4:4,11:5}, FLAT_COUNT={0:0,5:1,10:2,3:3,8:4,1:5,6:6};
+const COL_FLAT='#c46a52', COL_SHARP='#1c6b7a', COL_NAT='#7a6bc0';
+function keySigInfo(pc,acc){
+  const p=pc12(pc);
+  if(acc==='s'){const c=SHARP_COUNT[p]||0;return{acc:'s',count:c,letters:SHARP_ORDER.slice(0,c)};}
+  const c=FLAT_COUNT[p]||0;return{acc:'f',count:c,letters:FLAT_ORDER.slice(0,c)};
+}
+const SIG_DIAS={
+  treble:{s:[38,35,39,36,33,37,34],f:[34,37,33,36,32,35,31]},
+  bass:{s:[24,21,25,22,19,23,20],f:[20,23,19,22,18,21,17]}
+};
+function keySigSVG(clef,sig,baseY,baseDia,x){
+  const dias=SIG_DIAS[clef][sig.acc];let s='';
+  for(let i=0;i<sig.count;i++){
+    const y=baseY-(dias[i]-baseDia)*5;
+    s+=`<text x="${x+i*11}" y="${y+5.5}" font-size="18" font-weight="700" fill="#123540">${sig.acc==='s'?'♯':'♭'}</text>`;
+  }
+  return s;
+}
+function noteDisp(m){const p=pc12(m),oct=Math.floor(m/12)-1;return{solf:SOLFF[p],g:GN[p],k:GK[p],pc:p,oct};}
+/* 調号に合わせた音名（♯系の黒鍵は♭名を併記） */
+function nameInfo(m,acc){
+  const p=pc12(m), black=[1,3,6,8,10].includes(p);
+  if(acc==='s'&&black)return{g:GNS[p]+'('+GN[p]+')',k:GKS[p]+'('+GK[p]+')'};
+  if(acc==='s')return{g:GNS[p],k:GKS[p]};
+  return{g:GN[p],k:GK[p]};
+}
+
+/* ---------- 運指の描画（fingering.htmlと同じロジック） ---------- */
+function valveSVG(f,scale,valves){
+  const s=scale, n=valves||3;
+  const W=(n*52+16)*s, H=96*s;
+  let out=`<svg width="${W}" height="${H}" viewBox="0 0 ${W/s} ${H/s}">`;
+  for(let i=1;i<=n;i++){
+    const cx=34+(i-1)*52, on=f.includes(String(i));
+    out+=`<circle cx="${cx}" cy="34" r="20" fill="${on?'#123540':'none'}" stroke="#123540" stroke-width="2.5"/>`;
+    out+=`<text x="${cx}" y="41" text-anchor="middle" font-size="19" font-weight="700" font-family="var(--en)" fill="${on?'#fff':'#9db4bb'}">${i}</text>`;
+  }
+  out+=`<text x="${(n*52+16)/2}" y="82" text-anchor="middle" font-size="15" font-weight="900" fill="#123540" font-family="var(--jp)">${f==='0'?'0（開放）':f.split('').join('・')}</text>`;
+  return out+'</svg>';
+}
+function slideSVG(pos,scale){
+  const s=scale;
+  let out=`<svg width="${300*s}" height="${100*s}" viewBox="0 0 300 100">`;
+  out+=`<text x="26" y="52" text-anchor="middle" font-size="40" font-weight="700" font-family="var(--en)" fill="#123540">${pos}</text>`;
+  out+=`<line x1="60" y1="34" x2="270" y2="34" stroke="#c9d6da" stroke-width="7" stroke-linecap="round"/>`;
+  out+=`<line x1="60" y1="54" x2="270" y2="54" stroke="#c9d6da" stroke-width="7" stroke-linecap="round"/>`;
+  const ext=64+(pos-1)*32;
+  out+=`<line x1="60" y1="34" x2="${ext}" y2="34" stroke="#123540" stroke-width="9" stroke-linecap="round"/>`;
+  out+=`<line x1="60" y1="54" x2="${ext}" y2="54" stroke="#123540" stroke-width="9" stroke-linecap="round"/>`;
+  out+=`<line x1="${ext}" y1="26" x2="${ext}" y2="62" stroke="#b87d22" stroke-width="5" stroke-linecap="round"/>`;
+  for(let p=1;p<=7;p++){const x=64+(p-1)*32;
+    out+=`<text x="${x}" y="80" text-anchor="middle" font-size="11" font-weight="700" font-family="var(--en)" fill="${p===pos?'#b87d22':'#9db4bb'}">${p}</text>`;}
+  return out+'</svg>';
+}
+function woodSVG(inst,press,scale){
+  const rows=inst.layout, s=scale;
+  let y=16, items=[];
+  rows.forEach(r=>{
+    if(r.type==='gap'){y+=14;return;}
+    items.push({...r,y:y+13});
+    y+=r.type==='hole'?32:26;
+  });
+  const H=y+8, W=150;
+  let out=`<svg width="${W*s}" height="${H*s}" viewBox="0 0 ${W} ${H}">`;
+  const cx=62;
+  items.forEach(it=>{
+    const on=press.includes(it.id);
+    if(it.type==='hole'){
+      const half=press.includes(it.id+'*');
+      const isOn=on||half;
+      out+=`<circle cx="${cx}" cy="${it.y}" r="12.5" fill="${isOn?'#123540':'#fff'}" stroke="#123540" stroke-width="2.2"/>`;
+      if(half)out+=`<path d="M${cx} ${it.y-12.5} A12.5 12.5 0 0 0 ${cx} ${it.y+12.5} Z" fill="#fff" stroke="#123540" stroke-width="1.5"/>`;
+    }else{
+      const kx=cx+(it.side||1)*40;
+      out+=`<rect x="${kx-19}" y="${it.y-10}" width="38" height="20" rx="9" fill="${on?'#b87d22':'#fff'}" stroke="${on?'#8a5f16':'#9db4bb'}" stroke-width="1.8"/>`;
+      out+=`<text x="${kx}" y="${it.y+4}" text-anchor="middle" font-size="10" font-weight="700" fill="${on?'#fff':'#5a7a84'}" font-family="var(--jp)">${it.label}</text>`;
+    }
+  });
+  return out+'</svg>';
+}
+function stringSVG(fing,scale){
+  const s=scale, W=170, H=210;
+  const names=['E','A','D','G'];
+  let out=`<svg width="${W*s}" height="${H*s}" viewBox="0 0 ${W} ${H}">`;
+  out+=`<rect x="28" y="30" width="114" height="170" rx="8" fill="#2b2018"/>`;
+  out+=`<rect x="24" y="24" width="122" height="9" rx="3" fill="#c9b28a"/>`;
+  names.forEach((nm,i)=>{
+    const x=44+i*28;
+    out+=`<line x1="${x}" y1="30" x2="${x}" y2="200" stroke="#d8d3c5" stroke-width="${3-i*0.4}"/>`;
+    out+=`<text x="${x}" y="16" text-anchor="middle" font-size="12" font-weight="700" font-family="var(--en)" fill="${fing.str===i?'#b87d22':'#5a7a84'}">${nm}</text>`;
+  });
+  const x=44+fing.str*28;
+  if(fing.fin===0){
+    out+=`<circle cx="${x}" cy="9" r="5" fill="none" stroke="#b87d22" stroke-width="2.4"/>`;
+  }else{
+    const y=44+fing.pos*24;
+    out+=`<circle cx="${x}" cy="${y}" r="11" fill="#b87d22"/>`;
+    out+=`<text x="${x}" y="${y+5}" text-anchor="middle" font-size="13" font-weight="900" fill="#fff" font-family="var(--en)">${fing.fin}</text>`;
+  }
+  return out+'</svg>';
+}
+function fingSVG(inst,fing,scale){
+  if(!inst||!fing)return '';
+  if(inst.kind==='valve')return valveSVG(fing,scale,inst.valves);
+  if(inst.kind==='slide')return slideSVG(fing,scale);
+  if(inst.kind==='wood')return woodSVG(inst,fing,scale);
+  if(inst.kind==='string')return stringSVG(fing,scale);
+  return '';
+}
+
+/* ---------- 五線譜（複数音・音価・小節線・現在位置対応） ---------- */
+const LETTER={C:0,D:1,E:2,F:3,G:4,A:5,B:6,H:6};
+function staffMulti(clef,notes,opt={}){
+  const step=opt.step||64;
+  const sig=keySigInfo(opt.keyPc!=null?opt.keyPc:0,opt.acc||'f');
+  const sigW=sig.count?sig.count*11+12:0;
+  const x0=(opt.x0||64)+sigW;
+  const extraBars=notes.filter(n=>n.barAfter).length;
+  const w=Math.max(opt.minW||0, x0+notes.length*step+extraBars*16+30), h=opt.h||232, top=opt.top||48;
+  const lineY=i=>top+i*10;
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" font-family="var(--jp)">`;
+  for(let i=0;i<5;i++)s+=`<line x1="10" y1="${lineY(i)}" x2="${w-10}" y2="${lineY(i)}" stroke="#4a6a74" stroke-width="1.3"/>`;
+  s+=`<line x1="10.7" y1="${lineY(0)}" x2="10.7" y2="${lineY(4)}" stroke="#4a6a74" stroke-width="1.6"/>`;
+  if(clef==='treble')s+=`<text x="12" y="${lineY(4)+12}" font-size="62" fill="#123540" font-family="serif">&#119070;</text>`;
+  else s+=`<text x="14" y="${lineY(3)+3}" font-size="42" fill="#123540" font-family="serif">&#119074;</text>`;
+  const baseDia=clef==='treble'?30:18, baseY=lineY(4), midY=lineY(2);
+  s+=keySigSVG(clef,sig,baseY,baseDia,clef==='treble'?56:50);
+  const spellArr=opt.acc==='s'?GNS:GN;
+  const accGlyph=opt.acc==='s'?'♯':'♭';
+  let x=x0;
+  notes.forEach((n,idx)=>{
+    const d=noteDisp(n.m);
+    const letter=LETTER[spellArr[d.pc][0]];
+    const dia=letter+d.oct*7;
+    const y=baseY-(dia-baseDia)*5;
+    for(let ly=baseY+10;ly<=y+2;ly+=10)s+=`<line x1="${x-12}" y1="${ly}" x2="${x+12}" y2="${ly}" stroke="#4a6a74" stroke-width="1.3"/>`;
+    for(let ly=lineY(0)-10;ly>=y-2;ly-=10)s+=`<line x1="${x-12}" y1="${ly}" x2="${x+12}" y2="${ly}" stroke="#4a6a74" stroke-width="1.3"/>`;
+    const black=[1,3,6,8,10].includes(d.pc);
+    const inSig=sig.letters.includes(letter);
+    let glyph=null,accCol=null;
+    if(black){accCol=sig.acc==='s'?COL_SHARP:COL_FLAT;if(!inSig)glyph=accGlyph;}
+    else if(inSig){glyph='♮';accCol=COL_NAT;}
+    const on=idx===opt.active;
+    const ink=on?'#b87d22':(accCol||'#123540');
+    s+=`<g>`;
+    if(on)s+=`<circle cx="${x}" cy="${y}" r="16" fill="rgba(230,169,63,.28)"/>`;
+    const dur=n.dur||'q';
+    if(dur==='w'){
+      s+=`<ellipse cx="${x}" cy="${y}" rx="8.6" ry="5.4" fill="none" stroke="${ink}" stroke-width="2.6"/>`;
+    }else{
+      const hollow=dur==='h';
+      s+=`<ellipse cx="${x}" cy="${y}" rx="7" ry="5.2" fill="${hollow?'none':ink}" stroke="${ink}" stroke-width="${hollow?2.2:0}" transform="rotate(-16 ${x} ${y})"/>`;
+      const up=y>=midY;
+      s+= up
+        ? `<line x1="${x+6.3}" y1="${y-1.5}" x2="${x+6.3}" y2="${y-33}" stroke="${ink}" stroke-width="1.7"/>`
+        : `<line x1="${x-6.3}" y1="${y+1.5}" x2="${x-6.3}" y2="${y+33}" stroke="${ink}" stroke-width="1.7"/>`;
+    }
+    if(glyph)s+=`<text x="${x-21}" y="${y+5.5}" font-size="17" font-weight="700" fill="${ink}">${glyph}</text>`;
+    if(n.lab1)s+=`<text x="${x}" y="${lineY(4)+40}" text-anchor="middle" font-size="15" font-weight="900" fill="${on?'#b87d22':(n.labCol||'#123540')}" font-family="var(--en)">${n.lab1}</text>`;
+    if(n.lab2)s+=`<text x="${x}" y="${lineY(4)+56}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#5a7a84">${n.lab2}</text>`;
+    s+=`</g>`;
+    if(n.barAfter){
+      const bx=x+step*0.58;
+      s+=`<line x1="${bx}" y1="${lineY(0)}" x2="${bx}" y2="${lineY(4)}" stroke="#4a6a74" stroke-width="1.5"/>`;
+      x+=16;
+    }
+    x+=step;
+  });
+  s+=`<line x1="${w-12}" y1="${lineY(0)}" x2="${w-12}" y2="${lineY(4)}" stroke="#4a6a74" stroke-width="2"/><line x1="${w-18}" y1="${lineY(0)}" x2="${w-18}" y2="${lineY(4)}" stroke="#4a6a74" stroke-width="1"/>`;
+  return s+'</svg>';
+}
+
+/* ================= 楽器データ（fingering.htmlと同じ運指・音域） ================= */
+function vnotes(start,fs,alts={}){return fs.map((f,i)=>{const o={m:start+i,f};return o;});}
+const BRASS=[
+{id:'tp',name:'トランペット',clef:'treble',kind:'valve',valves:3,t:2,fam:'brass',
+ notes:vnotes(60,['0','123','13','23','12','1','2','0','23','12','1','2','0','12','1','2','0','1','2','0','23','12','1','2','0'])},
+{id:'hr',name:'ホルン',clef:'treble',kind:'valve',valves:3,t:7,fam:'brass',
+ notes:vnotes(60,['0','12','1','2','0','1','2','0','23','12','1','2','0','12','1','2','0','1','2','0','23','12','1','2','0'])},
+{id:'tb',name:'トロンボーン',clef:'bass',kind:'slide',t:0,fam:'brass',
+ notes:(()=>{const ps=[1,7,6,5,4,3,2,1,5,4,3,2,1,4,3,2,1,3,2,1,5,4,3,2,1];return ps.map((p,i)=>({m:46+i,f:p}));})()},
+{id:'eu',name:'ユーフォニアム',clef:'bass',kind:'valve',valves:3,t:0,fam:'brass',
+ notes:vnotes(46,['0','123','13','23','12','1','2','0','23','12','1','2','0','12','1','2','0','1','2','0','23','12','1','2','0'])},
+{id:'tu',name:'チューバ',clef:'bass',kind:'valve',valves:3,t:0,fam:'brass',
+ notes:vnotes(34,['0','123','13','23','12','1','2','0','23','12','1','2','0','12','1','2','0','1','2','0','23','12','1','2','0'])},
+];
+const CB={id:'cb',name:'コントラバス',clef:'bass',kind:'string',t:0,fam:'low',
+ notes:[
+  {m:40,f:{str:0,fin:0}},{m:41,f:{str:0,pos:1,fin:1}},{m:42,f:{str:0,pos:2,fin:2}},{m:43,f:{str:0,pos:3,fin:4}},{m:44,f:{str:0,pos:4,fin:4}},
+  {m:45,f:{str:1,fin:0}},{m:46,f:{str:1,pos:1,fin:1}},{m:47,f:{str:1,pos:2,fin:2}},{m:48,f:{str:1,pos:3,fin:4}},{m:49,f:{str:1,pos:4,fin:4}},
+  {m:50,f:{str:2,fin:0}},{m:51,f:{str:2,pos:1,fin:1}},{m:52,f:{str:2,pos:2,fin:2}},{m:53,f:{str:2,pos:3,fin:4}},{m:54,f:{str:2,pos:4,fin:4}},
+  {m:55,f:{str:3,fin:0}},{m:56,f:{str:3,pos:1,fin:1}},{m:57,f:{str:3,pos:2,fin:2}},{m:58,f:{str:3,pos:3,fin:4}}
+ ]};
+let WOOD=[];
+(function(){
+  const H=(id,label)=>({type:'hole',id,label});
+  const K=(id,label,side)=>({type:'key',id,label,side:side||1});
+  const G={type:'gap'};
+  const L3=['L1','L2','L3'], R3=['R1','R2','R3'];
+  const flLay=[K('T','親指',-1),H('L1','左1'),H('L2','左2'),H('L3','左3'),K('Gis','G♯'),G,H('R1','右1'),H('R2','右2'),H('R3','右3'),K('Es','E♭')];
+  const FLOW={62:['T',...L3,...R3],63:['T',...L3,...R3,'Es'],64:['T',...L3,'R1','R2','Es'],65:['T',...L3,'R1','Es'],66:['T',...L3,'R3','Es'],67:['T',...L3,'Es'],68:['T',...L3,'Gis','Es'],69:['T','L1','L2','Es'],70:['T','L1','R1','Es'],71:['T','L1','Es'],72:['L1','Es'],73:['Es']};
+  const flNotes=[];
+  for(let m=62;m<=84;m++){let o={m};
+    if(m<=73)o.f=FLOW[m];
+    else if(m===74)o.f=['T','L2','L3',...R3,'Es'];
+    else if(m===75)o.f=['T',...L3,...R3,'Es'];
+    else o.f=FLOW[m-12];
+    flNotes.push(o);}
+  const sxLay=[K('Ok','オク',-1),H('L1','左1'),H('L2','左2'),H('L3','左3'),K('Gis','G♯'),K('Cis','低C♯',-1),G,H('R1','右1'),H('R2','右2'),H('R3','右3'),K('Es','E♭'),K('C','低C')];
+  const SXLOW={60:[...L3,...R3,'C'],61:[...L3,...R3,'Cis'],62:[...L3,...R3],63:[...L3,...R3,'Es'],64:[...L3,'R1','R2'],65:[...L3,'R1'],66:[...L3,'R2'],67:[...L3],68:[...L3,'Gis'],69:['L1','L2'],70:['L1','R1'],71:['L1'],72:['L2'],73:[]};
+  const sxNotes=[];
+  for(let m=60;m<=84;m++){let o={m};
+    if(m<=73)o.f=SXLOW[m];
+    else o.f=[...SXLOW[m-12],'Ok'];
+    if(m%12===1&&m>73)o.f=[...SXLOW[61],'Ok'];
+    sxNotes.push(o);}
+  const clLay=[K('Reg','レジスター',-1),H('T','親指(裏)'),H('L1','左1'),H('L2','左2'),H('L3','左3'),K('sG','G♯キー',-1),K('sA','Aキー',-1),K('Fis','F♯/C♯'),K('E','E/B'),G,H('R1','右1'),H('R2','右2'),H('R3','右3'),K('F','F/C'),K('Gis','A♭/E♭')];
+  const CLLOW={52:['T',...L3,...R3,'E'],53:['T',...L3,...R3,'F'],54:['T',...L3,...R3,'Fis'],55:['T',...L3,...R3],56:['T',...L3,...R3,'Gis'],57:['T',...L3,'R1','R2'],58:['T',...L3,'R1','R3'],59:['T',...L3,'R1'],60:['T',...L3],61:['T','L1','L2','Fis'],62:['T','L1','L2'],63:['T','L1','L2','Gis'],64:['T','L1'],65:['T'],66:['L1','L2'],67:[],68:['sG'],69:['sA'],70:['sA','Reg']};
+  const clNotes=[];
+  for(let m=52;m<=84;m++){let o={m};
+    if(m<=70)o.f=CLLOW[m];
+    else o.f=[...CLLOW[m-19],'Reg'];
+    clNotes.push(o);}
+  const obLay=[K('Ok','オク1',-1),K('Ok2','オク2',-1),H('L1','左1'),H('L2','左2'),H('L3','左3'),K('Gis','G♯'),G,H('R1','右1'),H('R2','右2'),H('R3','右3'),K('Cis','C♯'),K('Es','E♭')];
+  const OB={60:[...L3,...R3],61:[...L3,...R3,'Cis'],62:[...L3,'R1','R2'],63:[...L3,'R1','R2','Es'],64:[...L3,'R1'],65:[...L3,'R2'],66:[...L3,'R3'],67:[...L3],68:[...L3,'Gis'],69:['L1','L2'],70:['L1','R1'],71:['L1'],72:['L2'],73:['L1*','L2','L3',...R3,'Cis'],74:['L1*','L2','L3','R1','R2'],75:['L1*','L2','L3','R1','R2','Es'],76:[...L3,'R1','Ok'],77:[...L3,'R2','Ok'],78:[...L3,'R3','Ok'],79:[...L3,'Ok'],80:[...L3,'Gis','Ok'],81:['L1','L2','Ok2'],82:['L1','R1','Ok2'],83:['L1','Ok2'],84:['L2','Ok2']};
+  const obNotes=[];
+  for(let m=60;m<=84;m++)obNotes.push({m,f:OB[m]});
+  WOOD=[
+   {id:'fl',name:'フルート',clef:'treble',kind:'wood',layout:flLay,t:0,fam:'wood',notes:flNotes},
+   {id:'ob',name:'オーボエ',clef:'treble',kind:'wood',layout:obLay,t:0,fam:'wood',notes:obNotes},
+   {id:'cl',name:'クラリネット',clef:'treble',kind:'wood',layout:clLay,t:2,fam:'wood',notes:clNotes},
+   {id:'as',name:'アルトサックス',clef:'treble',kind:'wood',layout:sxLay,t:9,fam:'wood',notes:sxNotes},
+   {id:'ts',name:'テナーサックス',clef:'treble',kind:'wood',layout:sxLay,t:2,fam:'wood',notes:sxNotes},
+   {id:'bs',name:'バリトンサックス',clef:'treble',kind:'wood',layout:sxLay,t:9,fam:'wood',notes:sxNotes},
+  ];
+})();
+const PERC={id:'perc',name:'パーカッション',fam:'perc'};
+const INSTS=[...WOOD,...BRASS,CB,PERC];
+
+/* ================= 状態 ================= */
+let inst=INSTS.find(i=>i.id===localStorage.getItem('kg_inst'))||INSTS[0];
+function renderInstPick(){
+  const el=$('instPick');el.innerHTML='';
+  INSTS.forEach(i=>{
+    const b=document.createElement('button');
+    b.className='chip'+(i===inst?' on':'');
+    b.textContent=i.name;
+    b.addEventListener('click',()=>{inst=i;localStorage.setItem('kg_inst',i.id);renderAll();});
+    el.appendChild(b);
+  });
+  $('instNote').innerHTML= inst.fam==='perc'
+    ? '打楽器は専用タブ「打楽器の基礎打ち」を使ってね。'
+    : `<b style="color:var(--breath)">${inst.name}</b>を選択中。実音⇄記譜の切りかえや運指もこの楽器で表示するよ。`;
+}
+
+/* ================= 音列生成（共通ロジック） ================= */
+function buildSeq(instrument,writtenRootPc,offsets){
+  const domain=instrument.notes;
+  const mMin=domain[0].m, mMax=domain[domain.length-1].m;
+  const span=Math.max(...offsets);
+  let cands=domain.filter(n=>pc12(n.m)===writtenRootPc && n.m+span<=mMax);
+  if(!cands.length)cands=domain.filter(n=>pc12(n.m)===writtenRootPc);
+  if(!cands.length)return [];
+  const mid=(mMin+mMax)/2;
+  cands.sort((a,b)=>Math.abs((a.m+span/2)-mid)-Math.abs((b.m+span/2)-mid));
+  const m0=cands[0].m;
+  return offsets.map(off=>domain.find(n=>n.m===m0+off)).filter(Boolean);
+}
+const KEY_PCS=[0,1,2,3,4,5,6,7,8,9,10,11]; // C..B (concert)
+function keyLabel(pc){return GN[pc]+'（'+GK[pc]+'）';}
+
+/* ================= タブ切替 ================= */
+const tabs=[...document.querySelectorAll('.tab')];
+tabs.forEach(t=>t.addEventListener('click',()=>{
+  tabs.forEach(x=>x.setAttribute('aria-selected',x===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+t.dataset.mode).classList.add('active');
+}));
+
+/* ================= ロングトーン・スケール・リップスラー ================= */
+const EX_TYPES=[
+  {id:'long',label:'ロングトーン'},
+  {id:'major',label:'メジャースケール（1oct上下）'},
+  {id:'chrom',label:'クロマチックスケール'},
+  {id:'arp',label:'アルペジオ'},
+  {id:'lipA',label:'リップスラー①（せまい）'},
+  {id:'lipB',label:'リップスラー②（ひろい）'},
+];
+const HINTS={
+  long:'ロングトーンは1音を長く伸ばして、音の<b>入り・真ん中・処理</b>をそろえよう。チューナーを見ながら針を止める練習も効果的。',
+  major:'五線譜の下は<b>実音のドイツ音名</b>。テンポを落としてもいいので、音の繋がりをなめらかに。全部の調を制霜しよう！',
+  chrom:'半音ずつの動きを<b>指と耳の両方</b>で覚えよう。隣の音との幅が均等になるように。',
+  arp:'アルペジオは和音の音を順番に吹く練習。跳躍しても音の芯が変わらないように。',
+  lipA:'タンギングせず、<b>息のスピードと口の締め</b>だけで音を切りかえよう。同じ指（ポジション）のまま倍音を移動するのがポイント。',
+  lipB:'幅広い倍音の移動。上の音で力まないように、<b>息は常に前へ</b>。タンギングはなしでなめらかに。',
+};
+let exType=localStorage.getItem('kg_ex')||'long';
+let scaleKeyPc=+(localStorage.getItem('kg_key')||10); // 既定：B♭
+let pitchMode=localStorage.getItem('kg_pm')||'w';
+function offsetsFor(type){
+  if(type==='long')return [0];
+  if(type==='major')return [0,2,4,5,7,9,11,12,11,9,7,5,4,2,0];
+  if(type==='chrom'){const asc=[...Array(13).keys()];const desc=asc.slice(0,-1).reverse();return asc.concat(desc);}
+  if(type==='arp')return [0,4,7,12,7,4,0];
+  if(type==='lipA')return [7,12,7];
+  if(type==='lipB')return [0,7,12,16,12,7,0];
+  return [0];
+}
+const isBrassInst=()=>BRASS.some(b=>b.id===inst.id);
+function renderExPick(){
+  const el=$('exPick');el.innerHTML='';
+  const brass=isBrassInst();
+  const avail=EX_TYPES.filter(ex=>{
+    if(ex.id==='arp'&&inst.fam==='brass')return false;
+    if((ex.id==='lipA'||ex.id==='lipB')&&!brass)return false;
+    return true;
+  });
+  if(!avail.some(x=>x.id===exType)){exType='long';localStorage.setItem('kg_ex',exType);}
+  avail.forEach(ex=>{
+    const b=document.createElement('button');
+    b.className='chip'+(ex.id===exType?' on':'');
+    b.textContent=ex.label;
+    b.addEventListener('click',()=>{exType=ex.id;localStorage.setItem('kg_ex',exType);renderExPick();renderScale();});
+    el.appendChild(b);
+  });
+}
+function renderKeyPick(){
+  const el=$('keyPick');el.innerHTML='';
+  KEY_PCS.forEach(pc=>{
+    const b=document.createElement('button');
+    b.className='chip'+(pc===scaleKeyPc?' on':'');
+    b.textContent=keyLabel(pc);
+    b.addEventListener('click',()=>{scaleKeyPc=pc;localStorage.setItem('kg_key',pc);renderKeyPick();renderScale();});
+    el.appendChild(b);
+  });
+}
+document.querySelectorAll('#pitchToggle button').forEach(b=>b.addEventListener('click',()=>{
+  pitchMode=b.dataset.p;localStorage.setItem('kg_pm',pitchMode);
+  document.querySelectorAll('#pitchToggle button').forEach(x=>x.classList.toggle('on',x===b));
+  renderScale();
+}));
+let scaleSeq=[];
+const isLip=()=>exType==='lipA'||exType==='lipB';
+function scaleDisp(active=-1){
+  const dur=exType==='long'?'w':'q';
+  const labelAcc=accForKey(scaleKeyPc);
+  const staffKeyPc=pitchMode==='c'?scaleKeyPc:pc12(scaleKeyPc+inst.t);
+  const staffAcc=accForKey(staffKeyPc);
+  const notes=scaleSeq.map(n=>{
+    const cm=n.m-inst.t, cp=pc12(cm);
+    const ni=nameInfo(cm,labelAcc);
+    const labCol=[1,3,6,8,10].includes(cp)?(labelAcc==='s'?COL_SHARP:COL_FLAT):null;
+    return {m:(pitchMode==='c'?cm:n.m),dur,lab1:ni.g,lab2:ni.k,labCol};
+  });
+  return staffMulti(inst.clef,notes,{step:isLip()?70:64,active,minW:600,acc:staffAcc,keyPc:staffKeyPc});
+}
+function sigLegendHTML(){
+  const staffKeyPc=pitchMode==='c'?scaleKeyPc:pc12(scaleKeyPc+inst.t);
+  const acc=accForKey(staffKeyPc), sig=keySigInfo(staffKeyPc,acc);
+  const col=acc==='s'?COL_SHARP:COL_FLAT, mark=acc==='s'?'♯':'♭';
+  let txt= sig.count
+    ? `調号：${mark}${sig.count}つ　<b style="color:${col}">●色つきの音符</b>＝調号で${mark}になる音`
+    : '調号：♯・♭なし';
+  if(exType==='chrom'&&sig.count)txt+=`　／　<b style="color:${COL_NAT}">♮つき</b>＝調号をうち消す音`;
+  return `<p style="text-align:center;font-size:12.5px;color:#5a7a84;font-weight:700;padding:0 10px 12px;margin:0">${txt}</p>`;
+}
+function renderScale(){
+  if(inst.fam==='perc'){$('scaleGate').style.display='';$('scaleBody').style.display='none';return;}
+  $('scaleGate').style.display='none';$('scaleBody').style.display='';
+  const writtenRootPc=pc12(scaleKeyPc+inst.t);
+  scaleSeq=buildSeq(inst,writtenRootPc,offsetsFor(exType));
+  const fing= isLip()&&scaleSeq[0] ? `<div style="text-align:center;padding:0 10px 18px">${fingSVG(inst,scaleSeq[0].f,.85)}</div>` : '';
+  $('scaleStaff').innerHTML='<span class="tag">Staff</span>'+scaleDisp()+sigLegendHTML()+fing;
+  $('scaleHint').innerHTML=HINTS[exType]||'';
+}
+let scalePlaying=false;
+$('scalePlay').addEventListener('click',async()=>{
+  if(scalePlaying)return;
+  await ensureAC();
+  scalePlaying=true;
+  const bpm=+$('scaleBpm').value, beat=60/bpm;
+  const btn=$('scalePlay');btn.disabled=true;btn.textContent='再生中…';
+  const dur = exType==='long' ? beat*8 : isLip() ? beat*1.4 : beat*0.92;
+  let t=AC.currentTime+.1;
+  const seq = exType==='long' ? [scaleSeq[0]] : scaleSeq;
+  seq.forEach((n,i)=>{
+    playConcertMidi(n.m-inst.t,dur,.2,t);
+    const idx=i;
+    setTimeout(()=>{$('scaleStaff').innerHTML='<span class="tag">Staff</span>'+scaleDisp(idx);},(t-AC.currentTime)*1000);
+    t+=dur;
+  });
+  setTimeout(()=>{scalePlaying=false;btn.disabled=false;btn.textContent='▶ 再生する';renderScale();},(t-AC.currentTime)*1000+150);
+});
+$('scaleBpm').addEventListener('input',e=>{fill(e.target);$('vScaleBpm').textContent=e.target.value+' BPM';});
+
+/* ================= カデンツ ================= */
+/* I → IV → V・V7 → I を任意の調で */
+let cadKeyPc=+(localStorage.getItem('kg_cadkey')||10);
+function chordsFor(k){
+  const nm=p=>accForKey(k)==='s'?GNS[pc12(p)]:GN[pc12(p)];
+  return [
+    {label:nm(k),tones:[pc12(k),pc12(k+4),pc12(k+7)]},
+    {label:nm(k+5),tones:[pc12(k+5),pc12(k+9),pc12(k)]},
+    {label:nm(k+7),tones:[pc12(k+7),pc12(k+11),pc12(k+2)]},
+    {label:nm(k+7)+'7',tones:[pc12(k+7),pc12(k+11),pc12(k+2),pc12(k+5)]},
+    {label:nm(k),tones:[pc12(k),pc12(k+4),pc12(k+7)]},
+  ];
+}
+let CHORDS=chordsFor(cadKeyPc);
+function buildCadSeq(){return [
+  {chord:0,beats:4,dur:'w',barAfter:true, name:'1小節目 '+CHORDS[0].label},
+  {chord:1,beats:4,dur:'w',barAfter:true, name:'2小節目 '+CHORDS[1].label},
+  {chord:2,beats:2,dur:'h',barAfter:false,name:'3小節目前半 '+CHORDS[2].label+'（2分）'},
+  {chord:3,beats:2,dur:'h',barAfter:true, name:'3小節目後半 '+CHORDS[3].label+'（2分）'},
+  {chord:4,beats:4,dur:'w',barAfter:false,name:'4小節目 '+CHORDS[4].label},
+];}
+let CADSEQ=buildCadSeq();
+let chordIdx=0;
+function renderCadKeyPick(){
+  const el=$('cadKeyPick');el.innerHTML='';
+  KEY_PCS.forEach(pc=>{
+    const b=document.createElement('button');
+    b.className='chip'+(pc===cadKeyPc?' on':'');
+    b.textContent=keyLabel(pc)+' dur';
+    b.addEventListener('click',()=>{
+      cadKeyPc=pc;localStorage.setItem('kg_cadkey',pc);
+      CHORDS=chordsFor(pc);CADSEQ=buildCadSeq();
+      cadSel={};chordIdx=0;
+      renderCadKeyPick();renderChordPick();renderCad();
+    });
+    el.appendChild(b);
+  });
+}
+const ROOT_ONLY=['tu','cb','bs'];
+const ROLE_NAMES=['ルート','3度','5度','7度'];
+function chordCandidates(instr,chordI){
+  const ch=CHORDS[chordI];
+  const tonePcs=(ROOT_ONLY.includes(instr.id)?[ch.tones[0]]:ch.tones).map(t=>pc12(t+instr.t));
+  const mMin=instr.notes[0].m,mMax=instr.notes[instr.notes.length-1].m,mid=(mMin+mMax)/2;
+  const out=[];
+  tonePcs.forEach((pc,role)=>{
+    let best=null,bd=1e9;
+    instr.notes.forEach(n=>{if(pc12(n.m)===pc){const d=Math.abs(n.m-mid);if(d<bd){bd=d;best=n;}}});
+    if(best)out.push({m:best.m,f:best.f,role});
+  });
+  out.sort((a,b)=>a.m-b.m);
+  return out;
+}
+let cadSel={}; // instId -> 小節ごとに選んだ音（m）
+function defaultCadSel(instr){
+  let prev=null;
+  return CADSEQ.map(seg=>{
+    const cands=chordCandidates(instr,seg.chord);
+    let best=cands[0],bd=1e9;
+    cands.forEach(c=>{
+      const ref=prev==null?(instr.notes[0].m+instr.notes[instr.notes.length-1].m)/2:prev;
+      const d=Math.abs(c.m-ref);
+      if(d<bd){bd=d;best=c;}
+    });
+    prev=best?best.m:prev;
+    return best?best.m:null;
+  });
+}
+function getCadSel(instr){
+  if(!cadSel[instr.id])cadSel[instr.id]=defaultCadSel(instr);
+  return cadSel[instr.id];
+}
+function renderChordPick(){
+  const el=$('chordPick');el.innerHTML='';
+  CADSEQ.forEach((seg,i)=>{
+    const b=document.createElement('button');
+    b.className='chip'+(i===chordIdx?' on':'');
+    b.textContent=seg.name;
+    b.addEventListener('click',()=>{chordIdx=i;renderChordPick();renderCad();});
+    el.appendChild(b);
+  });
+}
+function cadStaffHTML(activeSeg){
+  const clef=inst.clef, step=118;
+  const labelAcc=accForKey(cadKeyPc);
+  const staffKeyPc=pc12(cadKeyPc+inst.t);
+  const staffAcc=accForKey(staffKeyPc);
+  const sig=keySigInfo(staffKeyPc,staffAcc);
+  const x0=72+(sig.count?sig.count*11+12:0);
+  const spellArr=staffAcc==='s'?GNS:GN;
+  const accGlyph=staffAcc==='s'?'♯':'♭';
+  const sel=getCadSel(inst);
+  const segs=CADSEQ.map(seg=>({...seg,cands:chordCandidates(inst,seg.chord)}));
+  const extraBars=segs.filter(s=>s.barAfter).length;
+  const w=x0+segs.length*step+extraBars*16+34, h=262, top=52;
+  const lineY=i=>top+i*10;
+  let s=`<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" font-family="var(--jp)">`;
+  for(let i=0;i<5;i++)s+=`<line x1="10" y1="${lineY(i)}" x2="${w-10}" y2="${lineY(i)}" stroke="#4a6a74" stroke-width="1.3"/>`;
+  s+=`<line x1="10.7" y1="${lineY(0)}" x2="10.7" y2="${lineY(4)}" stroke="#4a6a74" stroke-width="1.6"/>`;
+  if(clef==='treble')s+=`<text x="12" y="${lineY(4)+12}" font-size="62" fill="#123540" font-family="serif">&#119070;</text>`;
+  else s+=`<text x="14" y="${lineY(3)+3}" font-size="42" fill="#123540" font-family="serif">&#119074;</text>`;
+  const baseDia=clef==='treble'?30:18, baseY=lineY(4), midY=lineY(2);
+  s+=keySigSVG(clef,sig,baseY,baseDia,clef==='treble'?56:50);
+  let x=x0;
+  segs.forEach((seg,si)=>{
+    const heads=seg.cands.map(c=>{
+      const d=noteDisp(c.m);
+      const letter=LETTER[spellArr[d.pc][0]];
+      const y=baseY-((letter+d.oct*7)-baseDia)*5;
+      return {...c,y,letter,black:[1,3,6,8,10].includes(d.pc)};
+    }).sort((a,b)=>b.y-a.y); // 下から上へ
+    // 加線
+    heads.forEach(hd=>{
+      for(let ly=baseY+10;ly<=hd.y+2;ly+=10)s+=`<line x1="${x-13}" y1="${ly}" x2="${x+13}" y2="${ly}" stroke="#4a6a74" stroke-width="1.3"/>`;
+      for(let ly=lineY(0)-10;ly>=hd.y-2;ly-=10)s+=`<line x1="${x-13}" y1="${ly}" x2="${x+13}" y2="${ly}" stroke="#4a6a74" stroke-width="1.3"/>`;
+    });
+    // 2分音符の符幹（和音をまとめて1本）
+    if(seg.dur==='h'&&heads.length){
+      const topY=Math.min(...heads.map(h=>h.y)), botY=Math.max(...heads.map(h=>h.y));
+      const up=(topY+botY)/2>=midY;
+      s+= up
+        ? `<line x1="${x+6.3}" y1="${botY-1.5}" x2="${x+6.3}" y2="${topY-33}" stroke="#123540" stroke-width="1.7"/>`
+        : `<line x1="${x-6.3}" y1="${topY+1.5}" x2="${x-6.3}" y2="${botY+33}" stroke="#123540" stroke-width="1.7"/>`;
+    }
+    // 符頭（タップで選択）
+    let prevY=null,prevOff=0;
+    heads.forEach(hd=>{
+      let xoff=0;
+      if(prevY!=null&&Math.abs(prevY-hd.y)<=5&&prevOff===0)xoff=15;
+      prevY=hd.y;prevOff=xoff;
+      const isSel=sel[si]===hd.m;
+      const inSig=sig.letters.includes(hd.letter);
+      const accCol=hd.black?(sig.acc==='s'?COL_SHARP:COL_FLAT):null;
+      const ink=isSel?'#b87d22':(accCol||'#7f97a1');
+      s+=`<g class="cadHead" data-seg="${si}" data-m="${hd.m}" style="cursor:pointer">`;
+      s+=`<circle cx="${x+xoff}" cy="${hd.y}" r="15" fill="${isSel?'rgba(230,169,63,.25)':'transparent'}"/>`;
+      if(seg.dur==='w')s+=`<ellipse cx="${x+xoff}" cy="${hd.y}" rx="8.6" ry="5.4" fill="none" stroke="${ink}" stroke-width="2.6"/>`;
+      else s+=`<ellipse cx="${x+xoff}" cy="${hd.y}" rx="7" ry="5.2" fill="none" stroke="${ink}" stroke-width="2.2" transform="rotate(-16 ${x+xoff} ${hd.y})"/>`;
+      if(hd.black&&!inSig)s+=`<text x="${x+xoff-21}" y="${hd.y+5.5}" font-size="17" font-weight="700" fill="${ink}">${accGlyph}</text>`;
+      const cd=nameInfo(hd.m-inst.t,labelAcc);
+      s+=`<text x="${x+xoff+22}" y="${hd.y+4.5}" font-size="11" font-weight="700" fill="${ink}" font-family="var(--en)">${cd.g}</text>`;
+      s+=`</g>`;
+    });
+    // ラベル（コード名＋選択中の実音）
+    const on=si===activeSeg;
+    const selC=sel[si]!=null?nameInfo(sel[si]-inst.t,labelAcc):null;
+    s+=`<text x="${x}" y="${lineY(4)+42}" text-anchor="middle" font-size="16" font-weight="900" fill="${on?'#b87d22':'#123540'}" font-family="var(--en)">${CHORDS[seg.chord].label}</text>`;
+    if(selC)s+=`<text x="${x}" y="${lineY(4)+59}" text-anchor="middle" font-size="11" font-weight="700" fill="#5a7a84">選択中：${selC.g}（${selC.k}）</text>`;
+    if(seg.barAfter){
+      const bx=x+step*0.56;
+      s+=`<line x1="${bx}" y1="${lineY(0)}" x2="${bx}" y2="${lineY(4)}" stroke="#4a6a74" stroke-width="1.5"/>`;
+      x+=16;
+    }
+    x+=step;
+  });
+  s+=`<line x1="${w-12}" y1="${lineY(0)}" x2="${w-12}" y2="${lineY(4)}" stroke="#4a6a74" stroke-width="2"/><line x1="${w-18}" y1="${lineY(0)}" x2="${w-18}" y2="${lineY(4)}" stroke="#4a6a74" stroke-width="1"/>`;
+  return s+'</svg>';
+}
+function renderCad(){
+  if(inst.fam==='perc'){
+    $('cadStaff').innerHTML='<span class="tag">My Part</span><div style="padding:70px 20px;text-align:center;color:#5a7a84">打楽器はハーモニーの音がないよ。他の楽器を選ぶと自分のパートが出るよ。</div>';
+  }else{
+    const sel=getCadSel(inst);
+    const cands=chordCandidates(inst,CADSEQ[chordIdx].chord);
+    const selNote=cands.find(c=>c.m===sel[chordIdx]);
+    const rootNote= ROOT_ONLY.includes(inst.id)
+      ? '<p style="font-size:12.5px;color:#5a7a84;font-weight:700;text-align:center;margin-top:-6px">低音パートは土台になる<b style="color:#c46a52">根音（ルート）</b>担当だよ</p>'
+      : '<p style="font-size:12.5px;color:#5a7a84;font-weight:700;text-align:center;margin-top:-6px">音符をタップすると自分が吹く音を選べるよ</p>';
+    const cadStaffKeyPc=pc12(cadKeyPc+inst.t);
+    const cadAcc=accForKey(cadStaffKeyPc), cadSig=keySigInfo(cadStaffKeyPc,cadAcc);
+    const cadCol=cadAcc==='s'?COL_SHARP:COL_FLAT, cadMark=cadAcc==='s'?'♯':'♭';
+    const cadLegend=`<p style="text-align:center;font-size:12.5px;color:#5a7a84;font-weight:700;padding:0 10px 6px;margin:0">${cadSig.count?`調号：${cadMark}${cadSig.count}つ　<b style="color:${cadCol}">●色つきの音符</b>＝調号で${cadMark}になる音`:'調号：♯・♭なし'}</p>`;
+    $('cadStaff').innerHTML='<span class="tag">My Part</span>'+cadStaffHTML(chordIdx)
+      + cadLegend
+      + rootNote
+      + (selNote?`<div style="text-align:center;padding:4px 10px 18px">${fingSVG(inst,selNote.f,.85)}</div>`:'');
+    $('cadStaff').querySelectorAll('.cadHead').forEach(g=>g.addEventListener('click',()=>{
+      getCadSel(inst)[+g.dataset.seg]=+g.dataset.m;
+      chordIdx=+g.dataset.seg;
+      renderChordPick();renderCad();
+    }));
+  }
+  const segChord=CADSEQ[chordIdx].chord;
+  const labelAcc=accForKey(cadKeyPc);
+  const rows=INSTS.filter(i=>i.fam!=='perc').map(i=>{
+    const cands=chordCandidates(i,segChord);
+    const txt= ROOT_ONLY.includes(i.id)
+      ? (cands[0]?nameInfo(cands[0].m-i.t,labelAcc).g+'（ルート）':'—')
+      : cands.map(c=>nameInfo(c.m-i.t,labelAcc).g+'（'+ROLE_NAMES[c.role]+'）').join('・');
+    return `<tr class="${i.id===inst.id?'me':''}"><td class="nm">${i.name}</td><td>${txt}</td></tr>`;
+  }).join('');
+  $('cadTable').innerHTML=`<tr><th>楽器</th><th>実音（構成音）</th></tr>${rows}`;
+}
+let cadPlaying=false;
+$('cadPlayAll').addEventListener('click',async()=>{
+  if(cadPlaying)return;
+  await ensureAC();cadPlaying=true;
+  const btn=$('cadPlayAll');btn.disabled=true;btn.textContent='再生中…';
+  const beat=60/72;
+  let t=AC.currentTime+.1;
+  CADSEQ.forEach((seg,i)=>{
+    const dur=seg.beats*beat*.97;
+    INSTS.filter(x=>x.fam!=='perc').forEach(x=>{
+      const mSel=getCadSel(x)[i];
+      if(mSel!=null)playConcertMidi(mSel-x.t,dur,.12,t);
+    });
+    setTimeout(()=>{chordIdx=i;renderChordPick();renderCad();},(t-AC.currentTime)*1000);
+    t+=seg.beats*beat;
+  });
+  setTimeout(()=>{cadPlaying=false;btn.disabled=false;btn.textContent='🎼 全体のハーモニーを通して聴く';},(t-AC.currentTime)*1000+150);
+});
+$('cadPlayMine').addEventListener('click',async()=>{
+  if(inst.fam==='perc')return;
+  await ensureAC();
+  const mSel=getCadSel(inst)[chordIdx];
+  if(mSel!=null)playConcertMidi(mSel-inst.t,1.6,.24);
+});
+
+/* ================= 打楽器 基礎打ち・打楽器マスター ================= */
+function mkNotes(str,accIdx=[],graces={}){
+  return str.split('').map((h,i)=>({h,acc:accIdx.includes(i),g:graces[i]||null}));
+}
+const PERC_PATTERNS=[
+  {id:'single',lv:1,label:'シングルストローク',sub:2,notes:mkNotes('RLRLRLRL',[0,4]),desc:'一番きほんの右左交互。まずはメトロノームにぴったり合わせよう。'},
+  {id:'double',lv:1,label:'ダブルストローク',sub:2,notes:mkNotes('RRLLRRLL',[0,4]),desc:'同じ手で2回ずつ。2打目が1打目より小さくならないように。'},
+  {id:'para',lv:1,label:'シングルパラディドル',sub:2,notes:mkNotes('RLRRLRLL',[0,4]),desc:'RLRR・LRLL。手順がくずれないよう、ゆっくりから確実に。'},
+  {id:'dpara',lv:1,label:'ダブルパラディドル',sub:3,notes:mkNotes('RLRLRRLRLRLL',[0,6]),desc:'6つ割り（3連系）の感覚で。RLRLRR・LRLRLL。'},
+  {id:'flam',lv:2,label:'フラム',sub:2,notes:mkNotes('RLRLRLRL',[0,4],{0:'L',4:'R'}),desc:'小さい字＝装飾音。主音の直前にそっと入れて「タラッ」と1つの音に聞こえたら成功。'},
+  {id:'five',lv:2,label:'5ストロークロール',sub:2,notes:mkNotes('RRLLRLLRRL',[4,9]),desc:'RRLL＋アクセントで1セット。ロールの入り口になる大事なパターン。'},
+  {id:'accshift',lv:2,label:'アクセント移動（16分）',sub:4,notes:mkNotes('RLRLRLRLRLRLRLRL',[0,5,10,15]),desc:'アクセント（＞）が1つずつ後ろにずれていくよ。アクセント以外は小さく均等に。'},
+  {id:'trip',lv:3,label:'3連符アクセント',sub:3,notes:mkNotes('RLRLRLRLRLRL',[0,3,6,9]),desc:'3連符の1つ目にアクセント。手は交互のままなので、アクセントの手が入れかわるのがポイント。'},
+  {id:'swiss',lv:3,label:'スイス・トリプレット',sub:3,notes:mkNotes('RRLRRLRRLRRL',[0,3,6,9]),desc:'RRLの3連をくり返す。Rの2連発の粒をきれいにそろえよう。'},
+  {id:'pdd',lv:3,label:'パラディドルディドル',sub:3,notes:mkNotes('RLRRLLRLRRLL',[0,6]),desc:'RLRRLL の6つ割り。パラディドル＋ディドル。手の流れをなめらかに。'},
+];
+let percId=PERC_PATTERNS[0].id;
+const bestKey=id=>'kg_percbest_'+id;
+function getBest(id){try{return JSON.parse(localStorage.getItem(bestKey(id)))||null;}catch(e){return null;}}
+function rankOf(score){return score>=95?'S':score>=85?'A':score>=70?'B':'C';}
+function renderPercPick(){
+  const el=$('percPick');el.innerHTML='';
+  PERC_PATTERNS.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='chip'+(p.id===percId?' on':'');
+    const best=getBest(p.id);
+    b.innerHTML=`Lv${p.lv}　${p.label}${best?`<small>★${best.rank}</small>`:''}`;
+    b.addEventListener('click',()=>{percId=p.id;renderPercPick();renderPerc();});
+    el.appendChild(b);
+  });
+}
+function percPat(){return PERC_PATTERNS.find(x=>x.id===percId);}
+function renderPerc(){
+  const p=percPat();
+  $('stickRow').innerHTML=p.notes.map((n,i)=>
+    `<div class="stickCell${n.acc?' acc':''}" data-i="${i}" style="${i>0&&i%p.sub===0?'margin-left:14px':''}">`+
+    (n.g?`<span class="grace">${n.g}</span>`:'')+n.h+(n.acc?'<span class="accm">›</span>':'')+`</div>`
+  ).join('');
+  const best=getBest(p.id);
+  $('percHint').innerHTML=`<b>Lv${p.lv}　${p.label}</b>：${p.desc}`
+    +(best?`<br>ベスト記録：<b style="color:var(--brass)">ランク${best.rank}（${best.score}点・${best.bpm}BPM）</b>`:'');
+  $('chalResult').innerHTML='';$('chalJudge').textContent='';
+}
+/* --- 音 --- */
+function tapSound(t,acc,hand){
+  const dur=.08;
+  const b=AC.createBuffer(1,Math.floor(AC.sampleRate*dur),AC.sampleRate);
+  const data=b.getChannelData(0);
+  for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2);
+  const s=AC.createBufferSource();s.buffer=b;
+  const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=hand==='R'?2100:1400;f.Q.value=.9;
+  const g=AC.createGain();g.gain.value=acc?.9:.42;
+  s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t);
+}
+/* --- 練習モード再生 --- */
+let percPlaying=false;
+$('percPlay').addEventListener('click',async()=>{
+  if(percPlaying)return;
+  await ensureAC();percPlaying=true;
+  const p=percPat();
+  const bpm=+$('percBpm').value;
+  const noteDur=60/bpm/p.sub*2;
+  const btn=$('percPlay');btn.disabled=true;btn.textContent='再生中…';
+  let t=AC.currentTime+.1;
+  const cells=[...document.querySelectorAll('.stickCell')];
+  p.notes.forEach((n,i)=>{
+    if(n.g)tapSound(t-0.035,false,n.g);
+    tapSound(t,n.acc,n.h);
+    setTimeout(()=>{
+      cells.forEach(x=>x.classList.remove('hit'));
+      if(cells[i])cells[i].classList.add('hit');
+    },(t-AC.currentTime)*1000);
+    t+=noteDur;
+  });
+  setTimeout(()=>{percPlaying=false;btn.disabled=false;btn.textContent='▶ 再生する';cells.forEach(x=>x.classList.remove('hit'));},(t-AC.currentTime)*1000+150);
+});
+$('percBpm').addEventListener('input',e=>{fill(e.target);$('vPercBpm').textContent=e.target.value+' BPM';});
+/* --- 打楽器マスター（チャレンジ） --- */
+let chalMode=false, chal={active:false,exp:[],raf:0};
+document.querySelectorAll('#percMode button').forEach(b=>b.addEventListener('click',()=>{
+  chalMode=b.dataset.m==='chal';
+  document.querySelectorAll('#percMode button').forEach(x=>x.classList.toggle('on',x===b));
+  $('chalBox').style.display=chalMode?'':'none';
+}));
+function showJudge(txt,color){
+  const el=$('chalJudge');
+  el.textContent=txt;
+  el.style.color=`var(--${color})`;
+}
+$('chalStart').addEventListener('click',async()=>{
+  if(chal.active)return;
+  await ensureAC();
+  const p=percPat();
+  const bpm=+$('percBpm').value, beat=60/bpm, unit=60/bpm/p.sub*2;
+  const loops=2, len=p.notes.length;
+  const btn=$('chalStart');btn.disabled=true;btn.textContent='カウント…';
+  $('chalResult').innerHTML='';showJudge('','muted');
+  // カウントイン
+  const now=AC.currentTime+.15;
+  for(let k=0;k<4;k++)clickSound(now+k*beat,k===0);
+  const t0=now+4*beat;
+  // メトロノーム（本編）
+  const beatsCount=Math.round(loops*len*unit/beat);
+  for(let bt=0;bt<beatsCount;bt++)clickSound(t0+bt*beat, bt%Math.round(len*unit/beat)===0);
+  chal.exp=[];
+  for(let rep=0;rep<loops;rep++)p.notes.forEach((n,i)=>{
+    chal.exp.push({t:t0+(rep*len+i)*unit,h:n.h,hit:false,pts:0});
+  });
+  chal.active=true;
+  const cells=[...document.querySelectorAll('.stickCell')];
+  const endT=t0+loops*len*unit;
+  setTimeout(()=>{btn.textContent='たたけ！';},(t0-AC.currentTime)*1000-150);
+  function loop(){
+    if(!chal.active)return;
+    const idx=Math.floor((AC.currentTime-t0)/unit);
+    cells.forEach(x=>x.classList.remove('hit'));
+    if(idx>=0&&idx<loops*len&&cells[idx%len])cells[idx%len].classList.add('hit');
+    if(AC.currentTime<endT+.25)chal.raf=requestAnimationFrame(loop);
+  }
+  loop();
+  setTimeout(()=>{
+    chal.active=false;
+    cancelAnimationFrame(chal.raf);
+    cells.forEach(x=>x.classList.remove('hit'));
+    const pts=chal.exp.reduce((a,e)=>a+e.pts,0), max=chal.exp.length*2;
+    const score=Math.round(pts/max*100), rank=rankOf(score);
+    const prev=getBest(p.id);
+    const isBest=!prev||score>prev.score;
+    if(isBest)localStorage.setItem(bestKey(p.id),JSON.stringify({score,rank,bpm}));
+    $('chalResult').innerHTML=`スコア <b style="font-size:22px;color:var(--brass)">${score}</b> 点　ランク <b style="font-size:22px;color:var(--${rank==='S'?'brass':rank==='A'?'good':rank==='B'?'breath':'coral'})">${rank}</b>${isBest?'<br><b style="color:var(--good)">ベスト更新！🎉</b>':''}<br><span style="font-size:12px;color:var(--muted)">S:95〜 A:85〜 B:70〜／テンポを上げて再挑戦しよう</span>`;
+    showJudge('','muted');
+    btn.disabled=false;btn.textContent='🥁 チャレンジ開始';
+    renderPercPick();renderPerc();
+  },(endT-AC.currentTime)*1000+400);
+});
+function chalTap(hand){
+  if(!AC)return;
+  tapSound(AC.currentTime,false,hand);
+  if(!chal.active)return;
+  const now=AC.currentTime;
+  let best=-1,bd=.16;
+  chal.exp.forEach((e,i)=>{if(!e.hit){const d=Math.abs(e.t-now);if(d<bd){bd=d;best=i;}}});
+  if(best<0){showJudge('ミス…','coral');return;}
+  const e=chal.exp[best];e.hit=true;
+  if(e.h!==hand){e.pts=0;showJudge('手がちがう！（'+e.h+'の番）','coral');}
+  else if(bd<=0.065){e.pts=2;showJudge('パーフェクト！','good');}
+  else{e.pts=1;showJudge('グッド','breath');}
+}
+$('padL').addEventListener('pointerdown',async e=>{e.preventDefault();await ensureAC();chalTap('L');});
+$('padR').addEventListener('pointerdown',async e=>{e.preventDefault();await ensureAC();chalTap('R');});
+document.addEventListener('keydown',e=>{
+  if(e.repeat)return;
+  if(!document.getElementById('p-perc').classList.contains('active'))return;
+  if(e.key==='f'||e.key==='F'){chalTap('L');}
+  if(e.key==='j'||e.key==='J'){chalTap('R');}
+});
+
+/* ================= まとめ描画 ================= */
+function renderAll(){
+  renderInstPick();
+  renderExPick();renderKeyPick();renderScale();
+  renderCadKeyPick();renderChordPick();renderCad();
+  renderPercPick();renderPerc();
+}
+fill($('scaleBpm'));fill($('percBpm'));
+renderAll();
+</script>
+</body>
+</html>

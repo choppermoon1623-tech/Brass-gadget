@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>音楽用語辞典｜吹奏楽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d2630; --bg2:#123540; --bg3:#0a1d25; --panel:#16424f;
+    --brass:#e6a93f; --brass-d:#b87d22;
+    --breath:#6fd6e6; --coral:#e89178;
+    --text:#e9f4f4; --muted:#8aabb3; --line:rgba(255,255,255,.09);
+    --good:#7fd6a8; --warn:#e8916f;
+    --paper:#f6f1e2; --ink:#22333a;
+    --jp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,sans-serif;
+    --en:"Archivo",var(--jp);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--jp);
+    background:
+      radial-gradient(1200px 600px at 78% -10%, rgba(230,169,63,.10), transparent 60%),
+      radial-gradient(900px 700px at 10% 110%, rgba(111,214,230,.10), transparent 55%),
+      var(--bg);
+    color:var(--text); line-height:1.7; min-height:100vh;
+  }
+  a{color:var(--breath)} a:hover{color:#fff}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 22px 64px}
+
+  header{margin-bottom:22px}
+  .eyebrow{
+    font-family:var(--en);font-weight:700;letter-spacing:.32em;
+    text-transform:uppercase;font-size:12px;color:var(--brass);
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--brass-d),transparent)}
+  h1{font-weight:900;font-size:clamp(28px,4.5vw,46px);line-height:1.15;margin:14px 0 8px}
+  h1 .acc{color:var(--breath)}
+  .lead{color:var(--muted);max-width:56ch;font-size:15px}
+  .lead b{color:var(--text)}
+  .backlink{display:inline-block;margin:10px 14px 0 0;font-size:13px;color:var(--breath);text-decoration:none;border-bottom:1px dashed rgba(111,214,230,.5)}
+  .backlink:hover{color:#fff}
+
+  .step{margin:30px 0 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .step .badge{
+    font-family:var(--en);font-weight:700;font-size:12px;letter-spacing:.18em;
+    color:#1a1206;background:linear-gradient(90deg,var(--brass),#f0c063);
+    padding:4px 12px;border-radius:999px;flex:none;
+  }
+  .step h2{font-size:19px;font-weight:900}
+  .step .sub{font-size:12.5px;color:var(--muted);margin-left:auto}
+
+  /* 検索・フィルタ */
+  .searchbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+  .searchbar input{
+    flex:1;min-width:220px;appearance:none;border:1px solid var(--line);border-radius:12px;
+    background:rgba(255,255,255,.05);color:var(--text);font-family:var(--jp);font-size:15px;
+    padding:11px 14px;outline:none;
+  }
+  .searchbar input:focus{border-color:var(--breath)}
+  .searchbar input::placeholder{color:var(--muted)}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+  .chip{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
+    color:var(--text);font-family:var(--jp);font-weight:700;font-size:13px;
+    padding:7px 13px;border-radius:999px;cursor:pointer;transition:.16s;white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--brass);color:var(--brass)}
+  .chip.on{background:var(--brass);color:#1a1206;border-color:var(--brass)}
+  .count{font-size:12.5px;color:var(--muted);margin-bottom:10px}
+
+  /* 用語カード */
+  .terms{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+  .term{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    padding:13px 14px 12px;position:relative;
+  }
+  .term .t{font-family:"Georgia","Times New Roman",serif;font-style:italic;font-weight:700;font-size:19px;color:var(--brass);line-height:1.3}
+  .term .t .sym{font-style:normal}
+  .term .y{font-size:11.5px;font-weight:700;color:var(--breath);letter-spacing:.04em}
+  .term .m{font-size:13.5px;color:var(--text);margin-top:3px}
+  .term .m a{text-decoration:none;border-bottom:1px dashed rgba(111,214,230,.5)}
+  .term .cat{
+    position:absolute;top:11px;right:12px;font-size:10px;font-weight:700;
+    color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:1px 8px;
+  }
+  .empty{color:var(--muted);font-size:14px;padding:20px 4px;display:none}
+
+  /* 特殊奏法 */
+  .tech{
+    background:var(--panel);border:1px solid var(--line);border-radius:18px;
+    padding:20px;margin-bottom:16px;
+  }
+  .tech h3{font-size:20px;font-weight:900;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .tech h3 .en{font-family:var(--en);font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--breath);text-transform:uppercase}
+  .tech .desc{font-size:14px;color:var(--muted);max-width:64ch;margin-bottom:14px}
+  .tech .desc b{color:var(--text)}
+  .scores{display:flex;flex-wrap:wrap;gap:14px;align-items:stretch}
+  .score{
+    background:var(--paper);border-radius:14px;padding:10px 12px 8px;flex:1;min-width:250px;
+    display:flex;flex-direction:column;
+  }
+  .score .lbl{font-size:11.5px;font-weight:900;color:#7a6a3f;letter-spacing:.06em;display:flex;align-items:center;gap:8px}
+  .score .lbl .play{
+    margin-left:auto;appearance:none;border:none;cursor:pointer;border-radius:999px;
+    background:var(--ink);color:#f6f1e2;font-family:var(--jp);font-weight:700;font-size:11.5px;
+    padding:4px 12px;transition:.15s;
+  }
+  .score .lbl .play:hover{background:var(--brass-d)}
+  .score svg{width:100%;height:auto;display:block;margin-top:2px}
+  .score .cap{font-size:11.5px;color:#8a7f66;margin-top:auto}
+  .arrow{align-self:center;color:var(--brass);font-size:22px;font-weight:900;flex:none}
+  .points{margin-top:14px;display:grid;gap:8px}
+  .points li{
+    list-style:none;font-size:13.5px;color:var(--text);
+    background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;
+    padding:8px 12px;
+  }
+  .points li b{color:var(--brass)}
+  .points li .q{color:var(--breath);font-weight:900}
+
+  footer{margin-top:44px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  footer b{color:var(--brass)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Music Glossary</div>
+    <h1>音楽用語辞典 <span class="acc">＆特殊奏法の吹き方</span></h1>
+    <p class="lead">楽譜に出てくる用語・記号をすぐ検索。<b>トリルなどの特殊奏法は、実際にどう吹くのかを音符と音で解説</b>するよ。</p>
+    <a class="backlink" href="index.html">← ホームに戻る</a>
+    <a class="backlink" href="#tech">↓ 特殊奏法の解説へジャンプ</a>
+  </header>
+
+  <div class="step"><span class="badge">DICTIONARY</span><h2>用語をさがす</h2><span class="sub">用語・読み方・意味のどれでも検索OK</span></div>
+  <div class="searchbar">
+    <input id="q" type="search" placeholder="🔍 例：dolce ／ ドルチェ ／ だんだん速く">
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="chip on" data-c="all">すべて</button>
+    <button class="chip" data-c="tempo">速度</button>
+    <button class="chip" data-c="dyn">強弱</button>
+    <button class="chip" data-c="expr">発想・表情</button>
+    <button class="chip" data-c="artic">奏法・アーティキュレーション</button>
+    <button class="chip" data-c="form">くり返し・構成</button>
+    <button class="chip" data-c="other">補助語</button>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="terms" id="terms"></div>
+  <p class="empty" id="empty">見つからなかった…別の言葉で検索してみてね。</p>
+
+  <div class="step" id="tech"><span class="badge">HOW TO PLAY</span><h2>特殊奏法・装飾音の吹き方</h2><span class="sub">▶ ボタンで音も聞ける（音量注意）</span></div>
+
+  <!-- トリル -->
+  <div class="tech" id="trill">
+    <h3>トリル <span class="en">trill ／ tr𝆖</span></h3>
+    <p class="desc"><b>書かれた音</b>と<b>その「1つ上のとなりの音」</b>を、すばやく交互に吹き続ける奏法。音符の長さいっぱい続けるよ。</p>
+    <div class="scores">
+      <div class="score">
+        <div class="lbl">楽譜の書き方 <button class="play" data-play="trillW">▶ もとの音</button></div>
+        <div id="svgTrillW"></div>
+        <div class="cap">「tr」と波線が付いた「ド」の2分音符</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="score">
+        <div class="lbl">実際の演奏 <button class="play" data-play="trillP">▶ 演奏のしかた</button></div>
+        <div id="svgTrillP"></div>
+        <div class="cap">ド→レ→ド→レ…と交互。音符の長さのあいだ続けて、最後は書かれた音（ド）で終わる</div>
+      </div>
+    </div>
+    <ul class="points">
+      <li><span class="q">Q. 半音上？ 1音上？</span> → <b>どちらでもなく「その曲の音階（調号）でのとなりの音」</b>。半音か全音かは音によって変わるよ。下の例を聞きくらべてみて！</li>
+      <li><b>臨時記号つきのトリル</b>：「tr」の上や横に ♯・♭・♮ が付いていたら、上の音をその記号どおりに変えて交互に吹く。</li>
+      <li><b>始め方・速さ</b>：ふつうは書かれた音からスタート。速さは完璧に揃っていなくてOK。均等に、またはだんだん速くしてもきれい。</li>
+    </ul>
+    <div class="scores" style="margin-top:14px">
+      <div class="score">
+        <div class="lbl">例① ドのトリル → 上の音はレ（全音上）<button class="play" data-play="exCD">▶ 聞く</button></div>
+        <div id="svgExCD"></div>
+        <div class="cap">ドとレの間は全音（鍵盤で黒鍵1つはさむ）</div>
+      </div>
+      <div class="score">
+        <div class="lbl">例② ミのトリル → 上の音はファ（半音上）<button class="play" data-play="exEF">▶ 聞く</button></div>
+        <div id="svgExEF"></div>
+        <div class="cap">ミとファの間はもともと半音。それでもOK、「となりの音」ならいい</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 前打音 -->
+  <div class="tech" id="grace">
+    <h3>前打音（装飾音符） <span class="en">grace note</span></h3>
+    <p class="desc">小さく書かれた音符。<b>本体の音の直前に、すばやく短く</b>吹いて、すぐ本体の音へつなげる。斜線つきの小さな8分音符（短前打音）が一番よく出てくる形。</p>
+    <div class="scores">
+      <div class="score">
+        <div class="lbl">楽譜の書き方 <button class="play" data-play="graceW">▶ もとの音</button></div>
+        <div id="svgGraceW"></div>
+        <div class="cap">小さな「レ」＋本体の「ド」</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="score">
+        <div class="lbl">実際の演奏 <button class="play" data-play="graceP">▶ 演奏のしかた</button></div>
+        <div id="svgGraceP"></div>
+        <div class="cap">レをほんの一瞬だけ→すぐドへ。ドの長さはほぼそのまま</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- プラルトリラー／モルデント -->
+  <div class="tech" id="mordent">
+    <h3>プラルトリラー／モルデント <span class="en">pralltriller / mordent</span></h3>
+    <p class="desc">音符の上のギザギザ記号。<b>1往復だけの速いトリル</b>だと思えばOK。縦線が<b>ない</b>と「上の音」へ、縦線が<b>ある</b>と「下の音」へ行って、すぐ戻る。</p>
+    <div class="scores">
+      <div class="score">
+        <div class="lbl">𝆝 縦線なし（プラルトリラー）<button class="play" data-play="prall">▶ 聞く</button></div>
+        <div id="svgPrall"></div>
+        <div class="cap">ド→レ→ド（すばやく）</div>
+      </div>
+      <div class="score">
+        <div class="lbl">縦線あり（モルデント）<button class="play" data-play="mord">▶ 聞く</button></div>
+        <div id="svgMord"></div>
+        <div class="cap">ド→シ→ド（すばやく）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ターン -->
+  <div class="tech" id="turn">
+    <h3>ターン <span class="en">turn</span></h3>
+    <p class="desc">横向きのS字記号。書かれた音のまわりを1周するように、<b>上のとなりの音→書かれた音→下のとなりの音→書かれた音</b>の順になめらかに吹く。</p>
+    <div class="scores">
+      <div class="score">
+        <div class="lbl">楽譜の書き方 <button class="play" data-play="turnW">▶ もとの音</button></div>
+        <div id="svgTurnW"></div>
+        <div class="cap">ターン記号つきの「ド」</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="score">
+        <div class="lbl">実際の演奏 <button class="play" data-play="turnP">▶ 演奏のしかた</button></div>
+        <div id="svgTurnP"></div>
+        <div class="cap">レ→ド→シ→ド</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- トレモロ -->
+  <div class="tech" id="tremolo">
+    <h3>トレモロ <span class="en">tremolo</span></h3>
+    <p class="desc">音符の符尾（ぼう）に付いた斜線。<b>同じ音をすばやくくり返す</b>という意味。斜線の数が多いほど速く刻む（3本なら32分音符の速さ）。打楽器ではロール、管楽器では速いタンギングやフラッターで演奏することが多い。</p>
+    <div class="scores">
+      <div class="score">
+        <div class="lbl">楽譜の書き方 <button class="play" data-play="tremW">▶ もとの音</button></div>
+        <div id="svgTremW"></div>
+        <div class="cap">斜線つきの「ド」の2分音符</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="score">
+        <div class="lbl">実際の演奏 <button class="play" data-play="tremP">▶ 演奏のしかた</button></div>
+        <div id="svgTremP"></div>
+        <div class="cap">同じ「ド」を音符の長さのあいだ速く刻む</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- グリッサンド -->
+  <div class="tech" id="gliss">
+    <h3>グリッサンド <span class="en">glissando ／ gliss.</span></h3>
+    <p class="desc">2つの音の間を<b>すべらせるように</b>つなぐ。トロンボーンはスライドで、他の管楽器は指をすばやく順番に動かして（または唇で）音の高さをなめらかに変える。</p>
+    <div class="scores">
+      <div class="score">
+        <div class="lbl">楽譜の書き方 <button class="play" data-play="glissW">▶ もとの音</button></div>
+        <div id="svgGlissW"></div>
+        <div class="cap">ドとソの間に「gliss.」の線</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="score">
+        <div class="lbl">実際の演奏 <button class="play" data-play="glissP">▶ 演奏のしかた</button></div>
+        <div id="svgGlissP"></div>
+        <div class="cap">ドからソまで音の高さをなめらかにすべらせる</div>
+      </div>
+    </div>
+  </div>
+
+  <footer><b>吹奏楽部サポートアプリ</b> ／ 音楽用語辞典＆特殊奏法ガイド</footer>
+</div>
+
+<script>
+/* ================= 用語データ ================= */
+const CATS={tempo:'速度',dyn:'強弱',expr:'発想',artic:'奏法',form:'構成',other:'補助語'};
+const TERMS=[
+/* 速度 */
+{t:'Grave',y:'グラーヴェ',m:'重々しく、ゆっくりと',c:'tempo'},
+{t:'Largo',y:'ラルゴ',m:'幅広く、ゆるやかに（とても遅く）',c:'tempo'},
+{t:'Lento',y:'レント',m:'ゆるやかに',c:'tempo'},
+{t:'Adagio',y:'アダージョ',m:'ゆっくりと',c:'tempo'},
+{t:'Andante',y:'アンダンテ',m:'歩くような速さで',c:'tempo'},
+{t:'Andantino',y:'アンダンティーノ',m:'アンダンテよりやや速く',c:'tempo'},
+{t:'Moderato',y:'モデラート',m:'中ぐらいの速さで',c:'tempo'},
+{t:'Allegretto',y:'アレグレット',m:'やや速く',c:'tempo'},
+{t:'Allegro',y:'アレグロ',m:'速く',c:'tempo'},
+{t:'Vivace',y:'ヴィヴァーチェ',m:'活発に、速く',c:'tempo'},
+{t:'Presto',y:'プレスト',m:'非常に速く',c:'tempo'},
+{t:'rit.（ritardando）',y:'リタルダンド',m:'だんだん遅く',c:'tempo'},
+{t:'rall.（rallentando）',y:'ラレンタンド',m:'だんだんゆるやかに（rit.とほぼ同じ）',c:'tempo'},
+{t:'accel.（accelerando）',y:'アッチェレランド',m:'だんだん速く',c:'tempo'},
+{t:'a tempo',y:'ア・テンポ',m:'もとの速さで（rit.やaccel.のあとに）',c:'tempo'},
+{t:'Tempo I（Tempo primo）',y:'テンポ・プリモ',m:'曲の最初の速さで',c:'tempo'},
+{t:'meno mosso',y:'メノ・モッソ',m:'今までより遅く',c:'tempo'},
+{t:'più mosso',y:'ピウ・モッソ',m:'今までより速く',c:'tempo'},
+{t:'rubato',y:'ルバート',m:'テンポを自由にゆらして表情豊かに',c:'tempo'},
+{t:'<span class="sym">♩=120</span>（メトロノーム記号）',y:'メトロノームきごう',m:'1分間に4分音符を120回打つ速さ',c:'tempo'},
+/* 強弱 */
+{t:'<span class="sym">𝆏𝆏</span>（pianissimo）',y:'ピアニッシモ',m:'とても弱く',c:'dyn'},
+{t:'<span class="sym">𝆏</span>（piano）',y:'ピアノ',m:'弱く',c:'dyn'},
+{t:'<span class="sym">𝆐𝆏</span>（mezzo piano）',y:'メゾ・ピアノ',m:'少し弱く',c:'dyn'},
+{t:'<span class="sym">𝆐𝆑</span>（mezzo forte）',y:'メゾ・フォルテ',m:'少し強く',c:'dyn'},
+{t:'<span class="sym">𝆑</span>（forte）',y:'フォルテ',m:'強く',c:'dyn'},
+{t:'<span class="sym">𝆑𝆑</span>（fortissimo）',y:'フォルティッシモ',m:'とても強く',c:'dyn'},
+{t:'cresc.／<span class="sym">＜</span>',y:'クレッシェンド',m:'だんだん強く',c:'dyn'},
+{t:'decresc.／<span class="sym">＞</span>',y:'デクレッシェンド',m:'だんだん弱く',c:'dyn'},
+{t:'dim.（diminuendo）',y:'ディミヌエンド',m:'だんだん弱く（decresc.と同じ）',c:'dyn'},
+{t:'<span class="sym">𝆑𝆏</span>（fortepiano）',y:'フォルテピアノ',m:'強く出して、すぐ弱く',c:'dyn'},
+{t:'<span class="sym">𝆑𝆎</span>／sfz（sforzando）',y:'スフォルツァンド',m:'その音だけを特に強く',c:'dyn'},
+/* 発想・表情 */
+{t:'dolce',y:'ドルチェ',m:'甘く、やわらかに',c:'expr'},
+{t:'cantabile',y:'カンタービレ',m:'歌うように',c:'expr'},
+{t:'espressivo',y:'エスプレッシーヴォ',m:'表情豊かに',c:'expr'},
+{t:'marcato',y:'マルカート',m:'一音一音をはっきりと',c:'expr'},
+{t:'leggiero',y:'レッジェーロ',m:'軽く、軽快に',c:'expr'},
+{t:'grazioso',y:'グラツィオーソ',m:'優雅に',c:'expr'},
+{t:'maestoso',y:'マエストーソ',m:'荘厳に、堂々と',c:'expr'},
+{t:'brillante',y:'ブリランテ',m:'華やかに、輝かしく',c:'expr'},
+{t:'con brio',y:'コン・ブリオ',m:'生き生きと',c:'expr'},
+{t:'con moto',y:'コン・モート',m:'動きをつけて',c:'expr'},
+{t:'animato',y:'アニマート',m:'元気に、生き生きと',c:'expr'},
+{t:'tranquillo',y:'トランクィッロ',m:'静かに、穏やかに',c:'expr'},
+{t:'agitato',y:'アジタート',m:'激しく、せきこんで',c:'expr'},
+{t:'pesante',y:'ペザンテ',m:'重々しく',c:'expr'},
+{t:'misterioso',y:'ミステリオーソ',m:'神秘的に',c:'expr'},
+{t:'scherzando',y:'スケルツァンド',m:'おどけて、たわむれるように',c:'expr'},
+{t:'sostenuto',y:'ソステヌート',m:'音を十分に保って',c:'expr'},
+{t:'morendo',y:'モレンド',m:'消え入るように（だんだん弱く遅く）',c:'expr'},
+/* 奏法 */
+{t:'staccato',y:'スタッカート',m:'音を短く切って（点の記号）',c:'artic'},
+{t:'staccatissimo',y:'スタッカーティッシモ',m:'音をきわめて短く切って',c:'artic'},
+{t:'tenuto',y:'テヌート',m:'音の長さを十分に保って（横線の記号）',c:'artic'},
+{t:'legato',y:'レガート',m:'なめらかに、音をつなげて',c:'artic'},
+{t:'スラー',y:'すらー',m:'弧線でつながれた音をなめらかに。管楽器は途中でタンギングしない',c:'artic'},
+{t:'タイ',y:'たい',m:'同じ高さの音をつなげて、1つの長い音として演奏',c:'artic'},
+{t:'accent（<span class="sym">＞</span>）',y:'アクセント',m:'その音を目立たせて強く',c:'artic'},
+{t:'fermata（<span class="sym">𝄐</span>）',y:'フェルマータ',m:'音や休符をほどよくのばす（指揮者を見て！）',c:'artic'},
+{t:'tr（trill）',y:'トリル',m:'書かれた音とすぐ上のとなりの音をすばやく交互に → <a href="#trill">吹き方はこちら</a>',c:'artic'},
+{t:'前打音（装飾音符）',y:'ぜんだおん',m:'小さな音符。本体の音の直前にすばやく短く → <a href="#grace">吹き方はこちら</a>',c:'artic'},
+{t:'モルデント',y:'もるでんと',m:'ギザギザ記号。1往復だけの速いトリル → <a href="#mordent">吹き方はこちら</a>',c:'artic'},
+{t:'ターン',y:'たーん',m:'S字記号。上→本体→下→本体の順に → <a href="#turn">吹き方はこちら</a>',c:'artic'},
+{t:'tremolo',y:'トレモロ',m:'同じ音をすばやくくり返す → <a href="#tremolo">吹き方はこちら</a>',c:'artic'},
+{t:'gliss.（glissando）',y:'グリッサンド',m:'音の高さをすべらせるように変える → <a href="#gliss">吹き方はこちら</a>',c:'artic'},
+{t:'vibrato',y:'ビブラート',m:'音をこまかくゆらして豊かにひびかせる',c:'artic'},
+{t:'con sord.',y:'コン・ソルディーノ',m:'弱音器（ミュート）をつけて',c:'artic'},
+{t:'senza sord.',y:'センツァ・ソルディーノ',m:'弱音器をはずして',c:'artic'},
+{t:'8va（ottava）',y:'オッターヴァ',m:'書かれた音より1オクターブ上で演奏',c:'artic'},
+/* くり返し・構成 */
+{t:'D.C.（Da Capo）',y:'ダ・カーポ',m:'曲のはじめに戻る',c:'form'},
+{t:'D.S.（Dal Segno）',y:'ダル・セーニョ',m:'セーニョ記号（<span class="sym">𝄋</span>）まで戻る',c:'form'},
+{t:'<span class="sym">𝄋</span>（Segno）',y:'セーニョ',m:'D.S.で戻ってくる場所を示す記号',c:'form'},
+{t:'Coda（<span class="sym">𝄌</span>）',y:'コーダ',m:'曲の終わりの部分。「to <span class="sym">𝄌</span>」からジャンプする',c:'form'},
+{t:'Fine',y:'フィーネ',m:'曲の終わり。D.C.／D.S.で戻ったあとはここで終わる',c:'form'},
+{t:'リピート記号',y:'りぴーときごう',m:'<span class="sym">𝄆 𝄇</span> ではさまれた部分をくり返す',c:'form'},
+{t:'1番・2番カッコ',y:'いちばん・にばんかっこ',m:'1回目は1番カッコ、くり返したら1番をとばして2番へ',c:'form'},
+{t:'G.P.',y:'ゲネラルパウゼ',m:'全員が完全に音を止める休み',c:'form'},
+{t:'tutti',y:'トゥッティ',m:'全員で演奏',c:'form'},
+{t:'solo',y:'ソロ',m:'ひとりで演奏',c:'form'},
+{t:'soli',y:'ソリ',m:'同じパートの全員で演奏（soloの複数形）',c:'form'},
+{t:'div.（divisi）',y:'ディヴィジ',m:'パート内で音を分かれて演奏',c:'form'},
+{t:'unis.（unisono）',y:'ユニゾン',m:'分かれていたパートが同じ音に戻る／全員同じ音で',c:'form'},
+{t:'tacet',y:'タチェット',m:'その部分（楽章）はずっとお休み',c:'form'},
+/* 補助語 */
+{t:'molto',y:'モルト',m:'非常に（例：molto rit.＝すごくだんだん遅く）',c:'other'},
+{t:'poco',y:'ポーコ',m:'少し',c:'other'},
+{t:'poco a poco',y:'ポーコ・ア・ポーコ',m:'少しずつ',c:'other'},
+{t:'più',y:'ピウ',m:'もっと、より多く',c:'other'},
+{t:'meno',y:'メノ',m:'より少なく',c:'other'},
+{t:'sempre',y:'センプレ',m:'つねに、ずっと',c:'other'},
+{t:'simile',y:'シーミレ',m:'前と同じように続けて',c:'other'},
+{t:'subito',y:'スービト',m:'急に（例：subito 𝆏＝急に弱く）',c:'other'},
+{t:'assai',y:'アッサイ',m:'非常に',c:'other'},
+{t:'non troppo',y:'ノン・トロッポ',m:'〜すぎないように（例：Allegro non troppo）',c:'other'},
+{t:'quasi',y:'クワージ',m:'〜のように',c:'other'},
+];
+
+/* ================= 検索・表示 ================= */
+const $=id=>document.getElementById(id);
+let cat='all';
+const strip=s=>s.replace(/<[^>]*>/g,'');
+const kata2hira=s=>s.replace(/[ァ-ヶ]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60));
+function norm(s){return kata2hira(strip(s).toLowerCase());}
+function render(){
+  const q=norm($('q').value.trim());
+  const list=TERMS.filter(x=>{
+    if(cat!=='all'&&x.c!==cat)return false;
+    if(!q)return true;
+    return norm(x.t).includes(q)||norm(x.y).includes(q)||norm(x.m).includes(q);
+  });
+  $('terms').innerHTML=list.map(x=>`
+    <div class="term">
+      <span class="cat">${CATS[x.c]}</span>
+      <div class="t">${x.t}</div>
+      <div class="y">${x.y}</div>
+      <div class="m">${x.m}</div>
+    </div>`).join('');
+  $('count').textContent=`${list.length}語を表示中（全${TERMS.length}語）`;
+  $('empty').style.display=list.length?'none':'block';
+}
+$('q').addEventListener('input',render);
+$('tabs').addEventListener('click',e=>{
+  const b=e.target.closest('.chip'); if(!b)return;
+  cat=b.dataset.c;
+  [...$('tabs').children].forEach(c=>c.classList.toggle('on',c===b));
+  render();
+});
+render();
+
+/* ================= 楽譜SVGミニエンジン ================= */
+const INK='#22333a';
+const SP=9, TOP=26, BASE=TOP+4*SP; /* 下線=62 */
+const yOf=s=>BASE-s*SP/2; /* s: E4=0,F4=1,G4=2,A4=3,B4=4,C5=5,D5=6,E5=7,F5=8,G5=9 */
+function staffOpen(w,h=104){
+  let s=`<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">`;
+  for(let i=0;i<5;i++)s+=`<line x1="6" y1="${TOP+i*SP}" x2="${w-6}" y2="${TOP+i*SP}" stroke="${INK}" stroke-opacity=".5" stroke-width="1"/>`;
+  s+=`<text x="8" y="${BASE+10}" font-size="50" fill="${INK}" font-family="serif">&#119070;</text>`;
+  return s;
+}
+function head(x,s,dur,small){
+  const y=yOf(s),sc=small?0.72:1;
+  if(dur==='w')return `<ellipse cx="${x}" cy="${y}" rx="${7*sc}" ry="${4.6*sc}" fill="none" stroke="${INK}" stroke-width="1.9"/>`;
+  const fill=dur==='h'?'none':INK;
+  return `<ellipse cx="${x}" cy="${y}" rx="${5.6*sc}" ry="${4.1*sc}" fill="${fill}" stroke="${INK}" stroke-width="1.6" transform="rotate(-18 ${x} ${y})"/>`;
+}
+/* 単独音符（ぼう付き）。up=trueで上向き */
+function note(x,s,dur,up){
+  let g=head(x,s,dur);
+  if(dur!=='w'){
+    const y=yOf(s);
+    if(up)g+=`<line x1="${x+5}" y1="${y-1.5}" x2="${x+5}" y2="${y-29}" stroke="${INK}" stroke-width="1.6"/>`;
+    else  g+=`<line x1="${x-5}" y1="${y+1.5}" x2="${x-5}" y2="${y+29}" stroke="${INK}" stroke-width="1.6"/>`;
+  }
+  return g;
+}
+/* 16分音符ビーム連桁（ぼう下向き） */
+function beam16(xs,steps){
+  const ys=steps.map(yOf), yb=Math.max(...ys)+29;
+  let g='';
+  xs.forEach((x,i)=>{
+    g+=head(x,steps[i],'q');
+    g+=`<line x1="${x-5}" y1="${ys[i]+1.5}" x2="${x-5}" y2="${yb}" stroke="${INK}" stroke-width="1.6"/>`;
+  });
+  const x1=xs[0]-5.8,x2=xs[xs.length-1]-4.2;
+  g+=`<line x1="${x1}" y1="${yb-1.5}" x2="${x2}" y2="${yb-1.5}" stroke="${INK}" stroke-width="3.4"/>`;
+  g+=`<line x1="${x1}" y1="${yb-7}" x2="${x2}" y2="${yb-7}" stroke="${INK}" stroke-width="3.4"/>`;
+  return g;
+}
+/* 短前打音（小さな8分音符＋斜線） */
+function grace(x,s){
+  const y=yOf(s),sx=x+4;
+  let g=head(x,s,'q',true);
+  g+=`<line x1="${sx}" y1="${y-1}" x2="${sx}" y2="${y-20}" stroke="${INK}" stroke-width="1.3"/>`;
+  g+=`<path d="M${sx},${y-20} c5,2.5 6,7 3.4,11.5" fill="none" stroke="${INK}" stroke-width="1.3"/>`;
+  g+=`<line x1="${sx-4.5}" y1="${y-9}" x2="${sx+7}" y2="${y-17}" stroke="${INK}" stroke-width="1.2"/>`;
+  return g;
+}
+function slur(x1,y1,x2,y2,bend){return `<path d="M${x1},${y1} Q${(x1+x2)/2},${bend} ${x2},${y2}" fill="none" stroke="${INK}" stroke-width="1.4"/>`;}
+function txt(x,y,str,size=13,italic=true,bold=true){
+  return `<text x="${x}" y="${y}" font-size="${size}" fill="${INK}" font-family="Georgia,serif" ${italic?'font-style="italic"':''} ${bold?'font-weight="bold"':''}>${str}</text>`;
+}
+function jp(x,y,str,size=10.5){return `<text x="${x}" y="${y}" font-size="${size}" fill="#8a7f66" font-family="sans-serif" text-anchor="middle">${str}</text>`;}
+function wave(x1,x2,y){
+  let d=`M${x1},${y}`,x=x1;
+  while(x<x2-6){d+=` q3,-4 6,0 q3,4 6,0`;x+=12;}
+  return `<path d="${d}" fill="none" stroke="${INK}" stroke-width="1.4"/>`;
+}
+/* プラルトリラー記号 */
+function zigzag(x,y,vert){
+  let g=`<path d="M${x},${y} l5,-6 l5,6 l5,-6 l5,6 l5,-6" fill="none" stroke="${INK}" stroke-width="2"/>`;
+  if(vert)g+=`<line x1="${x+12.5}" y1="${y-13}" x2="${x+12.5}" y2="${y+6}" stroke="${INK}" stroke-width="1.8"/>`;
+  return g;
+}
+/* ターン記号（横S字） */
+function turnSym(x,y){
+  return `<path d="M${x},${y} c0,-5 6,-6 9,-2 l6,6 c3,4 9,3 9,-2 c0,-5 -6,-6 -9,-2 l-6,6 c-3,4 -9,3 -9,-2z" fill="none" stroke="${INK}" stroke-width="1.7" transform="rotate(90 ${x+12} ${y})"/>`;
+}
+
+/* ---- 各例の描画 ---- */
+/* トリル：書き方 */
+$('svgTrillW').innerHTML=staffOpen(250)
+  +txt(96,16,'tr')+wave(112,180,12)
+  +note(110,5,'h')
+  +jp(110,92,'ド（2分音符）')
+  +'</svg>';
+/* トリル：演奏 */
+$('svgTrillP').innerHTML=staffOpen(330)
+  +beam16([64,88,112,136],[5,6,5,6])
+  +beam16([172,196,220,244],[5,6,5,6])
+  +txt(258,50,'…',15,false)
+  +jp(100,92,'ド レ ド レ')+jp(208,92,'ド レ ド レ …')
+  +'</svg>';
+/* 例①ドのトリル */
+$('svgExCD').innerHTML=staffOpen(250)
+  +txt(72,16,'tr')+wave(86,130,12)
+  +note(86,5,'q')
+  +txt(140,46,'＝',14,false)
+  +note(178,5,'q')+note(214,6,'q')
+  +jp(86,92,'ド')+jp(178,92,'ド')+jp(214,92,'レ（全音上）')
+  +'</svg>';
+/* 例②ミのトリル */
+$('svgExEF').innerHTML=staffOpen(250)
+  +txt(72,14,'tr')+wave(86,130,10)
+  +note(86,7,'q')
+  +txt(140,46,'＝',14,false)
+  +note(178,7,'q')+note(214,8,'q')
+  +jp(86,92,'ミ')+jp(178,92,'ミ')+jp(214,92,'ファ（半音上）')
+  +'</svg>';
+/* 前打音：書き方 */
+$('svgGraceW').innerHTML=staffOpen(250)
+  +grace(96,6)+slur(100,yOf(6)+8,126,yOf(5)+7,yOf(5)+16)+note(130,5,'q')
+  +jp(96,92,'小さなレ')+jp(140,92,'ド')
+  +'</svg>';
+/* 前打音：演奏 */
+$('svgGraceP').innerHTML=staffOpen(250)
+  +beam16([100,124],[6,5])
+  +txt(140,46,'→',14,false)
+  +jp(100,92,'レ（一瞬）')+jp(160,92,'すぐド')
+  +note(190,5,'q')
+  +'</svg>';
+/* プラルトリラー */
+$('svgPrall').innerHTML=staffOpen(280)
+  +zigzag(84,16,false)+note(96,5,'q')
+  +txt(140,46,'＝',14,false)
+  +beam16([176,200],[5,6])+note(232,5,'q')
+  +jp(96,92,'ド')+jp(188,92,'ドレ（速く）')+jp(240,92,'ド')
+  +'</svg>';
+/* モルデント */
+$('svgMord').innerHTML=staffOpen(280)
+  +zigzag(84,16,true)+note(96,5,'q')
+  +txt(140,46,'＝',14,false)
+  +beam16([176,200],[5,4])+note(232,5,'q')
+  +jp(96,92,'ド')+jp(188,92,'ドシ（速く）')+jp(240,92,'ド')
+  +'</svg>';
+/* ターン：書き方 */
+$('svgTurnW').innerHTML=staffOpen(250)
+  +turnSym(98,14)+note(110,5,'q')
+  +jp(110,92,'ド＋ターン記号')
+  +'</svg>';
+/* ターン：演奏 */
+$('svgTurnP').innerHTML=staffOpen(250)
+  +beam16([80,108,136,164],[6,5,4,5])
+  +jp(122,92,'レ ド シ ド')
+  +'</svg>';
+/* トレモロ：書き方 */
+$('svgTremW').innerHTML=(()=>{
+  const x=110,y=yOf(5);
+  let g=staffOpen(250)+note(x,5,'h');
+  for(let k=0;k<3;k++)g+=`<line x1="${x-10}" y1="${y+13+k*5}" x2="${x+0}" y2="${y+8+k*5}" stroke="${INK}" stroke-width="2.4"/>`;
+  g+=jp(x,92,'ド（斜線3本）')+'</svg>';
+  return g;})();
+/* トレモロ：演奏 */
+$('svgTremP').innerHTML=staffOpen(330)
+  +beam16([64,88,112,136],[5,5,5,5])
+  +beam16([172,196,220,244],[5,5,5,5])
+  +txt(258,50,'…',15,false)
+  +jp(154,92,'ド ド ド ド…（速く刻む）')
+  +'</svg>';
+/* グリッサンド：書き方 */
+$('svgGlissW').innerHTML=staffOpen(250)
+  +note(90,5,'q')+note(200,9,'q',false)
+  +`<line x1="102" y1="${yOf(5)-2}" x2="188" y2="${yOf(9)+2}" stroke="${INK}" stroke-width="1.6"/>`
+  +txt(122,26,'gliss.',12)
+  +jp(90,92,'ド')+jp(200,92,'ソ')
+  +'</svg>';
+/* グリッサンド：演奏 */
+$('svgGlissP').innerHTML=staffOpen(250)
+  +note(80,5,'q')
+  +`<path d="M92,${yOf(5)} C130,${yOf(5)} 160,${yOf(9)} 196,${yOf(9)}" fill="none" stroke="${INK}" stroke-width="2" stroke-dasharray="3 3"/>`
+  +note(208,9,'q')
+  +jp(144,92,'間の音をすべらせてつなぐ')
+  +'</svg>';
+
+/* ================= サウンド ================= */
+let AC=null;
+const ac=()=>AC||(AC=new (window.AudioContext||window.webkitAudioContext)());
+const F=m=>440*Math.pow(2,(m-69)/12);
+function tone(t,d,m,v=0.22){
+  const c=ac(),o=c.createOscillator(),g=c.createGain();
+  o.type='triangle';o.frequency.value=F(m);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.linearRampToValueAtTime(v,t+0.015);
+  g.gain.setValueAtTime(v,t+Math.max(0.02,d-0.04));
+  g.gain.linearRampToValueAtTime(0.0001,t+d);
+  o.connect(g);g.connect(c.destination);
+  o.start(t);o.stop(t+d+0.02);
+}
+function playSeq(ns){
+  const c=ac();if(c.state==='suspended')c.resume();
+  let t=c.currentTime+0.08;
+  ns.forEach(n=>{if(n.m)tone(t,n.d*0.96,n.m);t+=n.d;});
+}
+function playGliss(m1,m2,d){
+  const c=ac();if(c.state==='suspended')c.resume();
+  const t=c.currentTime+0.08,o=c.createOscillator(),g=c.createGain();
+  o.type='triangle';
+  o.frequency.setValueAtTime(F(m1),t);
+  o.frequency.setValueAtTime(F(m1),t+0.25);
+  o.frequency.linearRampToValueAtTime(F(m2),t+d-0.3);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.linearRampToValueAtTime(0.22,t+0.02);
+  g.gain.setValueAtTime(0.22,t+d-0.05);
+  g.gain.linearRampToValueAtTime(0.0001,t+d);
+  o.connect(g);g.connect(c.destination);
+  o.start(t);o.stop(t+d+0.02);
+}
+const C=72,D=74,B=71,E=76,Fa=77,G=79;
+const alt=(a,b,n,d)=>Array.from({length:n},(_,i)=>({m:i%2?b:a,d}));
+const PLAY={
+  trillW:()=>playSeq([{m:C,d:1.6}]),
+  trillP:()=>playSeq([...alt(C,D,10,0.11),{m:C,d:0.55}]),
+  exCD:()=>playSeq([{m:C,d:0.5},{m:0,d:0.15},...alt(C,D,8,0.11),{m:C,d:0.4}]),
+  exEF:()=>playSeq([{m:E,d:0.5},{m:0,d:0.15},...alt(E,Fa,8,0.11),{m:E,d:0.4}]),
+  graceW:()=>playSeq([{m:C,d:0.8}]),
+  graceP:()=>playSeq([{m:D,d:0.08},{m:C,d:0.8}]),
+  prall:()=>playSeq([{m:C,d:0.09},{m:D,d:0.09},{m:C,d:0.7}]),
+  mord:()=>playSeq([{m:C,d:0.09},{m:B,d:0.09},{m:C,d:0.7}]),
+  turnW:()=>playSeq([{m:C,d:0.8}]),
+  turnP:()=>playSeq([{m:D,d:0.14},{m:C,d:0.14},{m:B,d:0.14},{m:C,d:0.55}]),
+  tremW:()=>playSeq([{m:C,d:1.4}]),
+  tremP:()=>playSeq(alt(C,C,12,0.1)),
+  glissW:()=>playSeq([{m:C,d:0.4},{m:0,d:0.1},{m:G,d:0.5}]),
+  glissP:()=>playGliss(C,G,1.1),
+};
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-play]');
+  if(b&&PLAY[b.dataset.play])PLAY[b.dataset.play]();
+});
+</script>
+</body>
+</html>

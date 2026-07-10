@@ -1,37 +1,29 @@
 # 吹奏楽部サポートアプリ
 
-中学生の吹奏楽部活動のための練習サポートWebアプリ集。ブラウザだけで動作し、インストール不要　（Chromebook対応）。
+中学生の吹奏楽部活動のための練習サポートWebアプリ。ブラウザだけで動きます（インストール不要・スマホ対応）。
 
-## 構成
+## 公開方法（GitHub Pages）
+1. このフォルダの中身をリポジトリのルートにアップロード
+2. リポジトリの **Settings → Pages** を開く
+3. Source: **Deploy from a branch** ／ Branch: **main** ／ フォルダ: **/(root)** を選んで Save
+4. 数分後に `https://<ユーザー名>.github.io/<リポジトリ名>/` で公開されます
 
-| ステップ | ページ | ファイル |
+※ マイクを使う機能（チューナー・録音モード）は **HTTPS必須**。GitHub PagesはHTTPSなのでそのまま動きます。
+※ iPhoneは本体横の**消音スイッチがONだと音が鳴らない**場合があります。解除して使ってください。
+
+## 機能一覧
+| # | ページ | 内容 |
 |---|---|---|
-| ホーム | メニュー | `index.html` |
-| STEP1 きほん | 呼吸と身体のビジュアルガイド | `呼吸と身体ガイド.html` |
-| STEP1 きほん | ドイツ音名ガイド（実音変換・クイズ） | `ドイツ音名ガイド.html` |
-| STEP1 きほん | 楽器ごとの運指表（10楽器） | `運指表.html` |
-| STEP2 よむ力 | 音符読みフラッシュカード | `フラッシュカード.html` |
-| STEP2 よむ力 | リズムシーケンサー | `リズムシーケンサー.html` |
-| STEP3 合わせる | チューナー＆メトロノーム | `練習ツール.html` |
-| STEP3 合わせる | ハーモニートレーナー（純正律） | `ハーモニートレーナー.html` |
-| サポート | 参考音源ライブラリ（YouTubeブックマーク） | `参考音源ライブラリ.html` |
-| サポート | カウントダウン＆練習カレンダー | `イベントカレンダー.html` |
-
-## GitHub Pages での公開手順
-
-1. GitHubで新しいリポジトリを作成（例：`band-support-app`）
-2. このフォルダのファイルをすべてアップロード（`index.html` がトップページになります）
-3. リポジトリの **Settings → Pages** を開く
-4. **Source: Deploy from a branch**、Branch: `main` / `(root)` を選んで **Save**
-5. 数分後に `https://<ユーザー名>.github.io/band-support-app/` で公開されます
-
-## 技術メモ
-
-- 各ページは単体のHTMLファイル（依存はGoogle Fontsのみ）。サーバー処理なし
-- 保存データ（楽器の選択・ベスト記録・ブックマーク・練習日など）は各端末の `localStorage` に保存されます（端末・ブラウザごとに別）
-- チューナーはマイク使用（`getUserMedia`）。**HTTPSでの配信が必要**（GitHub PagesはHTTPSなのでOK）。基準ピッチ A=442Hz（438〜446で調整可）
-- 参考音源ライブラリはYouTubeの埋め込み再生を使用（埋め込み不可の動画はYouTube側で再生）
-
-## ライセンス・注意
-
-- 運指表は一般的な標準運指に基づきます。学校の教則本と異なる場合はそちらを優先してください
+| ① | breath-guide.html | 呼吸と身体のビジュアルガイド |
+| ② | note-names.html | ドイツ音名ガイド |
+| ③ | fingering.html | 楽器ごとの運指表 |
+| ④ | flashcards.html | 音符読みフラッシュカード |
+| ⑤ | rhythm-sequencer.html | リズムシーケンサー |
+| ⑥ | rhythm-trainer.html | リズムトレーニング |
+| ⑦ | recorder.html | 録音モード（自己評価つき） |
+| ⑧ | tuner-metronome.html | チューナー＆メトロノーム |
+| ⑨ | harmony-trainer.html | ハーモニートレーナー |
+| ⑩ | ensemble.html | 基礎合奏メニュー |
+| ⑪ | advisor.html | お悩み相談チャート |
+| ⑫ | reference-library.html | 参考音源ライブラリ |
+| ⑬ | event-calendar.html | カウントダウン＆練習カレンダー |

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>参考音源ライブラリ｜吹奏楽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Archivo:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d2630; --bg2:#123540; --bg3:#0a1d25; --panel:#16424f;
+    --brass:#e6a93f; --brass-d:#b87d22; --breath:#6fd6e6; --coral:#e89178;
+    --text:#e9f4f4; --muted:#8aabb3; --line:rgba(255,255,255,.09);
+    --good:#7fd6a8; --warn:#e8916f;
+    --jp:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,sans-serif;
+    --en:"Archivo",var(--jp);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:var(--jp);color:var(--text);line-height:1.7;min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 78% -10%, rgba(230,169,63,.10), transparent 60%),
+      radial-gradient(900px 700px at 10% 110%, rgba(111,214,230,.10), transparent 55%),
+      var(--bg);
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 22px 64px}
+  header{margin-bottom:26px}
+  .eyebrow{font-family:var(--en);font-weight:700;letter-spacing:.32em;text-transform:uppercase;font-size:12px;color:var(--brass);display:flex;align-items:center;gap:12px}
+  .eyebrow::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--brass-d),transparent)}
+  h1{font-weight:900;font-size:clamp(28px,4.5vw,46px);line-height:1.15;margin:14px 0 8px}
+  h1 .acc{color:var(--breath)}
+  .lead{color:var(--muted);max-width:56ch;font-size:15px}
+  .lead b{color:var(--text)}
+  .backlink{display:inline-block;margin:10px 14px 0 0;font-size:13px;color:var(--breath);text-decoration:none;border-bottom:1px dashed rgba(111,214,230,.5)}
+  .backlink:hover{color:#fff}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+  .card h3{font-size:15px;font-weight:900;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .card h3 .dot{width:9px;height:9px;border-radius:50%;background:var(--brass);flex:none}
+  .card p{font-size:13.5px;color:var(--muted)}
+  .card p b{color:var(--text)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+
+  input[type=text]{
+    width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(0,0,0,.25);color:var(--text);font-family:var(--jp);font-size:14px;outline:none;
+  }
+  input[type=text]:focus{border-color:var(--breath)}
+  textarea{
+    width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(0,0,0,.25);color:var(--text);font-family:var(--jp);font-size:13.5px;outline:none;resize:vertical;min-height:56px;
+  }
+  .row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .presets{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.03);
+    color:var(--text);font-family:var(--jp);font-weight:700;font-size:13px;
+    padding:8px 13px;border-radius:999px;cursor:pointer;transition:.16s;white-space:nowrap;
+  }
+  .chip:hover{border-color:var(--brass);color:var(--brass)}
+  .chip.on{background:var(--brass);color:#1a1206;border-color:var(--brass)}
+  .bigbtn{
+    appearance:none;border:0;border-radius:12px;cursor:pointer;
+    font-family:var(--jp);font-weight:900;font-size:14.5px;padding:11px 18px;
+    background:linear-gradient(90deg,var(--brass),#f0c063);color:#1a1206;transition:.16s;
+  }
+  .bigbtn:hover{filter:brightness(1.06)}
+  .formMsg{font-size:12.5px;font-weight:700;min-height:18px;margin-top:6px}
+  .formMsg.ok{color:var(--good)}.formMsg.ng{color:var(--warn)}
+
+  .libHead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+  .libGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .vcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+  .vcard .thumbWrap{position:relative;aspect-ratio:16/9;background:#000;cursor:pointer}
+  .vcard .thumbWrap img{width:100%;height:100%;object-fit:cover;display:block}
+  .vcard .thumbWrap .playIc{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:40px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.7);transition:.15s;
+  }
+  .vcard .thumbWrap:hover .playIc{transform:scale(1.2)}
+  .vcard iframe{width:100%;aspect-ratio:16/9;border:0;display:block}
+  .vcard .body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .vcard .ttl{font-size:14px;font-weight:900;line-height:1.45}
+  .vcard .cat{align-self:flex-start;font-size:11px;font-weight:700;color:#1a1206;background:var(--breath);border-radius:999px;padding:2px 10px}
+  .vcard .memo{font-size:12.5px;color:var(--muted);white-space:pre-wrap}
+  .vcard .ops{display:flex;gap:8px;margin-top:auto;padding-top:8px;flex-wrap:wrap}
+  .vcard .ops a,.vcard .ops button{
+    appearance:none;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--text);
+    font-family:var(--jp);font-weight:700;font-size:12px;padding:6px 11px;border-radius:999px;cursor:pointer;text-decoration:none;transition:.15s;
+  }
+  .vcard .ops a:hover,.vcard .ops button:hover{border-color:var(--breath);color:var(--breath)}
+  .vcard .ops button.del:hover{border-color:var(--warn);color:var(--warn)}
+  .empty{color:var(--muted);font-size:14px;text-align:center;padding:40px 10px;border:1px dashed var(--line);border-radius:16px}
+
+  .hint{font-size:13px;color:var(--muted);border-left:3px solid var(--brass);padding:2px 0 2px 12px;margin-top:18px}
+  .hint b{color:var(--coral)}
+  footer{margin-top:34px;color:var(--muted);font-size:13px;text-align:center;border-top:1px solid var(--line);padding-top:20px}
+  footer b{color:var(--brass)}
+  footer a{color:var(--breath)}
+</style>
+
+<style>
+  footer .gnav-cur{margin-bottom:12px}
+  footer .gnav-cur b{color:var(--brass)}
+  .gnav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px}
+  .gnav a{
+    display:inline-block;font-size:11.5px;font-weight:700;text-decoration:none;
+    color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 11px;transition:.15s;
+    background:rgba(255,255,255,.03);
+  }
+  .gnav a:hover{color:var(--brass);border-color:var(--brass)}
+  .gnav a.cur{background:var(--brass);color:#1a1206;border-color:var(--brass);pointer-events:none}
+  .gnav a.home{color:var(--breath);border-color:rgba(111,214,230,.4)}
+  .gnav a.home:hover{color:#fff}
+  footer .gnav-credit{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Brass Band · Reference Library</div>
+    <h1>参考音源を<span class="acc">ストック</span>する。</h1>
+    <p class="lead">YouTubeで見つけたお手本演奏をブックマークして、部の<b>参考音源ライブラリ</b>に。カテゴリとメモを付けて保存すれば、このページでそのまま再生できるよ。</p>
+    <a class="backlink" href="index.html">← ホーム（メニューにもどる）</a>
+  </header>
+
+  <div class="grid2">
+    <div class="card">
+      <h3><span class="dot"></span>① YouTubeでさがす</h3>
+      <input type="text" id="q" placeholder="曲名・作曲者・楽器名など（例：アルヴァマー序曲）">
+      <div class="row" id="qBtns">
+        <button class="chip" data-suf=" 吹奏楽">＋吹奏楽 で検索</button>
+        <button class="chip" data-suf=" 参考演奏">＋参考演奏 で検索</button>
+        <button class="chip" data-suf=" プロ 演奏">＋プロ演奏 で検索</button>
+        <button class="chip" data-suf="">そのまま検索</button>
+      </div>
+      <p style="margin-top:8px">検索結果は新しいタブで開くよ。いい動画が見つかったら、その<b>URLをコピー</b>して②へ！</p>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>② URLを貼ってブックマーク</h3>
+      <input type="text" id="url" placeholder="YouTubeのURLを貼り付け（例：https://youtu.be/…）">
+      <div class="row"><input type="text" id="ttl" placeholder="タイトル（自動で取れないときは手で入力）"></div>
+      <div class="row presets" id="catPick"></div>
+      <div class="row"><textarea id="memo" placeholder="メモ（例：2分30秒〜のトランペットソロが参考になる）"></textarea></div>
+      <div class="row"><button class="bigbtn" id="addBtn">＋ ライブラリに保存</button></div>
+      <div class="formMsg" id="formMsg"></div>
+    </div>
+  </div>
+
+  <div class="libHead">
+    <h3 style="font-size:17px;font-weight:900">📚 ライブラリ<span id="cnt" style="color:var(--muted);font-size:13px;margin-left:8px"></span></h3>
+    <div class="presets" id="filterPick"></div>
+  </div>
+  <div class="libGrid" id="lib"></div>
+  <div class="empty" id="empty" style="display:none">まだ何もないよ。①で検索して、②でURLを貼ると、ここにたまっていくよ。</div>
+
+  <p class="hint">再生できない動画（埋め込み禁止のもの）は「YouTubeで開く」から見てね。ブックマークは<b>このパソコンのこのブラウザ</b>に保存されるよ。</p>
+
+  <footer>
+    <p class="gnav-cur">機能⑫ <b>参考音源ライブラリ</b></p>
+    <nav class="gnav"><a class="home" href="index.html">🏠 ホーム</a><a href="breath-guide.html">①呼吸と身体ガイド</a><a href="note-names.html">②ドイツ音名ガイド</a><a href="fingering.html">③運指表</a><a href="flashcards.html">④フラッシュカード</a><a href="rhythm-sequencer.html">⑤リズムシーケンサー</a><a href="rhythm-trainer.html">⑥リズムトレーニング</a><a href="recorder.html">⑦録音モード</a><a href="tuner-metronome.html">⑧チューナー＆メトロノーム</a><a href="harmony-trainer.html">⑨ハーモニートレーナー</a><a href="ensemble.html">⑩基礎合奏メニュー</a><a href="advisor.html">⑪お悩み相談チャート</a><a href="reference-library.html" class="cur">⑫参考音源ライブラリ</a><a href="event-calendar.html">⑬イベントカレンダー</a></nav>
+    <div class="gnav-credit">吹奏楽部サポートアプリ ／ ブラウザだけで動く・インストール不要・スマホ対応</div>
+  </footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const CATS=['課題曲','自由曲','基礎合奏','プロのお手本','マイパート','その他'];
+const KEY='yt_marks';
+let marks=JSON.parse(localStorage.getItem(KEY)||'[]');
+let cat=CATS[0], filter='all', playingId=null;
+
+/* ---- YouTube検索（新しいタブ） ---- */
+document.querySelectorAll('#qBtns .chip').forEach(b=>b.addEventListener('click',()=>{
+  const q=$('q').value.trim();
+  if(!q){$('q').focus();return;}
+  window.open('https://www.youtube.com/results?search_query='+encodeURIComponent(q+b.dataset.suf),'_blank');
+}));
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter')document.querySelector('#qBtns .chip').click();});
+
+/* ---- URL→動画ID ---- */
+function parseVid(url){
+  const m=url.match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([\w-]{11})/);
+  return m?m[1]:null;
+}
+
+/* ---- カテゴリ選択 ---- */
+CATS.forEach(c=>{
+  const b=document.createElement('button');
+  b.className='chip'+(c===cat?' on':'');b.textContent=c;
+  b.addEventListener('click',()=>{cat=c;document.querySelectorAll('#catPick .chip').forEach(x=>x.classList.toggle('on',x.textContent===c));});
+  $('catPick').appendChild(b);
+});
+
+/* ---- タイトル自動取得（できたら） ---- */
+let fetchedTitle='';
+$('url').addEventListener('change',async()=>{
+  const vid=parseVid($('url').value.trim());
+  if(!vid)return;
+  try{
+    const r=await fetch('https://noembed.com/embed?url='+encodeURIComponent('https://www.youtube.com/watch?v='+vid));
+    const j=await r.json();
+    if(j.title&&!$('ttl').value){$('ttl').value=j.title;fetchedTitle=j.title;}
+  }catch(e){}
+});
+
+/* ---- 保存 ---- */
+function save(){localStorage.setItem(KEY,JSON.stringify(marks));}
+function msg(t,ok){const m=$('formMsg');m.textContent=t;m.className='formMsg '+(ok?'ok':'ng');setTimeout(()=>{if(m.textContent===t)m.textContent='';},3000);}
+$('addBtn').addEventListener('click',()=>{
+  const vid=parseVid($('url').value.trim());
+  if(!vid){msg('YouTubeのURLが読み取れないよ。もう一度コピーして貼ってね',false);return;}
+  if(marks.some(x=>x.vid===vid)){msg('この動画はもう保存済みだよ',false);return;}
+  marks.unshift({
+    id:Date.now(), vid,
+    title:$('ttl').value.trim()||'（タイトル未入力）',
+    cat, memo:$('memo').value.trim(),
+    added:new Date().toLocaleDateString('ja-JP')
+  });
+  save();
+  $('url').value='';$('ttl').value='';$('memo').value='';
+  msg('保存したよ！',true);
+  render();
+});
+
+/* ---- フィルタ ---- */
+function buildFilter(){
+  const el=$('filterPick');el.innerHTML='';
+  ['all',...CATS].forEach(c=>{
+    const b=document.createElement('button');
+    b.className='chip'+(filter===c?' on':'');
+    b.textContent=c==='all'?'すべて':c;
+    b.addEventListener('click',()=>{filter=c;buildFilter();render();});
+    el.appendChild(b);
+  });
+}
+
+/* ---- ライブラリ描画 ---- */
+function esc(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function render(){
+  const list=marks.filter(x=>filter==='all'||x.cat===filter);
+  $('cnt').textContent=`${list.length}本${filter!=='all'?'（'+filter+'）':''}`;
+  $('empty').style.display=list.length?'none':'';
+  $('lib').innerHTML=list.map(x=>`
+    <div class="vcard" data-id="${x.id}">
+      ${playingId===x.id
+        ?`<iframe src="https://www.youtube.com/embed/${x.vid}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`
+        :`<div class="thumbWrap" data-play="${x.id}">
+            <img src="https://i.ytimg.com/vi/${x.vid}/mqdefault.jpg" alt="" loading="lazy">
+            <div class="playIc">▶</div>
+          </div>`}
+      <div class="body">
+        <span class="cat">${esc(x.cat)}</span>
+        <div class="ttl">${esc(x.title)}</div>
+        ${x.memo?`<div class="memo">📝 ${esc(x.memo)}</div>`:''}
+        <div class="ops">
+          <a href="https://www.youtube.com/watch?v=${x.vid}" target="_blank" rel="noopener">YouTubeで開く</a>
+          <button class="del" data-del="${x.id}">削除</button>
+        </div>
+      </div>
+    </div>`).join('');
+  $('lib').querySelectorAll('[data-play]').forEach(el=>el.addEventListener('click',()=>{
+    playingId=+el.dataset.play;render();
+  }));
+  $('lib').querySelectorAll('[data-del]').forEach(el=>el.addEventListener('click',()=>{
+    if(!confirm('このブックマークを削除する？'))return;
+    marks=marks.filter(x=>x.id!==+el.dataset.del);
+    if(playingId===+el.dataset.del)playingId=null;
+    save();render();
+  }));
+}
+buildFilter();render();
+</script>
+</body>
+</html>
