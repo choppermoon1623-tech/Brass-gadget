@@ -267,9 +267,14 @@
   <!-- ============ MOUTH ============ -->
   <section class="panel" id="p-mouth" role="tabpanel">
     <div class="stage-grid">
-      <div class="stage illus">
+      <div class="stage illus" id="mouthStage">
         <span class="tag">Oral Space</span>
         <svg id="mouthSvg" viewBox="0 0 420 420" preserveAspectRatio="xMidYMid meet"></svg>
+        <canvas id="mouth3dCanvas" style="display:none;position:absolute;inset:0;touch-action:none;cursor:grab"></canvas>
+        <div id="mouth3dVol" style="display:none;position:absolute;right:12px;top:12px;background:rgba(13,38,48,.86);border:1px solid var(--breath);color:var(--breath);border-radius:12px;padding:8px 12px;font-size:12.5px;font-weight:700;line-height:1.5;text-align:right">
+          響く部屋のひろさ<br><span id="mouth3dVolNum" style="font-size:19px;font-family:var(--en)">70</span> mL <span id="mouth3dVolRatio" style="opacity:.8">(×1.0)</span>
+        </div>
+        <div id="mouth3dHint" style="display:none;position:absolute;left:12px;bottom:10px;color:#1c6b7a;background:rgba(255,255,255,.82);border:1px solid rgba(0,0,0,.08);border-radius:999px;padding:4px 10px;font-size:11px">ドラッグで回転 / ホイールで拡大</div>
       </div>
       <div class="side">
         <div class="card">
@@ -295,9 +300,15 @@
   <!-- ============ LUNGS ============ -->
   <section class="panel" id="p-lungs" role="tabpanel">
     <div class="stage-grid">
-      <div class="stage">
+      <div class="stage" id="lungsStage">
         <span class="tag">Lungs &amp; Muscles</span>
         <svg id="lungSvg" viewBox="0 0 420 420" preserveAspectRatio="xMidYMid meet"></svg>
+        <canvas id="lungs3dCanvas" style="display:none;position:absolute;inset:0;touch-action:none;cursor:grab"></canvas>
+        <div id="lungs3dPhase" style="display:none;position:absolute;right:12px;top:12px;background:rgba(13,38,48,.86);border:1px solid var(--breath);color:var(--breath);border-radius:12px;padding:8px 12px;font-size:12.5px;font-weight:700;line-height:1.5;text-align:right;min-width:150px">
+          <span id="lungs3dPhaseName" style="font-size:17px">吸う</span><br>
+          <span id="lungs3dPhaseDesc" style="opacity:.85;font-weight:600">筋肉が360°ふくらむ</span>
+        </div>
+        <div id="lungs3dHint" style="display:none;position:absolute;left:12px;bottom:10px;color:var(--breath);background:rgba(13,38,48,.7);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px">自動回転中 / ドラッグで自由に回せます</div>
       </div>
       <div class="side">
         <div class="card">
@@ -322,9 +333,14 @@
   <!-- ============ POSTURE ============ -->
   <section class="panel" id="p-posture" role="tabpanel">
     <div class="stage-grid">
-      <div class="stage">
+      <div class="stage" id="postureStage">
         <span class="tag">Air Path</span>
         <svg id="postureSvg" viewBox="0 0 420 420" preserveAspectRatio="xMidYMid meet"></svg>
+        <canvas id="posture3dCanvas" style="display:none;position:absolute;inset:0;touch-action:none;cursor:grab"></canvas>
+        <div id="posture3dBadge" style="display:none;position:absolute;right:12px;top:12px;background:rgba(13,38,48,.86);border:1px solid var(--breath);border-radius:12px;padding:8px 12px;font-size:12.5px;font-weight:700;line-height:1.7;text-align:right">
+          <span id="p3dRib">肋骨が開く</span><br><span id="p3dOrgan">内臓が上がる</span>
+        </div>
+        <div id="posture3dHint" style="display:none;position:absolute;left:12px;bottom:10px;color:var(--breath);background:rgba(13,38,48,.7);border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:11px">ドラッグで回転できます</div>
       </div>
       <div class="side">
         <div class="card">
@@ -990,6 +1006,406 @@ function paceFrame(ts){
 /* ---------- boot ---------- */
 sizeBreath();
 breathLoop();mouthLoop();lungLoop();postureLoop();paceFrame();
+</script>
+
+<!-- ============ 口の中の空間 3D (Blender製GLB / 読み込めない環境ではSVGのまま) ============ -->
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+try{
+  const THREE = await import('three');
+  const {GLTFLoader} = await import('three/addons/loaders/GLTFLoader.js');
+  const {OrbitControls} = await import('three/addons/controls/OrbitControls.js');
+
+  const stage = document.getElementById('mouthStage');
+  const canvas = document.getElementById('mouth3dCanvas');
+  const gltf = await new GLTFLoader().loadAsync('assets/mouth3d.glb');
+
+  // --- シーン ---
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 200);
+  camera.position.set(9, 1.5, 26);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x99a8b8, 1.6));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+  sun.position.set(6, 10, 18);
+  scene.add(sun, gltf.scene);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(1.5, -1, 0);
+  controls.enableDamping = true;
+  controls.enablePan = false;
+  controls.minDistance = 8; controls.maxDistance = 45;
+  controls.rotateSpeed = 0.7;
+  // 反対側は顔の造形があるので左右は一周OK。上下のみ制限
+  controls.minPolarAngle = Math.PI/2 - 0.55; controls.maxPolarAngle = Math.PI/2 + 0.55;
+
+  // --- シェイプキー(モーフ) --- 舌・部屋・それぞれの輪郭線をまとめて変形
+  const morphMeshes = [];
+  gltf.scene.traverse(o => {
+    if (o.morphTargetDictionary && 'Narrow_I' in o.morphTargetDictionary) morphMeshes.push(o);
+  });
+  const cavity = gltf.scene.getObjectByName('Cavity');
+  const cavMat = cavity.material;
+  cavMat.transparent = true; cavMat.depthWrite = false;
+
+  // Blender実測の空洞体積: ふつう1.763 / イ1.146 / あくび3.361 (→ふつう≒70mLに換算)
+  const V0=1.763, V1=1.146, V2=3.361, ML=70/V0;
+  const volNum = document.getElementById('mouth3dVolNum');
+  const volRatio = document.getElementById('mouth3dVolRatio');
+
+  // 目標値へなめらかに追従(プリセット切替もふわっと動く)
+  let tgtNi = 0, tgtYw = 0, curNi = -1, curYw = -1;
+  function setOpen(v){
+    tgtNi = v<4 ? (4-v)/4 : 0;           // イ(せまい)
+    tgtYw = v>4 ? (v-4)/6 : 0;           // あくび(広い)
+  }
+  function applyMorph(){
+    const k = reduce3 ? 1 : 0.09;         // 追従の速さ(モーション減対応)
+    curNi = curNi<0 ? tgtNi : curNi + (tgtNi-curNi)*k;
+    curYw = curYw<0 ? tgtYw : curYw + (tgtYw-curYw)*k;
+    for(const m of morphMeshes){
+      m.morphTargetInfluences[m.morphTargetDictionary['Narrow_I']] = curNi;
+      m.morphTargetInfluences[m.morphTargetDictionary['Yawn']] = curYw;
+    }
+    const vol = V0 + curNi*(V1-V0) + curYw*(V2-V0);
+    volNum.textContent = Math.round(vol*ML);
+    volRatio.textContent = `(×${(vol/V0).toFixed(1)})`;
+  }
+  const openEl3 = document.getElementById('open');
+  openEl3.addEventListener('input', ()=>setOpen(+openEl3.value));
+  document.querySelectorAll('#mouthPresets .chip').forEach(c=>
+    c.addEventListener('click', ()=>setOpen(+openEl3.value)));
+  setOpen(+openEl3.value);
+
+  // --- リサイズ ---
+  function resize(){
+    const w = stage.clientWidth, h = stage.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(stage);
+
+  // --- ループ(タブ表示中のみ描画・部屋がふわっと光る) ---
+  const reduce3 = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let t = 0;
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(!document.getElementById('p-mouth').classList.contains('active')) return;
+    t += 0.016;
+    if(!reduce3) cavMat.emissiveIntensity = 0.3 + 0.22*(1+Math.sin(t*2.2))/2;
+    applyMorph();
+    controls.update();
+    renderer.render(scene, camera);
+  })();
+
+  // --- 成功: SVGから3Dへ差し替え ---
+  resize();
+  document.getElementById('mouthSvg').style.display = 'none';
+  canvas.style.display = 'block';
+  document.getElementById('mouth3dVol').style.display = 'block';
+  document.getElementById('mouth3dHint').style.display = 'block';
+}catch(err){
+  console.info('3D表示は利用できないためSVG表示を継続します:', err);
+}
+</script>
+
+<!-- ============ 肺と呼吸筋 3D (Blender製GLB / 読み込めない環境ではSVGのまま) ============ -->
+<script type="module">
+try{
+  const THREE = await import('three');
+  const {GLTFLoader} = await import('three/addons/loaders/GLTFLoader.js');
+  const {OrbitControls} = await import('three/addons/controls/OrbitControls.js');
+
+  const stage = document.getElementById('lungsStage');
+  const canvas = document.getElementById('lungs3dCanvas');
+  const gltf = await new GLTFLoader().loadAsync('assets/lungs3d.glb');
+
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 300);
+  camera.position.set(15, 9, 30);
+  scene.add(new THREE.HemisphereLight(0xdff2ff, 0x2a3a55, 1.4));
+  const key = new THREE.DirectionalLight(0xffffff, 1.7);
+  key.position.set(8, 14, 18);
+  scene.add(key, gltf.scene);
+
+  // 半透明の胴体は最後に描画して内臓を見せる
+  const morphs = [];
+  let ringMat = null, torso = null;
+  gltf.scene.traverse(o=>{
+    if(o.isMesh){
+      if(o.name.startsWith('Torso')||o.name.startsWith('Arm')){
+        o.material.transparent = true; o.material.depthWrite = false;
+        o.renderOrder = 2; torso = o;
+      }
+      if(o.name.startsWith('MuscleRing')){
+        o.material.transparent = true; ringMat = o.material; o.renderOrder = 1;
+      }
+      // 胴体越しでも臓器が見えるよう軽く自己発光
+      if(o.name.startsWith('Lung')){
+        o.material.emissive = o.material.color.clone(); o.material.emissiveIntensity = 0.22;
+      }
+      if(o.name.startsWith('Trachea')||o.name.startsWith('Bronchus')){
+        o.material.emissive = o.material.color.clone(); o.material.emissiveIntensity = 0.15;
+      }
+      if(o.morphTargetDictionary && 'Inhale' in o.morphTargetDictionary) morphs.push(o);
+    }
+  });
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0, 2, 0);
+  controls.enableDamping = true; controls.enablePan = false;
+  controls.minDistance = 14; controls.maxDistance = 60;
+  const reduceL = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  controls.autoRotate = !reduceL; controls.autoRotateSpeed = 1.1;
+
+  // ---- 呼吸サイクル ----
+  const phaseName = document.getElementById('lungs3dPhaseName');
+  const phaseDesc = document.getElementById('lungs3dPhaseDesc');
+  let autoMode = true, t = 0, cur = 0, manualTgt = 0.3;
+  const CYC = [['吸う', 2.6, '筋肉が360°ふくらむ・横隔膜が下がる'],
+               ['ため', 0.35, ''],
+               ['吐く', 3.6, '筋肉がゆるんで戻っていく'],
+               ['ため', 0.45, '']];
+  const TOTAL = CYC.reduce((s,c)=>s+c[1], 0);
+  const ease = x => x<0.5 ? 2*x*x : 1-((-2*x+2)**2)/2;
+
+  function breathValue(tt){
+    let u = tt % TOTAL, acc = 0;
+    for(let i=0;i<CYC.length;i++){
+      const [nm,dur,desc] = CYC[i];
+      if(u < acc+dur){
+        const f = (u-acc)/dur;
+        if(i===0) return [ease(f), nm, desc];
+        if(i===1) return [1, '吸う→吐く', 'いっぱいまで広がった'];
+        if(i===2) return [1-ease(f), nm, desc];
+        return [0, '吐く→吸う', 'ゆるんだ状態'];
+      }
+      acc += dur;
+    }
+    return [0,'',''];
+  }
+
+  document.querySelectorAll('#lungToggle button').forEach(b=>
+    b.addEventListener('click', ()=>{ autoMode = b.dataset.auto === '1'; }));
+  const inhEl = document.getElementById('inh');
+  inhEl.addEventListener('input', ()=>{ manualTgt = (+inhEl.value)/10; });
+
+  function resize(){
+    const w = stage.clientWidth, h = stage.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(stage);
+
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(!document.getElementById('p-lungs').classList.contains('active')) return;
+    let target;
+    if(autoMode){
+      t += 1/60;
+      const [v, nm, desc] = breathValue(t);
+      target = v;
+      if(nm){ phaseName.textContent = nm; if(desc) phaseDesc.textContent = desc; }
+    }else{
+      target = manualTgt;
+      phaseName.textContent = `吸う量 ${Math.round(manualTgt*100)}%`;
+      phaseDesc.textContent = manualTgt > 0.66 ? '横隔膜がしっかり下がっている' : manualTgt > 0.33 ? '広がってきた' : 'ゆるんだ状態';
+    }
+    cur += (target-cur) * (reduceL ? 1 : 0.12);
+    for(const m of morphs) m.morphTargetInfluences[m.morphTargetDictionary['Inhale']] = cur;
+    if(ringMat) ringMat.emissiveIntensity = 0.35 + cur*0.85;
+    controls.update();
+    renderer.render(scene, camera);
+  })();
+
+  resize();
+  document.getElementById('lungSvg').style.display = 'none';
+  canvas.style.display = 'block';
+  document.getElementById('lungs3dPhase').style.display = 'block';
+  document.getElementById('lungs3dHint').style.display = 'block';
+}catch(err){
+  console.info('肺3D表示は利用できないためSVG表示を継続します:', err);
+}
+</script>
+
+<!-- ============ 姿勢 3D (Blender製GLB / 読み込めない環境ではSVGのまま) ============ -->
+<script type="module">
+try{
+  const THREE = await import('three');
+  const {GLTFLoader} = await import('three/addons/loaders/GLTFLoader.js');
+  const {OrbitControls} = await import('three/addons/controls/OrbitControls.js');
+
+  const stage = document.getElementById('postureStage');
+  const canvas = document.getElementById('posture3dCanvas');
+  const gltf = await new GLTFLoader().loadAsync('assets/posture3d.glb');
+
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(33, 1, 0.1, 300);
+  camera.position.set(5, 9, 40);
+  scene.add(new THREE.HemisphereLight(0xfff4e8, 0x33404f, 1.5));
+  const key = new THREE.DirectionalLight(0xffffff, 1.5);
+  key.position.set(10, 14, 16);
+  scene.add(key, gltf.scene);
+
+  const morphs = [];
+  const lungMats = [];
+  gltf.scene.traverse(o=>{
+    if(o.isMesh){
+      if(o.name.startsWith('Body')){
+        o.material.transparent = true; o.material.depthWrite = false; o.renderOrder = 2;
+      }
+      if(o.name.startsWith('Lung')) lungMats.push(o.material);
+      if(o.morphTargetDictionary && 'Slouch' in o.morphTargetDictionary) morphs.push(o);
+    }
+  });
+  const PINK = new THREE.Color('#e89b93'), BLUE = new THREE.Color('#8fb0da');
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(0.5, 3.6, 0);
+  controls.enableDamping = true; controls.enablePan = false;
+  controls.minDistance = 16; controls.maxDistance = 64;
+  controls.minPolarAngle = Math.PI/2 - 0.6; controls.maxPolarAngle = Math.PI/2 + 0.45;
+
+  const ribEl = document.getElementById('p3dRib');
+  const organEl = document.getElementById('p3dOrgan');
+  const badge = document.getElementById('posture3dBadge');
+
+  // ---- 空気の粒アニメ(気管の中を流れる) ----
+  // Blender側と同じワープ関数(Blender座標系: x=前後, y=左右, z=上下)
+  const sstep = (e0,e1,x)=>{const t=Math.max(0,Math.min(1,(x-e0)/(e1-e0)));return t*t*(3-2*t);};
+  function warpPoint(x,y,z, s, c){
+    // Slouch
+    let dx = (-1.5*Math.exp(-(((z-6.0)/3.0)**2))*sstep(-1,2,z)
+              + 2.7*sstep(8.6,10.6,z)
+              + 0.5*Math.exp(-(((z-1.2)/1.6)**2))) * s;
+    let dz = -1.0*sstep(8.6,10.6,z) * s;
+    let nx = x+dx, nz = z+dz;
+    // ChinUp
+    if(c > 0){
+      const t = sstep(8.7,10.3,z), th = -0.52*t*c;
+      const px=0.4, pz=9.6, rx=nx-px, rz=nz-pz;
+      const ct=Math.cos(th), st=Math.sin(th);
+      nx = px + rx*ct + rz*st;
+      nz = pz - rx*st + rz*ct + 0.15*t*c;
+    }
+    return new THREE.Vector3(nx, nz, -y);   // Blender→three (Y-up変換)
+  }
+  // 通り道の制御点(Blenderのチューブと同一)+左右気管支
+  const MAIN = [[2.9,0,11.3],[2.5,0,11.1],[1.7,0,10.7],[0.85,0,10.0],[0.5,0,9.2],
+                [0.45,0,8.4],[0.5,0,7.4],[0.55,0,6.6]];
+  const BR = {
+    1:  [[0.5,0.5,6.1],[0.4,1.1,5.7],[0.35,1.5,5.3],[0.35,1.5,4.7]],
+    [-1]:[[0.5,-0.5,6.1],[0.4,-1.1,5.7],[0.35,-1.5,5.3],[0.35,-1.5,4.7]],
+  };
+  let curveL = null, curveR = null, lastWarpS = -1, lastWarpC = -1;
+  function rebuildCurves(s, c){
+    const mk = br => new THREE.CatmullRomCurve3(
+      MAIN.concat(br).map(p=>warpPoint(p[0],p[1],p[2], s, c)));
+    curveL = mk(BR[1]); curveR = mk(BR[-1]);
+  }
+  const N_AIR = 64;
+  const airGeo = new THREE.BufferGeometry();
+  airGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(N_AIR*3), 3));
+  const airMat = new THREE.PointsMaterial({
+    color:0x8feaf8, size:0.48, transparent:true, opacity:0.95,
+    blending:THREE.AdditiveBlending, depthWrite:false});
+  const airPts = new THREE.Points(airGeo, airMat);
+  airPts.renderOrder = 3;
+  scene.add(airPts);
+  const airs = Array.from({length:N_AIR}, (_,i)=>({
+    t: (i/N_AIR + Math.random()*0.02) % 1,
+    side: i%2 ? 1 : -1,
+    ph: Math.random()*Math.PI*2 }));
+
+  let tgtSlouch = 0, tgtChin = 0, curS = -1, curC = -1;
+  function setPos(v){
+    tgtSlouch = Math.max(0, (v-2)/8);
+    tgtChin   = Math.max(0, (2-v)/2);
+  }
+  const posEl3 = document.getElementById('pos');
+  posEl3.addEventListener('input', ()=>setPos(+posEl3.value));
+  document.querySelectorAll('#posturePresets .chip').forEach(c=>
+    c.addEventListener('click', ()=>setPos(+posEl3.value)));
+  setPos(+posEl3.value);
+
+  function resize(){
+    const w = stage.clientWidth, h = stage.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w/h; camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(resize).observe(stage);
+
+  const reduceP = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(!document.getElementById('p-posture').classList.contains('active')) return;
+    const k = reduceP ? 1 : 0.1;
+    curS = curS<0 ? tgtSlouch : curS + (tgtSlouch-curS)*k;
+    curC = curC<0 ? tgtChin   : curC + (tgtChin-curC)*k;
+    for(const m of morphs){
+      m.morphTargetInfluences[m.morphTargetDictionary['Slouch']] = curS;
+      if('ChinUp' in m.morphTargetDictionary)
+        m.morphTargetInfluences[m.morphTargetDictionary['ChinUp']] = curC;
+    }
+    // 猫背になるほど肺が青ざめる(参考イラスト準拠)
+    for(const lm of lungMats){
+      lm.color.copy(PINK).lerp(BLUE, curS);
+      lm.emissive.copy(lm.color);
+    }
+    // 空気の粒: 通り道が曲がると遅く・乱れる
+    if(Math.abs(curS-lastWarpS)>0.004 || Math.abs(curC-lastWarpC)>0.004 || !curveL){
+      rebuildCurves(curS, curC); lastWarpS = curS; lastWarpC = curC;
+    }
+    const bad = Math.max(curS, curC*0.75);
+    const speed = (reduceP ? 0 : 1) * (0.0038 - 0.0026*bad);
+    const jit = 0.03 + 0.22*bad;
+    const posArr = airGeo.attributes.position.array;
+    const now = performance.now()/1000;
+    for(let i=0;i<N_AIR;i++){
+      const a = airs[i];
+      a.t += speed * (0.8 + 0.4*Math.sin(a.ph));
+      if(a.t >= 1){ a.t -= 1; a.side = -a.side; }
+      const cv = a.side>0 ? curveL : curveR;
+      const p = cv.getPoint(a.t);
+      posArr[i*3]   = p.x + Math.sin(now*7+a.ph)*jit;
+      posArr[i*3+1] = p.y + Math.cos(now*6+a.ph*1.3)*jit;
+      posArr[i*3+2] = p.z + Math.sin(now*5.5+a.ph*0.7)*jit;
+    }
+    airGeo.attributes.position.needsUpdate = true;
+    airMat.opacity = 0.9 - 0.45*bad;
+    // バッジ表示
+    if(curS > 0.45){
+      ribEl.textContent = '肋骨が開きにくい'; organEl.textContent = '内臓が下がる';
+      badge.style.borderColor = '#e0708a'; badge.style.color = '#f0a3b5';
+    }else if(curC > 0.5){
+      ribEl.textContent = 'のどが詰まりやすい'; organEl.textContent = 'あご上げすぎ';
+      badge.style.borderColor = '#e0b060'; badge.style.color = '#f0cf8f';
+    }else{
+      ribEl.textContent = '肋骨が開く'; organEl.textContent = '内臓が上がる';
+      badge.style.borderColor = 'var(--breath)'; badge.style.color = 'var(--breath)';
+    }
+    controls.update();
+    renderer.render(scene, camera);
+  })();
+
+  resize();
+  document.getElementById('postureSvg').style.display = 'none';
+  canvas.style.display = 'block';
+  badge.style.display = 'block';
+  document.getElementById('posture3dHint').style.display = 'block';
+}catch(err){
+  console.info('姿勢3D表示は利用できないためSVG表示を継続します:', err);
+}
 </script>
 </body>
 </html>
